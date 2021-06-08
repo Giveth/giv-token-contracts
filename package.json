@@ -1,0 +1,35 @@
+{
+  "name": "hardhat-project",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "csv2json": "ts-node scripts/csv2json.ts ./files/GIV_tokens_-_AIRDROP_TEST_LIST.csv ./files/merkle_distributor.json",
+    "generate-merkle-root": "ts-node scripts/generate-merkle-root.ts --input ./files/merkle_distributor.json --output ./files/merkle_distributor_result.json",
+    "test:tokenGranting": "npx hardhat test test/TokenGranting/*.test.js",
+    "test:tokenGranting:gas": "REPORT_GAS=true npx hardhat test test/TokenGranting/TokenGesting.test.js",
+    "test:tokenGranting:coverage": "npx hardhat coverage --testfiles test/TokenGranting --solcoverjs test/TokenGranting/.solcover.js"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "^2.1.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^4.0.0",
+    "@openzeppelin/contracts-upgradeable": "^4.1.0",
+    "@openzeppelin/hardhat-upgrades": "^1.8.2",
+    "@types/chai": "^4.2.18",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.12.2",
+    "chai": "^4.3.4",
+    "commander": "^6.2.1",
+    "dotenv": "^8.2.0",
+    "ethereum-waffle": "^3.3.0",
+    "ethers": "^5.1.0",
+    "hardhat": "^2.1.2",
+    "hardhat-gas-reporter": "^1.0.4",
+    "program": "^1.0.0",
+    "solidity-coverage": "^0.7.16",
+    "ts-node": "^8.10.2",
+    "typescript": "^4.3.2"
+  },
+  "license": "GPL-3.0"
+}

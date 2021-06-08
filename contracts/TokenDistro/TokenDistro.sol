@@ -1,0 +1,282 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.0;
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "../Interfaces/IDistro.sol";
+
+/**
+ * Contract responsible for managing the release of tokens over time.
+ * The distributor is in charge of releasing the corresponding amounts to its recipients.
+ * This distributor is expected to be another smart contract, such as a merkledrop or the liquidity mining smart contract
+ */
+contract TokenDistro is
+    Initializable,
+    IDistro,
+    AccessControlEnumerableUpgradeable
+{
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+
+    // bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
+    bytes32 public constant DISTRIBUTOR_ROLE =
+        0xfbd454f36a7e1a388bd6fc3ab10d434aa4578f811acbbcf33afb1c697486313c;
+
+    // Structure to of the accounting for each account
+    struct accountStatus {
+        uint256 allocatedTokens;
+        uint256 claimed;
+    }
+    mapping(address => accountStatus) public balances; // Mapping with all accounts that have received an allocation
+
+    uint256 public totalTokens; // total tokens to be distribute
+    uint256 public startTime; // Instant of time in which distribution begins
+    uint256 public cliffTime; // Instant of time in which tokens will begin to be released
+    uint256 public duration;
+    uint256 public initialAmount; // Initial amount that will be available from startTime
+    uint256 public lockedAmount; // Amount that will be released over time from cliffTime
+
+    IERC20Upgradeable public token; // Token to be distribute
+
+    /**
+     * @dev Initially the deployer of the contract will be able to assign the tokens to one or several addresses,
+     *      these addresses (EOA or Smart Contracts) are responsible to allocate tokens to specific addresses which can
+     *      later claim them
+     * @param _totalTokens Total amount of tokens to distribute
+     * @param _startTime Unix time that the distribution begins
+     * @param _cliffPeriod Number of seconds to delay the claiming period for the tokens not initially released
+     * @param _duration Time it will take for all tokens to be distributed
+     * @param _initialPercentage Percentage of tokens initially released (2 decimals, 1/10000)
+     * @param _token Address of the token to distribute
+     */
+    function initialize(
+        uint256 _totalTokens,
+        uint256 _startTime,
+        uint256 _cliffPeriod,
+        uint256 _duration,
+        uint256 _initialPercentage,
+        IERC20Upgradeable _token
+    ) public initializer {
+        require(
+            _duration >= _cliffPeriod,
+            "TokenDistro::constructor: DURATION_LESS_THAN_CLIFF"
+        );
+        require(
+            _initialPercentage <= 10000,
+            "TokenDistro::constructor: INITIALPERCENTAGE_GREATER_THAN_100"
+        );
+
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        uint256 _initialAmount = (_totalTokens * _initialPercentage) / 10000;
+
+        token = _token;
+        duration = _duration;
+        startTime = _startTime;
+        totalTokens = _totalTokens;
+        initialAmount = _initialAmount;
+        cliffTime = _startTime + _cliffPeriod;
+        lockedAmount = _totalTokens - _initialAmount;
+        balances[address(this)].allocatedTokens = _totalTokens;
+    }
+
+    /**
+     *  @dev modifier to check if the contract is initialized correctly.
+     *  It checks that nobody has the DEFAULT_ADMIN_ROLE which allows to add new distributors and
+     *  it is checked that all available tokens have been assigned
+     */
+    modifier isInitialized() {
+        require(
+            getRoleMemberCount(DEFAULT_ADMIN_ROLE) == 0,
+            "TokenDistro::isInitialized: DEFAULT_ADMIN_ROLE_EXISTS"
+        );
+        require(
+            balances[address(this)].allocatedTokens == 0,
+            "TokenDistro::isInitialized: TOKENS_PENDING_ALLOCATION"
+        );
+        _;
+    }
+
+    /**
+     * Function that allows the DEFAULT_ADMIN_ROLE to assign tokens to an address who later can distribute them.
+     * @dev It is required that the DISTRIBUTOR_ROLE is already held by the address to which an amount will be assigned
+     * @param distributor the address, generally a smart contract, that will determine who gets how many tokens
+     * @param amount Total amount of tokens to assign to that address for distributing
+     *
+     * Emits a {Assign} event.
+     *
+     */
+    function assign(address distributor, uint256 amount) external override {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::assign: ONLY_ADMIN_ROLE"
+        );
+        require(
+            hasRole(DISTRIBUTOR_ROLE, distributor),
+            "TokenDistro::assign: ONLY_TO_DISTRIBUTOR_ROLE"
+        );
+
+        balances[address(this)].allocatedTokens =
+            balances[address(this)].allocatedTokens -
+            amount;
+        balances[distributor].allocatedTokens =
+            balances[distributor].allocatedTokens +
+            amount;
+
+        // When all the tokens are assign we revoke the DEFAULT_ADMIN_ROLE
+        // This prevents to add more distributors later
+        if (balances[address(this)].allocatedTokens == 0) {
+            renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        }
+
+        emit Assign(msg.sender, distributor, amount);
+    }
+
+    /**
+     * Function to claim tokens for a specific address. It uses the current timestamp
+     *
+     * Emits a {claim} event.
+     *
+     */
+    function claim() external override isInitialized {
+        uint256 remainingToClaim = claimableAt(msg.sender, getTimestamp());
+
+        require(
+            remainingToClaim > 0,
+            "TokenDistro::claim: NOT_ENOUGTH_TOKENS_TO_CLAIM"
+        );
+
+        balances[msg.sender].claimed =
+            balances[msg.sender].claimed +
+            remainingToClaim;
+
+        token.safeTransfer(msg.sender, remainingToClaim);
+
+        emit Claim(msg.sender, remainingToClaim);
+    }
+
+    /**
+     * Function that allows to the distributor address to allocate some amount of tokens to a specific recipient
+     * @dev Needs to be initialized: Nobody has the DEFAULT_ADMIN_ROLE and all available tokens have been assigned
+     * @param recipient of token allocation
+     * @param amount allocated amount
+     *
+     * Emits a {Allocate} event.
+     *
+     */
+    function allocate(address recipient, uint256 amount)
+        external
+        override
+        isInitialized
+    {
+        require(
+            hasRole(DISTRIBUTOR_ROLE, msg.sender),
+            "TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE"
+        );
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, recipient),
+            "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT"
+        );
+
+        balances[msg.sender].allocatedTokens =
+            balances[msg.sender].allocatedTokens -
+            amount;
+
+        balances[recipient].allocatedTokens =
+            balances[recipient].allocatedTokens +
+            amount;
+
+        emit Allocate(msg.sender, recipient, amount);
+    }
+
+    /**
+     * Function that allows a recipient to change its address
+     * @dev The change can only be made to an address that has not previously received an allocation &
+     * the distributor cannot change its address
+     *
+     * Emits a {ChangeAddress} event.
+     *
+     */
+    function changeAddress(address newAddress) external override isInitialized {
+        require(
+            balances[newAddress].allocatedTokens == 0 &&
+                balances[newAddress].claimed == 0,
+            "TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE"
+        );
+
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, msg.sender) &&
+                !hasRole(DISTRIBUTOR_ROLE, newAddress),
+            "TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
+        );
+
+        balances[newAddress].allocatedTokens = balances[msg.sender]
+            .allocatedTokens;
+        balances[msg.sender].allocatedTokens = 0;
+
+        balances[newAddress].claimed = balances[msg.sender].claimed;
+        balances[msg.sender].claimed = 0;
+
+        emit ChangeAddress(msg.sender, newAddress);
+    }
+
+    /**
+     * Function to get the current timestamp from the block
+     */
+    function getTimestamp() public view virtual override returns (uint256) {
+        return block.timestamp;
+    }
+
+    /**
+     * Function to get the total claimable tokens at some moment
+     * @param timestamp Unix time to check the number of tokens claimable
+     * @return Number of tokens claimable at that timestamp
+     */
+    function globallyClaimableAt(uint256 timestamp)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        if (timestamp < startTime) return 0;
+        if (timestamp < cliffTime) return initialAmount;
+        if (timestamp > startTime + duration) return totalTokens;
+
+        uint256 deltaTime = timestamp - startTime;
+        return initialAmount + (deltaTime * lockedAmount) / duration;
+    }
+
+    /**
+     * Function to get the unlocked tokes at some moment for a specific address
+     * @param recipient account to query
+     * @param timestamp Instant of time in which the calculation is made
+     */
+    function claimableAt(address recipient, uint256 timestamp)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, recipient),
+            "TokenDistro::claimableAt: DISTRIBUTOR_ROLE_CANNOT_CLAIM"
+        );
+        uint256 unlockedAmount =
+            (globallyClaimableAt(timestamp) *
+                balances[recipient].allocatedTokens) / totalTokens;
+        return unlockedAmount - balances[recipient].claimed;
+    }
+
+    /**
+     * Function to get the unlocked tokens for a specific address. It uses the current timestamp
+     * @param recipient account to query
+     */
+    function claimableNow(address recipient)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        return claimableAt(recipient, getTimestamp());
+    }
+}
