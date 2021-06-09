@@ -10,7 +10,6 @@ dotenv.config();
 
 const DEFAULT_MNEMONIC = "explain tackle mirror kit van hammer degree position ginger unfair soup bonus";
 
-
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */

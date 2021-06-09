@@ -7,7 +7,9 @@
     "generate-merkle-root": "ts-node scripts/generate-merkle-root.ts --input ./files/merkle_distributor.json --output ./files/merkle_distributor_result.json",
     "test:tokenGranting": "npx hardhat test test/TokenGranting/*.test.js",
     "test:tokenGranting:gas": "REPORT_GAS=true npx hardhat test test/TokenGranting/TokenGesting.test.js",
-    "test:tokenGranting:coverage": "npx hardhat coverage --testfiles test/TokenGranting --solcoverjs test/TokenGranting/.solcover.js"
+    "test:tokenGranting:coverage": "npx hardhat coverage --testfiles test/TokenGranting --solcoverjs test/TokenGranting/.solcover.js",
+    "deploy:local": "TS_NODE_FILES=true ts-node scripts/deploy_merkle_tokendistro.ts",
+    "deploy:rinkeby": "HARDHAT_NETWORK=rinkeby TS_NODE_FILES=true ts-node scripts/deploy_merkle_tokendistro.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

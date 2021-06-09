@@ -53,6 +53,7 @@ async function main() {
     console.log("#######################");
     console.log("##### Deployments #####");
     console.log("#######################");
+    console.log("Deployer address:", await (await ethers.getSigners())[0].getAddress())
     const TokenDistro = await ethers.getContractFactory("TokenDistro");
     const tokenDistro = await upgrades.deployProxy(TokenDistro,
         [

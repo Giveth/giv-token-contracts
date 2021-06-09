@@ -1,10 +1,8 @@
 .env
 node_modules
 coverage
-.openzeppelin
 #Hardhat files
 cache
-artifacts
 
 package-lock.json
 yarn.lock
