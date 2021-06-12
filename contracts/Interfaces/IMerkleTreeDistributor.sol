@@ -19,7 +19,7 @@ interface IMerkleTreeDistributor {
     ) external;
 
     // Claim the given amount of the token to the given address to a specific recipient. Reverts if the inputs are invalid.
-    function claim(
+    function claimTo(
         uint256 index,
         address account,
         address recipient,
