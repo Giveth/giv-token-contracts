@@ -8,14 +8,21 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "../Interfaces/IMerkleTreeDistributor.sol";
 import "../Interfaces/IDistro.sol";
 
-contract MerkleDistributorVested is IMerkleTreeDistributor, Initializable, OwnableUpgradeable {
+contract MerkleDistributorVested is
+    IMerkleTreeDistributor,
+    Initializable,
+    OwnableUpgradeable
+{
     bytes32 public override merkleRoot;
     IDistro public tokenDistro;
 
     // This is a packed array of booleans.
     mapping(uint256 => uint256) private claimedBitMap;
 
-    function initialize(IDistro _tokenDistro, bytes32 merkleRoot_) public initializer {
+    function initialize(IDistro _tokenDistro, bytes32 merkleRoot_)
+        public
+        initializer
+    {
         tokenDistro = _tokenDistro;
         merkleRoot = merkleRoot_;
     }
@@ -65,7 +72,7 @@ contract MerkleDistributorVested is IMerkleTreeDistributor, Initializable, Ownab
         This function allows to the owner to claim tokens in behalf of another to a different address
         It is intended for those cases in which the owner knows that the recipient is no longer in possession of the account.
      */
-    function claim(
+    function claimTo(
         uint256 index,
         address account,
         address recipient,
