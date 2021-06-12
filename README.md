@@ -49,5 +49,5 @@ npm run deploy:rinkeby -- --totalTokens 14430863000000000000000000 --startTime 1
 ```
 ### Last Rinkeby Deployment
 Deployer address: 0x552C0c7F1eeBfeB80688170A654492d8240076FA
-TokenDistro deployed to: 0x6c44811068660740AFC59f9A02432185071b3570
-MerkleDistributorVested deployed to: 0xBEA61dE6C557FDe94E7Cd048240ba2f56ABfA059
+TokenDistro deployed to: 0xdDc436916c45dfA5E65C598bC4c5F27739F7638b
+MerkleDistributorVested deployed to: 0x740ad4827BA4b2b9E5a91c64E6e492763b0641c9
