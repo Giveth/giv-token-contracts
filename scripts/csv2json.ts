@@ -1,4 +1,5 @@
 import { readFileSync, writeFile } from 'fs';
+import { ethers } from 'ethers';
 
 var args = process.argv.slice(2);
 
@@ -23,7 +24,7 @@ function csvJSON(csv: any) {
         const obj: any = {}
         const currentline = lines[i].split(',')
 
-        obj[headers[0]] = currentline[0];
+        obj[headers[0]] = ethers.utils.getAddress(currentline[0]);
         obj[headers[1]] = '0x'+(BigInt(currentline[1]) * BigInt(10**18)).toString(16);
         obj["reasons"] = 'airdrop';
         totalTokens =  totalTokens + (BigInt(currentline[1]) * BigInt(10**18));

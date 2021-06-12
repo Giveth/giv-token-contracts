@@ -38,7 +38,7 @@ export function parseBalanceMap(balances: NewFormat[]): MerkleDistributorInfo {
     if (parsedNum.lte(0)) throw new Error(`Invalid amount for account: ${account}`)
 
     const flags = {
-      isTeam: reasons.includes('team'),
+      isAirdrop: reasons.includes('airdrop'),
     }
 
     memo[parsed] = { amount: parsedNum, ...(reasons === '' ? {} : { flags }) }
