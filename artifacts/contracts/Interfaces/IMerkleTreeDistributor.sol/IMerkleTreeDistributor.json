@@ -90,7 +90,7 @@
           "type": "bytes32[]"
         }
       ],
-      "name": "claim",
+      "name": "claimTo",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
