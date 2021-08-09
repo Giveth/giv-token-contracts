@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
+pragma solidity =0.8.6;
 
 import "../TokenDistro/TokenDistro.sol";
 
@@ -13,7 +13,8 @@ contract TokenDistroMock is TokenDistro {
         uint256 _cliffPeriod,
         uint256 _duration,
         uint256 _initialPercentage,
-        IERC20Upgradeable _token
+        IERC20Upgradeable _token,
+        bool cancelable
     ) {
         initialize(
             _totalVestedTokens,
@@ -21,7 +22,8 @@ contract TokenDistroMock is TokenDistro {
             _cliffPeriod,
             _duration,
             _initialPercentage,
-            _token
+            _token,
+            cancelable
         );
     }
 

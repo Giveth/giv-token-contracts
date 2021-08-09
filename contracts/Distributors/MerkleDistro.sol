@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
+pragma solidity =0.8.6;
 
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -8,23 +8,28 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "../Interfaces/IMerkleTreeDistributor.sol";
 import "../Interfaces/IDistro.sol";
 
-contract MerkleDistributorVested is
-    IMerkleTreeDistributor,
-    Initializable,
-    OwnableUpgradeable
-{
-    bytes32 public override merkleRoot;
+// Based on: https://github.com/Uniswap/merkle-distributor/blob/master/contracts/MerkleDistributor.sol
+/*
+ * Changelog:
+ *      * Added SPDX-License-Identifier
+ *      * Update to solidity ^0.8.0
+ *      * Update openzeppelin imports
+ *      * Make it upgradable
+ *      * Add claimTo function that allows the owner to claim on behalf of someone
+ *      * Use tokenDistro.allocate instead of token transfer
+ */
+
+contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeable {
     IDistro public tokenDistro;
+    bytes32 public override merkleRoot;
 
     // This is a packed array of booleans.
     mapping(uint256 => uint256) private claimedBitMap;
 
-    function initialize(IDistro _tokenDistro, bytes32 merkleRoot_)
-        public
-        initializer
-    {
+    function initialize(IDistro _tokenDistro, bytes32 _merkleRoot) public initializer {
+        __Ownable_init();
         tokenDistro = _tokenDistro;
-        merkleRoot = merkleRoot_;
+        merkleRoot = _merkleRoot;
     }
 
     function isClaimed(uint256 index) public view override returns (bool) {
@@ -51,17 +56,17 @@ contract MerkleDistributorVested is
     ) external override {
         require(
             !isClaimed(index),
-            "MerkleDistributorVested::claim Drop already claimed."
+            "MerkleDistro::claim Drop already claimed."
         );
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(
             MerkleProofUpgradeable.verify(merkleProof, merkleRoot, node),
-            "MerkleDistributorVested::claim Invalid proof."
+            "MerkleDistro::claim Invalid proof."
         );
 
-        // Mark it claimed and send and grant the vested tokens
+        // Mark it claimed and allocate the tokens
         _setClaimed(index);
         tokenDistro.allocate(account, amount);
 
@@ -81,17 +86,17 @@ contract MerkleDistributorVested is
     ) external override onlyOwner {
         require(
             !isClaimed(index),
-            "MerkleDistributorVested::claim Drop already claimed."
+            "MerkleDistro::claim Drop already claimed."
         );
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(
             MerkleProofUpgradeable.verify(merkleProof, merkleRoot, node),
-            "MerkleDistributorVested::claim Invalid proof."
+            "MerkleDistro::claim Invalid proof."
         );
 
-        // Mark it claimed and send and grant the vested tokens
+        // Mark it claimed and allocate the tokens
         _setClaimed(index);
         tokenDistro.allocate(recipient, amount);
 

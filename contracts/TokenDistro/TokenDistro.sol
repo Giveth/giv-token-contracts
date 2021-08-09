@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.0;
+pragma solidity =0.8.6;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
@@ -37,6 +37,7 @@ contract TokenDistro is
     uint256 public lockedAmount; // Amount that will be released over time from cliffTime
 
     IERC20Upgradeable public token; // Token to be distribute
+    bool public cancelable; // Variable that allows the ADMIN_ROLE to cancel an allocation
 
     /**
      * @dev Initially the deployer of the contract will be able to assign the tokens to one or several addresses,
@@ -48,6 +49,7 @@ contract TokenDistro is
      * @param _duration Time it will take for all tokens to be distributed
      * @param _initialPercentage Percentage of tokens initially released (2 decimals, 1/10000)
      * @param _token Address of the token to distribute
+     * @param _cancelable In case the owner wants to have the power to cancel an assignment
      */
     function initialize(
         uint256 _totalTokens,
@@ -55,7 +57,8 @@ contract TokenDistro is
         uint256 _cliffPeriod,
         uint256 _duration,
         uint256 _initialPercentage,
-        IERC20Upgradeable _token
+        IERC20Upgradeable _token,
+        bool _cancelable
     ) public initializer {
         require(
             _duration >= _cliffPeriod,
@@ -65,7 +68,7 @@ contract TokenDistro is
             _initialPercentage <= 10000,
             "TokenDistro::constructor: INITIALPERCENTAGE_GREATER_THAN_100"
         );
-
+        __AccessControlEnumerable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         uint256 _initialAmount = (_totalTokens * _initialPercentage) / 10000;
@@ -78,23 +81,31 @@ contract TokenDistro is
         cliffTime = _startTime + _cliffPeriod;
         lockedAmount = _totalTokens - _initialAmount;
         balances[address(this)].allocatedTokens = _totalTokens;
+        cancelable = _cancelable;
     }
 
     /**
-     *  @dev modifier to check if the contract is initialized correctly.
-     *  It checks that nobody has the DEFAULT_ADMIN_ROLE which allows to add new distributors and
-     *  it is checked that all available tokens have been assigned
+     * Function that allows the DEFAULT_ADMIN_ROLE to assign set a new startTime if it hasn't started yet
+     * @param newStartTime new startTime
+     *
+     * Emits a {StartTimeChanged} event.
+     *
      */
-    modifier isInitialized() {
+    function setStartTime(uint256 newStartTime) external override {
         require(
-            getRoleMemberCount(DEFAULT_ADMIN_ROLE) == 0,
-            "TokenDistro::isInitialized: DEFAULT_ADMIN_ROLE_EXISTS"
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::assign: ONLY_ADMIN_ROLE"
         );
         require(
-            balances[address(this)].allocatedTokens == 0,
-            "TokenDistro::isInitialized: TOKENS_PENDING_ALLOCATION"
+            startTime > getTimestamp() && newStartTime > getTimestamp(),
+            "TokenDistro::assign: IF_HAS_NOT_STARTED_YET"
         );
-        _;
+
+        uint256 _cliffPeriod = cliffTime - startTime;
+        startTime = newStartTime;
+        cliffTime = newStartTime + _cliffPeriod;
+
+        emit StartTimeChanged(startTime, cliffTime);
     }
 
     /**
@@ -123,12 +134,6 @@ contract TokenDistro is
             balances[distributor].allocatedTokens +
             amount;
 
-        // When all the tokens are assign we revoke the DEFAULT_ADMIN_ROLE
-        // This prevents to add more distributors later
-        if (balances[address(this)].allocatedTokens == 0) {
-            renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        }
-
         emit Assign(msg.sender, distributor, amount);
     }
 
@@ -138,37 +143,19 @@ contract TokenDistro is
      * Emits a {claim} event.
      *
      */
-    function claim() external override isInitialized {
-        uint256 remainingToClaim = claimableAt(msg.sender, getTimestamp());
-
-        require(
-            remainingToClaim > 0,
-            "TokenDistro::claim: NOT_ENOUGTH_TOKENS_TO_CLAIM"
-        );
-
-        balances[msg.sender].claimed =
-            balances[msg.sender].claimed +
-            remainingToClaim;
-
-        token.safeTransfer(msg.sender, remainingToClaim);
-
-        emit Claim(msg.sender, remainingToClaim);
+    function claim() external override {
+        _claim(msg.sender);
     }
 
     /**
      * Function that allows to the distributor address to allocate some amount of tokens to a specific recipient
-     * @dev Needs to be initialized: Nobody has the DEFAULT_ADMIN_ROLE and all available tokens have been assigned
      * @param recipient of token allocation
      * @param amount allocated amount
      *
      * Emits a {Allocate} event.
      *
      */
-    function allocate(address recipient, uint256 amount)
-        external
-        override
-        isInitialized
-    {
+    function allocate(address recipient, uint256 amount) external override {
         require(
             hasRole(DISTRIBUTOR_ROLE, msg.sender),
             "TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE"
@@ -178,6 +165,11 @@ contract TokenDistro is
             "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT"
         );
 
+        require(
+            balances[msg.sender].claimed == 0,
+            "TokenDistro::allocate: DISTRIBUTOR_CANNOT_CLAIM"
+        );
+
         balances[msg.sender].allocatedTokens =
             balances[msg.sender].allocatedTokens -
             amount;
@@ -185,6 +177,10 @@ contract TokenDistro is
         balances[recipient].allocatedTokens =
             balances[recipient].allocatedTokens +
             amount;
+
+        if (claimableNow(recipient) > 0) {
+            _claim(recipient);
+        }
 
         emit Allocate(msg.sender, recipient, amount);
     }
@@ -197,7 +193,7 @@ contract TokenDistro is
      * Emits a {ChangeAddress} event.
      *
      */
-    function changeAddress(address newAddress) external override isInitialized {
+    function changeAddress(address newAddress) external override {
         require(
             balances[newAddress].allocatedTokens == 0 &&
                 balances[newAddress].claimed == 0,
@@ -211,7 +207,7 @@ contract TokenDistro is
         );
 
         balances[newAddress].allocatedTokens = balances[msg.sender]
-            .allocatedTokens;
+        .allocatedTokens;
         balances[msg.sender].allocatedTokens = 0;
 
         balances[newAddress].claimed = balances[msg.sender].claimed;
@@ -261,9 +257,13 @@ contract TokenDistro is
             !hasRole(DISTRIBUTOR_ROLE, recipient),
             "TokenDistro::claimableAt: DISTRIBUTOR_ROLE_CANNOT_CLAIM"
         );
-        uint256 unlockedAmount =
-            (globallyClaimableAt(timestamp) *
-                balances[recipient].allocatedTokens) / totalTokens;
+        require(
+            timestamp >= getTimestamp(),
+            "TokenDistro::claimableAt: NOT_VALID_PAST_TIMESTAMP"
+        );
+        uint256 unlockedAmount = (globallyClaimableAt(timestamp) *
+            balances[recipient].allocatedTokens) / totalTokens;
+
         return unlockedAmount - balances[recipient].claimed;
     }
 
@@ -278,5 +278,73 @@ contract TokenDistro is
         returns (uint256)
     {
         return claimableAt(recipient, getTimestamp());
+    }
+
+    /**
+     * Function that allows the DEFAULT_ADMIN_ROLE to change a recipient in case it wants to cancel an allocation
+     * @dev The change can only be made when cancelable is true and to an address that has not previously received
+     * an allocation and the distributor cannot change its address
+     *
+     * Emits a {ChangeAddress} event.
+     *
+     */
+    function cancelAllocation(address prevRecipient, address newRecipient)
+        external
+        override
+    {
+        require(cancelable, "TokenDistro::cancelAllocation: NOT_CANCELABLE");
+
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::cancelAllocation: ONLY_ADMIN_ROLE"
+        );
+
+        require(
+            balances[newRecipient].allocatedTokens == 0 &&
+                balances[newRecipient].claimed == 0,
+            "TokenDistro::cancelAllocation: ADDRESS_ALREADY_IN_USE"
+        );
+
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, prevRecipient) &&
+                !hasRole(DISTRIBUTOR_ROLE, newRecipient),
+            "TokenDistro::cancelAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
+        );
+
+        if (claimableNow(prevRecipient) > 0) {
+            _claim(prevRecipient);
+        }
+
+        balances[newRecipient].allocatedTokens = balances[prevRecipient]
+        .allocatedTokens;
+        balances[prevRecipient].allocatedTokens = 0;
+
+        balances[newRecipient].claimed = balances[prevRecipient].claimed;
+        balances[prevRecipient].claimed = 0;
+
+        emit ChangeAddress(prevRecipient, newRecipient);
+    }
+
+    /**
+     * Function to claim tokens for a specific address. It uses the current timestamp
+     *
+     * Emits a {claim} event.
+     *
+     */
+    function _claim(address recipient) private {
+        uint256 remainingToClaim = claimableNow(recipient);
+
+        require(
+            remainingToClaim > 0,
+            "TokenDistro::claim: NOT_ENOUGTH_TOKENS_TO_CLAIM"
+        );
+
+        balances[recipient].claimed =
+            balances[recipient].claimed +
+            remainingToClaim;
+
+        token.safeTransfer(recipient, remainingToClaim);
+
+        emit Claim(recipient, remainingToClaim);
     }
 }

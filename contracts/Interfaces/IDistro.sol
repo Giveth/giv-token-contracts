@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
+pragma solidity =0.8.6;
 
 interface IDistro {
     /**
@@ -27,6 +27,20 @@ interface IDistro {
      * @dev Emitted when someone change their reception address
      */
     event ChangeAddress(address indexed oldAddress, address indexed newAddress);
+
+    /**
+     * @dev Emitted when a new startTime is set
+     */
+    event StartTimeChanged(uint256 newStartTime, uint256 newCliffTime);
+
+    /**
+     * Function that allows the DEFAULT_ADMIN_ROLE to assign set a new startTime if it hasn't started yet
+     * @param newStartTime new startTime
+     *
+     * Emits a {StartTimeChanged} event.
+     *
+     */
+    function setStartTime(uint256 newStartTime) external;
 
     /**
      * Function that allows the DEFAULT_ADMIN_ROLE to assign tokens to an address who later can distribute them.
@@ -81,4 +95,7 @@ interface IDistro {
      * Function to get the unlocked tokens for a specific address. It uses the current timestamp
      */
     function claimableNow(address recipient) external view returns (uint256);
+
+    function cancelAllocation(address prevRecipient, address newRecipient)
+        external;
 }

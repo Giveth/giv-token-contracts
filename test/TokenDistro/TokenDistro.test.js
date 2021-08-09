@@ -25,7 +25,7 @@ const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
 
 describe("TokenDistro", function() {
-  before(async function() {
+  beforeEach(async function() {
     [
       multisig,
       multisig2,
@@ -45,8 +45,8 @@ describe("TokenDistro", function() {
     recipientAddress3 = await recipient3.getAddress();
     recipientAddress4 = await recipient4.getAddress();
 
-    tokenFactory = await ethers.getContractFactory("Token");
-    token = await tokenFactory.deploy(multisigAddress, "Test Token", "TTT", 18);
+    tokenFactory = await ethers.getContractFactory("NODE");
+    token = await tokenFactory.deploy(multisigAddress);
     await token.deployed();
     await token.mint(multisigAddress, amount);
 
@@ -63,7 +63,8 @@ describe("TokenDistro", function() {
       startToEnd,
       startToCliff,
       initialPercentage,
-      token.address
+      token.address,
+      false
     )).to.be.revertedWith("TokenDistro::constructor: DURATION_LESS_THAN_CLIFF");
 
     await expect(TokenDistroFactory.deploy(
@@ -72,9 +73,10 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage + 10000,
-      token.address
+      token.address,
+      false
     )).to.be.revertedWith("TokenDistro::constructor: INITIALPERCENTAGE_GREATER_THAN_100");
-    
+
   })
 
   it("should check the assign conditions", async () => {
@@ -86,8 +88,9 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
-   );
+      token.address,
+      false
+    );
 
     await expect(TokenDistro.connect(recipient1).assign(recipientAddress1, amount))
       .to.be.revertedWith("TokenDistro::assign: ONLY_ADMIN_ROLE");
@@ -115,9 +118,6 @@ describe("TokenDistro", function() {
     // Check permissions
     await expect(await TokenDistro.connect(multisig).hasRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress))
       .to.be.false;
-    await expect(await TokenDistro.connect(multisig).getRoleMemberCount(await TokenDistro.DEFAULT_ADMIN_ROLE()))
-      .to.be.equal(0);
-
   })
 
 
@@ -131,7 +131,8 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
+      token.address,
+      false
     );
 
     let initialAmount = amount.mul(initialPercentage).div(10000);
@@ -176,34 +177,6 @@ describe("TokenDistro", function() {
     ).to.be.equal(amount);
   });
 
-  it("should check the isInitialized modifier", async () => {
-    const startTime = (await ethers.provider.getBlock()).timestamp;
-
-    let TokenDistro = await TokenDistroFactory.deploy(
-      amount,
-      startTime,
-      startToCliff,
-      startToEnd,
-      initialPercentage,
-      token.address
-    );
-    let amountRecipient1 = amount.div(2);
-    let amountRecipient2 = amountRecipient1.div(2);
-    let amountRecipient3 = amountRecipient2.div(2);
-    let amountRecipient4 = amountRecipient3.div(2);
-
-    await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
-    await TokenDistro.connect(multisig).assign(multisigAddress, amount.div(2))
-
-    await expect(TokenDistro.connect(multisig2).allocate(recipientAddress1, amount))
-      .to.be.revertedWith("TokenDistro::isInitialized: DEFAULT_ADMIN_ROLE_EXISTS");
-
-    await TokenDistro.connect(multisig).renounceRole(await TokenDistro.DEFAULT_ADMIN_ROLE(), multisigAddress);
-
-    await expect(TokenDistro.connect(multisig2).allocate(recipientAddress1, amount))
-      .to.be.revertedWith("TokenDistro::isInitialized: TOKENS_PENDING_ALLOCATION");
-  })
-
   it("should be able to transfer the balance", async () => {
     const startTime = (await ethers.provider.getBlock()).timestamp;
 
@@ -213,8 +186,13 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
+      token.address,
+      false
     );
+
+    await token.transfer(TokenDistro.address, amount)
+
+
     let amountRecipient1 = amount.div(2);
     let amountRecipient2 = amountRecipient1.div(2);
     let amountRecipient3 = amountRecipient2.div(2);
@@ -226,15 +204,17 @@ describe("TokenDistro", function() {
     await expect(TokenDistro.connect(multisig2).allocate(recipientAddress1, amount))
       .to.be.revertedWith("TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE");
 
-    await expect(TokenDistro.connect(multisig).allocate(multisigAddress, amount))
+    await expect(TokenDistro.allocate(multisigAddress, amount))
       .to.be.revertedWith("TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT");
 
     await expect(TokenDistro.allocate(recipientAddress1, amountRecipient1))
       .to.emit(TokenDistro, "Allocate")
       .withArgs(multisigAddress, recipientAddress1, amountRecipient1);
+
     await expect(TokenDistro.allocate(recipientAddress2, amountRecipient2))
       .to.emit(TokenDistro, "Allocate")
       .withArgs(multisigAddress, recipientAddress2, amountRecipient2);
+
     await expect(TokenDistro.allocate(recipientAddress3, amountRecipient3))
       .to.emit(TokenDistro, "Allocate")
       .withArgs(multisigAddress, recipientAddress3, amountRecipient3);
@@ -255,21 +235,23 @@ describe("TokenDistro", function() {
     expect((await TokenDistro.balances(recipientAddress4)).allocatedTokens).to.be.equal(
       amountRecipient4
     );
+
   });
 
   it("should be able to get the correct claimableAt", async () => {
-    const startTime = (await ethers.provider.getBlock()).timestamp;
     const offset = 90 * (3600 * 24);
-
+    const startTime = (await ethers.provider.getBlock()).timestamp + offset;
+    const startToCliff = 100 * (3600 * 24);
     let TokenDistro = await TokenDistroFactory.deploy(
       amount,
       startTime,
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
+      token.address,
+      false
     );
-
+    await TokenDistro.deployed();
     let amountRecipient1 = amount.div(2);
     let amountRecipient2 = amountRecipient1.div(2);
     let amountRecipient3 = amountRecipient2.div(2);
@@ -278,24 +260,28 @@ describe("TokenDistro", function() {
     await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
     await TokenDistro.connect(multisig).assign(multisigAddress, amount)
 
-    TokenDistro.allocate(recipientAddress1, amountRecipient1);
-    TokenDistro.allocate(recipientAddress2, amountRecipient2);
-    TokenDistro.allocate(recipientAddress3, amountRecipient3);
-    TokenDistro.allocate(recipientAddress4, amountRecipient4);
-
     let initialAmount = amount.mul(initialPercentage).div(10000);
     let initialAmountRecipient = initialAmount
       .mul(amountRecipient1)
       .div(amount);
 
-    await expect(TokenDistro.claimableAt(multisigAddress, startTime))
+    await token.mint(TokenDistro.address, amount);
+    TokenDistro.allocate(recipientAddress1, amountRecipient1)
+    TokenDistro.allocate(recipientAddress2, amountRecipient2)
+    TokenDistro.allocate(recipientAddress3, amountRecipient3)
+    TokenDistro.allocate(recipientAddress4, amountRecipient4)
+    await expect(TokenDistro.claimableAt(multisigAddress, (await ethers.provider.getBlock()).timestamp))
       .to.be.revertedWith("TokenDistro::claimableAt: DISTRIBUTOR_ROLE_CANNOT_CLAIM");
+    await expect(TokenDistro.claimableAt(
+      recipientAddress1,
+      startTime - offset
+    )).to.be.revertedWith("TokenDistro::claimableAt: NOT_VALID_PAST_TIMESTAMP")
 
     // startTime > t
     expect(
       await TokenDistro.claimableAt(
         recipientAddress1,
-        startTime - offset
+        startTime - offset / 2
       )
     ).to.be.equal(0);
     // startTime = t
@@ -363,27 +349,28 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
+      token.address,
+      false
     );
 
     await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
     await TokenDistro.connect(multisig).assign(multisigAddress, amount)
 
-    await token.transfer(TokenDistro.address, amount);
-
+    await token.mint(TokenDistro.address, amount);
     let amountRecipient1 = amount.div(2);
-    let amountRecipient2 = amountRecipient1.div(2);
-    let amountRecipient3 = amountRecipient2.div(2);
-    let amountRecipient4 = amountRecipient3.div(2);
+    let amountRecipient2 = amountRecipient1.div(3);
+    let amountRecipient3 = amountRecipient2.div(4);
+    let amountRecipient4 = amountRecipient3.div(5);
 
-    TokenDistro.allocate(recipientAddress1, amountRecipient1);
-    TokenDistro.allocate(recipientAddress2, amountRecipient2);
-    TokenDistro.allocate(recipientAddress3, amountRecipient3);
-    TokenDistro.allocate(recipientAddress4, amountRecipient4);
+    await TokenDistro.allocate(recipientAddress1, amountRecipient1);
+    await TokenDistro.allocate(recipientAddress2, amountRecipient2);
+    await TokenDistro.allocate(recipientAddress3, amountRecipient3);
+    await TokenDistro.allocate(recipientAddress4, amountRecipient4);
 
-    let nowTimestamp = now;
+    let nowTimestamp = (await ethers.provider.getBlock()).timestamp + 1;
+
     await TokenDistro.setTimestamp(nowTimestamp);
-    await expect(await TokenDistro.getTimestamp()).to.be.equal(now);
+    await expect(await TokenDistro.getTimestamp()).to.be.equal(nowTimestamp);
 
     let withdrawableTokensAtRecipient1 = await TokenDistro.claimableAt(
       recipientAddress1,
@@ -404,31 +391,44 @@ describe("TokenDistro", function() {
     )).to.be.equal(await TokenDistro.claimableNow(
       recipientAddress2
     ));
-
     await expect(TokenDistro.connect(recipient2).claim())
       .to.emit(TokenDistro, "Claim")
       .withArgs(recipientAddress2, withdrawableTokensAtRecipient2);
+
 
     let withdrawableTokensAtRecipient3 = await TokenDistro.claimableAt(
       recipientAddress3,
       nowTimestamp
     );
+    expect(await TokenDistro.claimableAt(
+      recipientAddress3,
+      nowTimestamp
+    )).to.be.equal(await TokenDistro.claimableNow(
+      recipientAddress3
+    ));
     await expect(TokenDistro.connect(recipient3).claim())
       .to.emit(TokenDistro, "Claim")
       .withArgs(recipientAddress3, withdrawableTokensAtRecipient3);
+
 
     let withdrawableTokensAtRecipient4 = await TokenDistro.claimableAt(
       recipientAddress4,
       nowTimestamp
     );
+    expect(await TokenDistro.claimableAt(
+      recipientAddress4,
+      nowTimestamp
+    )).to.be.equal(await TokenDistro.claimableNow(
+      recipientAddress4
+    ));
     await expect(TokenDistro.connect(recipient4).claim())
       .to.emit(TokenDistro, "Claim")
       .withArgs(recipientAddress4, withdrawableTokensAtRecipient4);
 
+
     await TokenDistro.setTimestamp(startTime + startToEnd + offset)
 
     await TokenDistro.connect(recipient1).claim()
-
     let amountGrantedRecipient1 = (await TokenDistro.balances(recipientAddress1)).allocatedTokens
     expect(await token.balanceOf(recipientAddress1)).to.be.equal(amountGrantedRecipient1)
     await expect(TokenDistro.connect(recipient1).claim())
@@ -447,7 +447,8 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
+      token.address,
+      false
     );
     await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
     await TokenDistro.connect(multisig).assign(multisigAddress, amount)
@@ -485,7 +486,8 @@ describe("TokenDistro", function() {
       startToCliff,
       startToEnd,
       initialPercentage,
-      token.address
+      token.address,
+      false
     );
 
     await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
@@ -507,6 +509,79 @@ describe("TokenDistro", function() {
     await expect(TokenDistro.changeAddress(recipientAddress1)).to.be.revertedWith("TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE");
     await expect(TokenDistro.changeAddress(recipientAddress2)).to.be.revertedWith("TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS");
     await expect(TokenDistro.connect(recipient4).changeAddress(multisig2Address)).to.be.revertedWith("TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS");
+
+  })
+  it("should be able to cancel an allocation", async () => {
+    const now = (await ethers.provider.getBlock()).timestamp;
+    const offset = 365 * (3600 * 24);
+    const startTime = now - offset;
+
+    let TokenDistro = await TokenDistroFactory.deploy(
+      amount,
+      startTime,
+      startToCliff,
+      startToEnd,
+      initialPercentage,
+      token.address,
+      true
+    );
+
+    await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
+    await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisig2Address)
+
+    await TokenDistro.connect(multisig).assign(multisigAddress, amount)
+    await token.mint(TokenDistro.address, amount);
+
+    let amountRecipient1 = amount.div(2);
+    await TokenDistro.allocate(recipientAddress1, amountRecipient1);
+    let amountRecipient3 = amount.div(2);
+    await TokenDistro.allocate(recipientAddress3, amountRecipient3);
+
+    await TokenDistro.connect(recipient1).claim();
+
+    let withdrawn = (await TokenDistro.balances(recipientAddress1)).claimed;
+    let totalVested = (await TokenDistro.balances(recipientAddress1)).allocatedTokens;
+
+    await expect(TokenDistro.connect(recipient1).cancelAllocation(recipientAddress1, recipientAddress2)).to.be.revertedWith("TokenDistro::cancelAllocation: ONLY_ADMIN_ROLE");
+    await expect(TokenDistro.cancelAllocation(recipientAddress1, recipientAddress3)).to.be.revertedWith("TokenDistro::cancelAllocation: ADDRESS_ALREADY_IN_USE");
+    await expect(TokenDistro.cancelAllocation(recipientAddress1, multisig2Address)).to.be.revertedWith("TokenDistro::cancelAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS");
+
+    await expect(TokenDistro.cancelAllocation(recipientAddress1, recipientAddress2))
+    .to.emit(TokenDistro, "ChangeAddress").withArgs(recipientAddress1, recipientAddress2);
+
+    await expect(TokenDistro.cancelAllocation(recipientAddress4, recipientAddress1))
+    .to.emit(TokenDistro, "ChangeAddress").withArgs(recipientAddress4, recipientAddress1);
+
+  })
+
+  it("should revert if it's not cancellabe", async () => {
+    const now = (await ethers.provider.getBlock()).timestamp;
+    const offset = 365 * (3600 * 24);
+    const startTime = now - offset;
+
+    let TokenDistro = await TokenDistroFactory.deploy(
+      amount,
+      startTime,
+      startToCliff,
+      startToEnd,
+      initialPercentage,
+      token.address,
+      false
+    );
+
+    await TokenDistro.grantRole(await TokenDistro.DISTRIBUTOR_ROLE(), multisigAddress)
+    await TokenDistro.connect(multisig).assign(multisigAddress, amount)
+    await token.mint(TokenDistro.address, amount);
+
+    let amountRecipient1 = amount.div(2);
+    await TokenDistro.allocate(recipientAddress1, amountRecipient1);
+    let amountRecipient3 = amount.div(2);
+    await TokenDistro.allocate(recipientAddress3, amountRecipient3);
+
+    await TokenDistro.connect(recipient1).claim();
+
+    await expect(TokenDistro.cancelAllocation(recipientAddress1, recipientAddress2))
+    .to.be.revertedWith("TokenDistro::cancelAllocation: NOT_CANCELABLE");
 
   })
 });
