@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Claimable",
+  "sourceName": "contracts/Tokens/BridgeToken.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a723058207790bf2b3a39874b3b54df2c1fb607bb2ab9aa9760418e2702900ee78af90b8d0029",
+  "deployedBytecode": "0x6080604052600080fd00a165627a7a723058207790bf2b3a39874b3b54df2c1fb607bb2ab9aa9760418e2702900ee78af90b8d0029",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -92,6 +92,25 @@
       "type": "event"
     },
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newStartTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newCliffTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "StartTimeChanged",
+      "type": "event"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -123,6 +142,24 @@
         }
       ],
       "name": "assign",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "prevRecipient",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "newRecipient",
+          "type": "address"
+        }
+      ],
+      "name": "cancelAllocation",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -220,6 +257,19 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newStartTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "setStartTime",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
