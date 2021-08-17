@@ -21,11 +21,11 @@ async function main() {
     */
     const startTime = args[0]; // first parameter timestamp -> 1628935200 //Saturday, 14 August 2021 10:00:00
     const cliffPeriod = 0;
-    const duration = 157680000;  // 5 years * 365 days * 24 hours * 3600 seconds = 157680000
+    const duration = 5631428;  // (TEST: 2 weeks = 12 hours => 5631428) final -> 5 years * 365 days * 24 hours * 3600 seconds = 157680000
     const initialPercentage = 1000; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]) // Token Address second parameter
     const cancelable = false
-    const LMDuration = 1209600 // 2 weeks * 7 days * 24 hours * 3600 seconds = 
+    const LMDuration = 43200 //  (TEST: 2 weeks = 12 hours => 43200) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 
     const merkletree_file = './files/merkle_distributor_xdai_result.json'
     const data = JSON.parse(fs.readFileSync(merkletree_file));
     const merkleTokens = ethers.utils.formatEther(BigNumber.from(data.tokenTotal).toString())
