@@ -143,6 +143,16 @@ contract TokenDistro is
      * Emits a {claim} event.
      *
      */
+    function claim(address recipient) external override {
+        _claim(recipient);
+    }
+
+    /**
+     * Function to claim tokens for a specific address. It uses the current timestamp
+     *
+     * Emits a {claim} event.
+     *
+     */
     function claim() external override {
         _claim(msg.sender);
     }
@@ -207,7 +217,7 @@ contract TokenDistro is
         );
 
         balances[newAddress].allocatedTokens = balances[msg.sender]
-        .allocatedTokens;
+            .allocatedTokens;
         balances[msg.sender].allocatedTokens = 0;
 
         balances[newAddress].claimed = balances[msg.sender].claimed;
@@ -316,7 +326,7 @@ contract TokenDistro is
         }
 
         balances[newRecipient].allocatedTokens = balances[prevRecipient]
-        .allocatedTokens;
+            .allocatedTokens;
         balances[prevRecipient].allocatedTokens = 0;
 
         balances[newRecipient].claimed = balances[prevRecipient].claimed;
