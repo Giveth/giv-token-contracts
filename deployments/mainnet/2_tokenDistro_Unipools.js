@@ -10,7 +10,7 @@ async function main() {
     const deployer = (await ethers.getSigners())[0].address;
     /*
         Parameters
-        MerkleDrop - 14,886,637
+        MerkleDistro - 14,886,637
         50GIV/HNY - honeyswap - 1,200,000
         50GIV/WETH - honeyswap - 250,000
         GIVstaking xDai - xDai - 500,000
@@ -106,7 +106,7 @@ async function main() {
     console.log("GIVETH_UNI deployed to:", giveth_uni.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDrop and assign tokens
+    // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_uni.address)).wait();
     console.log("TokenDistro - assign: giveth_uni", GIVETH_UNI_AMOUNT.toString());
     await (await tokenDistro.assign(giveth_uni.address, ethers.utils.parseEther(GIVETH_UNI_AMOUNT.toString()))).wait();
@@ -138,7 +138,7 @@ async function main() {
     console.log("GIVETH_UNI deployed to:", giveth_bal.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDrop and assign tokens
+    // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_bal.address)).wait();
     console.log("TokenDistro - assign: giveth_uni", GIVETH_BAL_AMOUNT.toString());
     await (await tokenDistro.assign(giveth_bal.address, ethers.utils.parseEther(GIVETH_BAL_AMOUNT.toString()))).wait();
@@ -170,7 +170,7 @@ async function main() {
     console.log("UNIGIV deployed to:", unigiv.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDrop and assign tokens
+    // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), unigiv.address)).wait();
     console.log("TokenDistro - assign: giveth_uni", UNIGIV_MAINNET_AMOUNT.toString());
     await (await tokenDistro.assign(unigiv.address, ethers.utils.parseEther(UNIGIV_MAINNET_AMOUNT.toString()))).wait();

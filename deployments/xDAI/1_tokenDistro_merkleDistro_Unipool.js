@@ -10,7 +10,7 @@ async function main() {
     const deployer = (await ethers.getSigners())[0].address;
     /*
         Parameters
-        MerkleDrop - 14,886,637
+        MerkleDistro - 14,886,637
         50GIV/HNY - honeyswap - 1,200,000
         50GIV/WETH - honeyswap - 250,000
         GIVstaking xDai - xDai - 500,000
@@ -120,8 +120,8 @@ async function main() {
     console.log("#####    Check    #####");
     console.log("#######################");
     console.log(
-        "MerkleDrop - _tokenDistro:", await merkleDistro.tokenDistro() + "\n" +
-    "MerkleDrop - _merkleRoot:", await merkleDistro.merkleRoot() + "\n")
+        "MerkleDistro - _tokenDistro:", await merkleDistro.tokenDistro() + "\n" +
+    "MerkleDistro - _merkleRoot:", await merkleDistro.merkleRoot() + "\n")
 
     console.log("\n######################################################");
     console.log("####### 50GIV/HNY - honeyswap - xDai 1,200,000 #######");
@@ -138,7 +138,7 @@ async function main() {
     console.log("GIVHNY_XDAI deployed to:", givhny_xdai.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDrop and assign tokens
+    // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), givhny_xdai.address)).wait();
     console.log("TokenDistro - assign: givhny_xdai", GIVHNY_XDAI_AMOUNT.toString());
     await (await tokenDistro.assign(givhny_xdai.address, ethers.utils.parseEther(GIVHNY_XDAI_AMOUNT.toString()))).wait();
@@ -170,7 +170,7 @@ async function main() {
     console.log("GIVHNY_XDAI deployed to:", givweth_xdai.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDrop and assign tokens
+    // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), givweth_xdai.address)).wait();
     console.log("TokenDistro - assign: givhny_xdai", GIVWETH_XDAI_AMOUNT.toString());
     await (await tokenDistro.assign(givweth_xdai.address, ethers.utils.parseEther(GIVWETH_XDAI_AMOUNT.toString()))).wait();
@@ -202,7 +202,7 @@ async function main() {
     console.log("UNIGIV deployed to:", unigiv.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDrop and assign tokens
+    // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), unigiv.address)).wait();
     console.log("TokenDistro - assign: givhny_xdai", UNIGIV_AMOUNT.toString());
     await (await tokenDistro.assign(unigiv.address, ethers.utils.parseEther(UNIGIV_AMOUNT.toString()))).wait();
