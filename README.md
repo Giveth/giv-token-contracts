@@ -26,7 +26,7 @@ Total distributed tokens: ./files/merkle_distributor_xdai.json amount: 14886637.
 ```
 * Generate merkle_distributor_result.json
 ```
-$ npm run csv2json
+$ npm run generate-merkle-root
 
 > generate-merkle-root
 > ts-node scripts/csv2json.ts ./files/GIV_tokens_-_AIRDROP_TEST_LIST.csv ./files/merkle_distributor.json
@@ -35,7 +35,7 @@ Total distributed tokens: 14430863000000000000000000
 ```
 * Get merkletree root 
 ```
-$ cat files/merkle_distributor_result.json | jq '.merkleRoot'
+$ cat ./files/merkle_distributor_xdai_result.json  | jq '.merkleRoot'
 "0x05176bac832b5a9cd000091d231638fe0e854801c447aae625ed2f710c026196"
 ```
 

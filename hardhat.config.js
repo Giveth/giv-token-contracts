@@ -68,22 +68,12 @@ module.exports = {
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       gasPrice: 123000000000,
-      accounts: {
-        mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-        path: "m/44'/60'/0'/0",
-        initialIndex: 0,
-        count: 20,
-      },
+      accounts: [`${process.env.PRIVATE_KEY}`]
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
       gasPrice: 123000000000,
-      accounts: {
-        mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-        path: "m/44'/60'/0'/0",
-        initialIndex: 0,
-        count: 20,
-      },
+      accounts: [`${process.env.PRIVATE_KEY}`]
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,

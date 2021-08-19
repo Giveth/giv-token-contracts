@@ -25,12 +25,12 @@ async function main() {
     const initialPercentage = 1000; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]) // Token Address second parameter
     const cancelable = false
-    const LMDuration = 43200 //  (TEST: 2 weeks = 12 hours => 43200) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 
+    const LMDuration = 43200 //  (TEST: 2 weeks = 12 hours => 43200) final -> 2 weeks * 7 days * 24 hours * 3600 seconds =
     const GIVETH_UNI = ethers.utils.getAddress(args[2]) // GIVETH_UNI pool address
-    const GIVETH_UNI_AMOUNT = args[3] // GIVETH_UNI pool address
+    const GIVETH_UNI_AMOUNT = args[3] // GIVETH_UNI reward amount
     const GIVETH_BAL = ethers.utils.getAddress(args[4]) // GIVETH_BAL pool address
-    const GIVETH_BAL_AMOUNT = args[5] // GIVETH_BAL pool address
-    const UNIGIV_MAINNET_AMOUNT = args[6] // GIVETH_BAL pool address
+    const GIVETH_BAL_AMOUNT = args[5] // GIVETH_BAL reward amount
+    const UNIGIV_MAINNET_AMOUNT = args[6] // GIVETH_BAL pool reward
     const totalTokens = ethers.utils.parseEther(GIVETH_UNI_AMOUNT).add(ethers.utils.parseEther(GIVETH_BAL_AMOUNT)).add(ethers.utils.parseEther(UNIGIV_MAINNET_AMOUNT));
 
     console.log("\n#######################");

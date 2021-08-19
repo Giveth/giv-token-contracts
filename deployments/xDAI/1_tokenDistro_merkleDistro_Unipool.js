@@ -25,15 +25,15 @@ async function main() {
     const initialPercentage = 1000; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]) // Token Address second parameter
     const cancelable = false
-    const LMDuration = 43200 //  (TEST: 2 weeks = 12 hours => 43200) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 
+    const LMDuration = 43200 //  (TEST: 2 weeks = 12 hours => 43200) final -> 2 weeks * 7 days * 24 hours * 3600 seconds =
     const merkletree_file = './files/merkle_distributor_xdai_result.json'
     const data = JSON.parse(fs.readFileSync(merkletree_file));
     const merkleTokens = ethers.utils.formatEther(BigNumber.from(data.tokenTotal).toString())
     const GIVHNY_XDAI = ethers.utils.getAddress(args[2]) // GIVHNY_XDAI pool address
-    const GIVHNY_XDAI_AMOUNT = args[3] // GIVHNY_XDAI pool address
+    const GIVHNY_XDAI_AMOUNT = args[3] // GIVHNY_XDAI reward amount
     const GIVWETH_XDAI = ethers.utils.getAddress(args[4]) // GIVWETH_XDAI pool address
-    const GIVWETH_XDAI_AMOUNT = args[5] // GIVWETH_XDAI pool address
-    const UNIGIV_AMOUNT = args[6] // GIVWETH_XDAI pool address
+    const GIVWETH_XDAI_AMOUNT = args[5] // GIVWETH_XDAI reward amount
+    const UNIGIV_AMOUNT = args[6] // GIV pool reward
     const totalTokens = ethers.utils.parseEther(merkleTokens).add(ethers.utils.parseEther(GIVHNY_XDAI_AMOUNT)).add(ethers.utils.parseEther(GIVWETH_XDAI_AMOUNT)).add(ethers.utils.parseEther(UNIGIV_AMOUNT));
 
     console.log("\n#######################");
