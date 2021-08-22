@@ -10,7 +10,7 @@ const pools = [
 // Two decimals of precision -> 760 = 7.60
 const distro = [760, 600, 500, 500, 540, 620, 700, 780, 860, 940, 1020, 1100, 1080];
 
-const initTime = 1626561000;
+const initTime = 1629374400;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
