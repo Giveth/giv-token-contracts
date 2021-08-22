@@ -19,6 +19,8 @@ async function main() {
     nonce = await signer.getTransactionCount();
     UnipoolTokenDistributor = await ethers.getContractFactory("UnipoolTokenDistributor");
     await notifyRewardAmount(pools[0])
+    await notifyRewardAmount(pools[1])
+    await notifyRewardAmount(pools[2])
 }
 
 async function notifyRewardAmount(pool) {
