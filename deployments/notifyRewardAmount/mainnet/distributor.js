@@ -1,7 +1,10 @@
+const hre = require("hardhat");
+const ethers = hre.ethers;
+
 const pools = [
-    { address: "0x19992b52338B7B49De9679ae018A7027803dB1Aa", amount: "550000" },    // $NODE
-    { address: "0x072115DbD5c8b47E971890357d2951d4569F6B27", amount: "2200000" },   // Uniswap
-    { address: "0x89F2e26F20Bf66bBFAc947A3b628b4b4724AaA5c", amount: "2200000" }    // Shushi
+    { address: "0x9cA5A8c67677A6341D147978c2661Dc6abc82E2c", amount: "200000" },    // $GIV
+    { address: "0x51F3E5C39a11fe189585FA2FD61A6b60E4Bc723a", amount: "1100000" },   // Uniswap
+    { address: "0x3A2F69aC62888DbBa4fb36e18a76435E8357465E", amount: "200000" }    // BAL
 ];
 
 // Two decimals of precision -> 760 = 7.60
