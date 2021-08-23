@@ -104,7 +104,9 @@ contract MiniMeToken is Controlled {
 
     // The chainId is hardcoded since solidity ^0.4.24 does not support `chainid` so we cannot get it dynamically
     // xDAI = 0x64 (100)
-    uint256 public constant CHAINID = 0x64;
+    // Kovan = 0x2a (44)
+    // Rinkeby = 0x04 (4)
+    uint256 public constant CHAINID = 0x04;
     // bytes32 public view PERMIT_TYPEHASH =
     //      keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
