@@ -143,7 +143,8 @@ contract TokenDistro is
      * Emits a {claim} event.
      *
      */
-    function claim(address recipient) external override {
+    //function claim(address recipient) external override {
+    function claim(address recipient) external {
         _claim(recipient);
     }
 

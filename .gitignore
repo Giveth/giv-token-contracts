@@ -3,6 +3,7 @@ node_modules
 coverage
 #Hardhat files
 cache
+artifact
 
 package-lock.json
 yarn.lock
