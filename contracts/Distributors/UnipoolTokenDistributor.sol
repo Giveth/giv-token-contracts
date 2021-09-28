@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../Interfaces/IDistro.sol";
+import "./TokenManagerHook.sol";
 
 // Based on: https://github.com/Synthetixio/Unipool/tree/master/contracts
 /*
@@ -44,20 +45,20 @@ contract LPTokenWrapper is Initializable {
         return _balances[account];
     }
 
-    function stake(uint256 amount) public virtual {
+    function stake(uint256 amount, address user) public virtual {
         _totalSupply = _totalSupply.add(amount);
-        _balances[msg.sender] = _balances[msg.sender].add(amount);
-        uni.safeTransferFrom(msg.sender, address(this), amount);
+        _balances[user] = _balances[user].add(amount);
+        uni.safeTransferFrom(user, address(this), amount);
     }
 
-    function withdraw(uint256 amount) public virtual {
+    function withdraw(uint256 amount, address user) public virtual {
         _totalSupply = _totalSupply.sub(amount);
-        _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        uni.safeTransfer(msg.sender, amount);
+        _balances[user] = _balances[user].sub(amount);
+        uni.safeTransfer(user, amount);
     }
 }
 
-contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
+contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable, TokenManagerHook {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -142,20 +143,20 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
     }
 
     // stake visibility is public as overriding LPTokenWrapper's stake() function
-    function stake(uint256 amount) public override updateReward(msg.sender) {
+    function stake(uint256 amount) public updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
-        super.stake(amount);
+        super.stake(amount, msg.sender);
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public override updateReward(msg.sender) {
+    function withdraw(uint256 amount) public updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
-        super.withdraw(amount);
+        super.withdraw(amount, msg.sender);
         emit Withdrawn(msg.sender, amount);
     }
 
     function exit() external {
-        withdraw(balanceOf(msg.sender));
+        withdraw(balanceOf(msg.sender), msg.sender);
         getReward();
     }
 
@@ -207,7 +208,7 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         // the following transferFrom should be fail. This prevents DoS attacks from using a signature
         // before the smartcontract call
         _permit(amount, permit);
-        super.stake(amount);
+        super.stake(amount, msg.sender);
         emit Staked(msg.sender, amount);
     }
 
@@ -317,6 +318,23 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
                 );
         } else {
             revert("UnipoolTokenDistributor: NOT_VALID_CALL_SIGNATURE");
+        }
+    }
+
+    /**
+ * @dev Overrides TokenManagerHook's `_onTransfer`
+ */
+    function _onTransfer(address _from, address _to, uint256 _amount) override internal returns (bool) {
+        if (_from == address(0)) { // Token mintings (wrapping tokens)
+            super.stake(_amount, _to);
+            return true;
+        } else if (_to == address(0)) { // Token burning (unwrapping tokens)
+            super.withdraw(_amount, _from);
+            return true;
+        } else { // Standard transfer
+            super.withdraw(_amount, _from);
+            super.stake(_amount, _to);
+            return true;
         }
     }
 }

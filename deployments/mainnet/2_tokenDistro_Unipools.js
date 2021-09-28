@@ -106,7 +106,7 @@ async function main() {
     console.log("GIVETH_UNI deployed to:", giveth_uni.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDistro and assign tokens
+    // We grant permission to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_uni.address)).wait();
     console.log("TokenDistro - assign: giveth_uni", GIVETH_UNI_AMOUNT.toString());
     await (await tokenDistro.assign(giveth_uni.address, ethers.utils.parseEther(GIVETH_UNI_AMOUNT.toString()))).wait();
