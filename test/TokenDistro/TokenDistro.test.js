@@ -45,7 +45,7 @@ describe("TokenDistro", function() {
     recipientAddress3 = await recipient3.getAddress();
     recipientAddress4 = await recipient4.getAddress();
 
-    tokenFactory = await ethers.getContractFactory("NODE");
+    tokenFactory = await ethers.getContractFactory("GIV");
     token = await tokenFactory.deploy(multisigAddress);
     await token.deployed();
     await token.mint(multisigAddress, amount);
