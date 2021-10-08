@@ -138,7 +138,7 @@ async function main() {
     console.log("GIVHNY_XDAI deployed to:", givhny_xdai.address);
     console.log("\n##############################################\n");
 
-    // We grant permisions to the MerkleDistro and assign tokens
+    // We grant permissions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), givhny_xdai.address)).wait();
     console.log("TokenDistro - assign: givhny_xdai", GIVHNY_XDAI_AMOUNT.toString());
     await (await tokenDistro.assign(givhny_xdai.address, ethers.utils.parseEther(GIVHNY_XDAI_AMOUNT.toString()))).wait();
