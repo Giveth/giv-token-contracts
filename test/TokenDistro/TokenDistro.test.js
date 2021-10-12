@@ -353,11 +353,11 @@ describe("TokenDistro", function() {
     );
     // t + 1 = startToCliff
     expect(
-      await TokenDistro.claimableAt(recipientAddress1, startTime + startToCliff - 1),
+      await TokenDistro.claimableAt(recipientAddress1, startTime + _startToCliff - 1),
     ).to.be.equal(initialAmountRecipient);
     // t = startToCliff
-    const totalTokensUnlockedAt1 = await TokenDistro.globallyClaimableAt(startTime + startToCliff);
-    expect(await TokenDistro.claimableAt(recipientAddress1, startTime + startToCliff)).to.be.equal(
+    const totalTokensUnlockedAt1 = await TokenDistro.globallyClaimableAt(startTime + _startToCliff);
+    expect(await TokenDistro.claimableAt(recipientAddress1, startTime + _startToCliff)).to.be.equal(
       totalTokensUnlockedAt1.mul(amountRecipient1).div(amount),
     );
     // t = (startToEnd - startToCliff) / 2
