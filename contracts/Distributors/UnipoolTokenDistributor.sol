@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../Interfaces/IDistro.sol";
-import "./TokenManagerHook.sol";
 
 // Based on: https://github.com/Synthetixio/Unipool/tree/master/contracts
 /*
@@ -58,7 +57,7 @@ contract LPTokenWrapper is Initializable {
     }
 }
 
-contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable, TokenManagerHook {
+contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -143,13 +142,13 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable, TokenMan
     }
 
     // stake visibility is public as overriding LPTokenWrapper's stake() function
-    function stake(uint256 amount) public updateReward(msg.sender) {
+    function stake(uint256 amount) public virtual updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
         super.stake(amount, msg.sender);
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public updateReward(msg.sender) {
+    function withdraw(uint256 amount) public virtual updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         super.withdraw(amount, msg.sender);
         emit Withdrawn(msg.sender, amount);
@@ -201,6 +200,7 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable, TokenMan
      */
     function stakeWithPermit(uint256 amount, bytes calldata permit)
         public
+        virtual
         updateReward(msg.sender)
     {
         require(amount > 0, "Cannot stake 0");
@@ -321,20 +321,4 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable, TokenMan
         }
     }
 
-    /**
- * @dev Overrides TokenManagerHook's `_onTransfer`
- */
-    function _onTransfer(address _from, address _to, uint256 _amount) override internal returns (bool) {
-        if (_from == address(0)) { // Token mintings (wrapping tokens)
-            super.stake(_amount, _to);
-            return true;
-        } else if (_to == address(0)) { // Token burning (unwrapping tokens)
-            super.withdraw(_amount, _from);
-            return true;
-        } else { // Standard transfer
-            super.withdraw(_amount, _from);
-            super.stake(_amount, _to);
-            return true;
-        }
-    }
 }
