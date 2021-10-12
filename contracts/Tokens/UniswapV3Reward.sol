@@ -90,7 +90,7 @@ contract UniswapV3Reward is IERC20, OwnableUpgradeable {
             balanceOf[to] = balanceOf[to] + value;
             emit Transfer(from, to, value);
         } else {
-            require(from == uniswapV3Staker, "GivethUniswapV3Reward:NOT_VALID_TRANSFER");
+            require(from == uniswapV3Staker && to != uniswapV3Staker, "GivethUniswapV3Reward:NOT_VALID_TRANSFER");
             _burn(from, value);
             tokenDistro.allocate(to, value);
             emit RewardPaid(to, value);

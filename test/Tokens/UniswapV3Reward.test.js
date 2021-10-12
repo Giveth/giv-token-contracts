@@ -1,7 +1,8 @@
 let TokenDistroFactory,
-  givTokenFactory,
   tokenDistro,
+  GivTokenFactory,
   givToken,
+  GurTokenFactory,
   multisig,
   multisig2,
   multisig3,
@@ -21,12 +22,15 @@ const { expect } = require("chai");
 const hre = require("hardhat");
 const { ethers } = hre;
 
-const amount = ethers.utils.parseEther("20000000");
+const amount = ethers.utils.parseEther("80000000");
 const startToCliff = 180 * (3600 * 24);
 const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
 
-describe("TokenDistro", function() {
+let uStaker;
+let uStakerAddress;
+
+describe("UniswapV3Reward", function() {
   beforeEach(async function() {
     [
       multisig,
@@ -47,8 +51,11 @@ describe("TokenDistro", function() {
     recipientAddress3 = await recipient3.getAddress();
     recipientAddress4 = await recipient4.getAddress();
 
-    givTokenFactory = await ethers.getContractFactory("GIV");
-    givToken = await givTokenFactory.deploy(multisigAddress);
+    uStaker = multisig2;
+    uStakerAddress = multisig2Address;
+
+    GivTokenFactory = await ethers.getContractFactory("GIV");
+    givToken = await GivTokenFactory.deploy(multisigAddress);
     await givToken.deployed();
     await givToken.mint(multisigAddress, amount);
 
@@ -57,7 +64,7 @@ describe("TokenDistro", function() {
     const offset = 90 * (3600 * 24);
     const startTime = (await ethers.provider.getBlock()).timestamp + offset;
 
-    const TokenDistro = await TokenDistroFactory.deploy(
+    tokenDistro = await TokenDistroFactory.deploy(
       amount,
       startTime,
       startToCliff,
@@ -67,8 +74,142 @@ describe("TokenDistro", function() {
       false,
     );
 
-    await givToken.transfer(TokenDistro.address, amount);
+    await givToken.transfer(tokenDistro.address, amount);
+    GurTokenFactory = await ethers.getContractFactory("UniswapV3RewardMock");
   });
 
-  it("Empty", async function() {});
+  it("should allow minter to send only to UniswapV3Staker", async function() {
+    const gurToken = await GurTokenFactory.deploy(
+      multisigAddress,
+      tokenDistro.address,
+      uStakerAddress,
+    );
+
+    await expect(gurToken.transfer(uStakerAddress, amount)).to.be.reverted;
+    await expect(gurToken.mint(multisigAddress, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
+
+    const _transferAmount = amount.div(10);
+    await expect(gurToken.transfer(uStakerAddress, _transferAmount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(multisigAddress, uStakerAddress, _transferAmount);
+
+    await expect(gurToken.transfer(recipientAddress2, _transferAmount)).to.be.revertedWith(
+      "GivethUniswapV3Reward:NOT_VALID_TRANSFER",
+    );
+  });
+
+  it("should not allow UniswapV3Staker to send to itself", async function() {
+    const gurToken = await GurTokenFactory.deploy(
+      multisigAddress,
+      tokenDistro.address,
+      recipientAddress1,
+    );
+
+    await expect(gurToken.mint(recipientAddress1, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(ethers.constants.AddressZero, recipientAddress1, amount);
+
+    const _transferAmount = amount.div(10);
+    await expect(
+      gurToken.connect(recipient1).transfer(recipientAddress1, _transferAmount),
+    ).to.be.revertedWith("GivethUniswapV3Reward:NOT_VALID_TRANSFER");
+  });
+
+  // Copied from TokenDistro.test.js and refactored to use Transfer instead
+  // of Allocate
+  it("should be able to transfer the balance", async () => {
+    const gurToken = await GurTokenFactory.deploy(
+      multisigAddress,
+      tokenDistro.address,
+      uStakerAddress,
+    );
+
+    await expect(gurToken.mint(multisigAddress, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
+
+    await expect(gurToken.transfer(uStakerAddress, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(multisigAddress, uStakerAddress, amount);
+
+    const amountRecipient1 = amount.div(2);
+    const amountRecipient2 = amountRecipient1.div(2);
+    const amountRecipient3 = amountRecipient2.div(2);
+    const amountRecipient4 = amountRecipient3.div(2);
+
+    await expect(
+      gurToken.connect(uStaker).transfer(recipientAddress1, amountRecipient1),
+    ).to.be.revertedWith("TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE");
+
+    const gurTokenAddress = gurToken.address;
+
+    await tokenDistro.grantRole(await tokenDistro.DISTRIBUTOR_ROLE(), gurTokenAddress);
+    await tokenDistro.assign(gurTokenAddress, amount);
+
+    async function testTransfer(recipientAddress, amountRecipient) {
+      await expect(gurToken.connect(uStaker).transfer(recipientAddress, amountRecipient))
+        .to.emit(tokenDistro, "Allocate")
+        .withArgs(gurTokenAddress, recipientAddress, amountRecipient)
+        .to.emit(gurToken, "Transfer")
+        .withArgs(uStakerAddress, ethers.constants.AddressZero, amountRecipient);
+
+      expect((await tokenDistro.balances(recipientAddress)).allocatedTokens).to.be.equal(
+        amountRecipient,
+      );
+    }
+
+    await testTransfer(recipientAddress1, amountRecipient1);
+    await testTransfer(recipientAddress2, amountRecipient2);
+    await testTransfer(recipientAddress3, amountRecipient3);
+    await testTransfer(recipientAddress4, amountRecipient4);
+  });
+
+  it("should not transfer more than token distro assigned value", async () => {
+    const gurToken = await GurTokenFactory.deploy(
+      multisigAddress,
+      tokenDistro.address,
+      uStakerAddress,
+    );
+
+    await expect(gurToken.mint(multisigAddress, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
+
+    await expect(gurToken.transfer(uStakerAddress, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(multisigAddress, uStakerAddress, amount);
+
+    const gurTokenAddress = gurToken.address;
+
+    await tokenDistro.grantRole(await tokenDistro.DISTRIBUTOR_ROLE(), gurTokenAddress);
+    await tokenDistro.assign(gurTokenAddress, amount.div(2));
+
+    await expect(gurToken.connect(uStaker).transfer(recipientAddress1, amount)).to.be.reverted;
+  });
+
+  it("should not transfer more than minted value", async () => {
+    const gurToken = await GurTokenFactory.deploy(
+      multisigAddress,
+      tokenDistro.address,
+      uStakerAddress,
+    );
+
+    await expect(gurToken.mint(multisigAddress, amount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
+
+    const transferAmount = amount.div(2);
+    await expect(gurToken.transfer(uStakerAddress, transferAmount))
+      .to.emit(gurToken, "Transfer")
+      .withArgs(multisigAddress, uStakerAddress, transferAmount);
+
+    const gurTokenAddress = gurToken.address;
+
+    await tokenDistro.grantRole(await tokenDistro.DISTRIBUTOR_ROLE(), gurTokenAddress);
+    await tokenDistro.assign(gurTokenAddress, amount);
+
+    await expect(gurToken.connect(uStaker).transfer(recipientAddress1, amount)).to.be.reverted;
+  });
 });
