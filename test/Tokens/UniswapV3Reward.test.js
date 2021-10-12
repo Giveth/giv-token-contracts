@@ -30,7 +30,7 @@ const initialPercentage = 500;
 let uStaker;
 let uStakerAddress;
 
-describe("UniswapV3Reward", function() {
+describe("UniswapV3RewardToken", function() {
   beforeEach(async function() {
     [
       multisig,
@@ -75,7 +75,7 @@ describe("UniswapV3Reward", function() {
     );
 
     await givToken.transfer(tokenDistro.address, amount);
-    GurTokenFactory = await ethers.getContractFactory("UniswapV3RewardMock");
+    GurTokenFactory = await ethers.getContractFactory("UniswapV3RewardTokenMock");
   });
 
   it("should allow minter to send only to UniswapV3Staker", async function() {

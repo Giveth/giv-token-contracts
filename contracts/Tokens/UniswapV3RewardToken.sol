@@ -6,17 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../Interfaces/IDistro.sol";
 
-contract UniswapV3Reward is IERC20, OwnableUpgradeable {
+contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     uint256 public initialBalance;
-
-    // bytes32 public constant NAME_HASH =
-    //      keccak256("Giveth Uniswap V3 Reward Token")
-    bytes32 public constant NAME_HASH =
-    0x3fc2b875dc8b29f28074c29e332f36be7c3e1516377d19d4ba6704a1a84974db;
-    // bytes32 public constant VERSION_HASH =
-    //      keccak256("1")
-    bytes32 public constant VERSION_HASH =
-    0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
 
     string public constant name = "Giveth Uniswap V3 Reward Token";
     string public constant symbol = "GUR";
@@ -117,7 +108,7 @@ contract UniswapV3Reward is IERC20, OwnableUpgradeable {
     override
     returns (bool)
     {
-        revert("GivethUniswapV3Reward:FORBIDDEN");
+        revert("GivethUniswapV3Reward:disabled");
         return true;
     }
 
@@ -135,7 +126,7 @@ contract UniswapV3Reward is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
-        revert("GivethUniswapV3Reward:FORBIDDEN");
+        revert("GivethUniswapV3Reward:disabled");
         return true;
     }
 

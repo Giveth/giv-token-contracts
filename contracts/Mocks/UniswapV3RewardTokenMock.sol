@@ -2,9 +2,9 @@
 
 pragma solidity =0.8.6;
 
-import "../Tokens/UniswapV3Reward.sol";
+import "../Tokens/UniswapV3RewardToken.sol";
 
-contract UniswapV3RewardMock is UniswapV3Reward {
+contract UniswapV3RewardTokenMock is UniswapV3RewardToken {
 	constructor(
 		address _initialMinter,
 		IDistro _tokenDistribution,
