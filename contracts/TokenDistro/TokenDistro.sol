@@ -144,9 +144,13 @@ contract TokenDistro is
      *
      * Emits a {claim} event.
      *
+     * @notice This allows the rGIV DAO to claim for the GIVgarden and other Smart Contracts
      */
-    //function claim(address recipient) external override {
-    function claimUser(address recipient) external {
+    function claimForAddress(address recipient) external {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::claimForAddress: ONLY_ADMIN_ROLE"
+        );
         _claim(recipient);
     }
 
