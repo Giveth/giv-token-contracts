@@ -17,6 +17,8 @@ contract GardenUnipoolTokenDistributor is
 {
     /**
      * @dev Overrides TokenManagerHook's `_onTransfer`
+     * @notice this function is a complete copy/paste from
+     * https://github.com/1Hive/unipool/blob/master/contracts/Unipool.sol
      */
     function _onTransfer(
         address _from,
