@@ -65,15 +65,6 @@ contract UniswapV3Reward is IERC20, OwnableUpgradeable {
         emit Transfer(from, address(0), value);
     }
 
-    function _approve(
-        address owner,
-        address spender,
-        uint256 value
-    ) private {
-        allowance[owner][spender] = value;
-        emit Approval(owner, spender, value);
-    }
-
     function _transfer(
         address from,
         address to,
@@ -126,7 +117,7 @@ contract UniswapV3Reward is IERC20, OwnableUpgradeable {
     override
     returns (bool)
     {
-        _approve(msg.sender, spender, value);
+        revert("GivethUniswapV3Reward:FORBIDDEN");
         return true;
     }
 
@@ -144,12 +135,7 @@ contract UniswapV3Reward is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
-        uint256 fromAllowance = allowance[from][msg.sender];
-        if (fromAllowance != type(uint256).max) {
-        // Allowance is implicitly checked with solidity underflow protection
-        allowance[from][msg.sender] = fromAllowance - value;
-        }
-        _transfer(from, to, value);
+        revert("GivethUniswapV3Reward:FORBIDDEN");
         return true;
     }
 
