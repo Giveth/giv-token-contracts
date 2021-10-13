@@ -20,6 +20,9 @@ import "./TokenManagerHook.sol";
  *      * Added constructors to LPTokenWrapper and Unipool
  *      * Change transfer to allocate (TokenVesting)
  *      * Added `stakeWithPermit` function for NODE and the BridgeToken
+ *
+ * changelog:
+ *      * changed LPTokenWrapper stake and withdraw parameters and made them internal
  */
 contract LPTokenWrapper is Initializable {
     using SafeMathUpgradeable for uint256;
@@ -45,13 +48,13 @@ contract LPTokenWrapper is Initializable {
         return _balances[account];
     }
 
-    function stake(uint256 amount, address user) public virtual {
+    function stake(uint256 amount, address user) internal {
         _totalSupply = _totalSupply.add(amount);
         _balances[user] = _balances[user].add(amount);
         uni.safeTransferFrom(user, address(this), amount);
     }
 
-    function withdraw(uint256 amount, address user) public virtual {
+    function withdraw(uint256 amount, address user) internal {
         _totalSupply = _totalSupply.sub(amount);
         _balances[user] = _balances[user].sub(amount);
         uni.safeTransfer(user, amount);
