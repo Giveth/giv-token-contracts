@@ -12,11 +12,11 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     // bytes32 public constant NAME_HASH =
     //      keccak256("Giveth Uniswap V3 Reward Token")
     bytes32 public constant NAME_HASH =
-    0x3fc2b875dc8b29f28074c29e332f36be7c3e1516377d19d4ba6704a1a84974db;
+        0x3fc2b875dc8b29f28074c29e332f36be7c3e1516377d19d4ba6704a1a84974db;
     // bytes32 public constant VERSION_HASH =
     //      keccak256("1")
     bytes32 public constant VERSION_HASH =
-    0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
+        0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
 
     string public constant name = "Giveth Uniswap V3 Reward Token";
     string public constant symbol = "GUR";
