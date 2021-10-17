@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity =0.8.6;
+
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
@@ -27,6 +28,7 @@ contract TokenDistro is
         uint256 allocatedTokens;
         uint256 claimed;
     }
+
     mapping(address => accountStatus) public balances; // Mapping with all accounts that have received an allocation
 
     uint256 public totalTokens; // total tokens to be distribute
@@ -142,9 +144,13 @@ contract TokenDistro is
      *
      * Emits a {claim} event.
      *
+     * @notice This allows the rGIV DAO to claim for the GIVgarden and other Smart Contracts
      */
-    //function claim(address recipient) external override {
-    function claim(address recipient) external {
+    function claimForAddress(address recipient) external {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::claimForAddress: ONLY_ADMIN_ROLE"
+        );
         _claim(recipient);
     }
 
@@ -194,6 +200,53 @@ contract TokenDistro is
         }
 
         emit Allocate(msg.sender, recipient, amount);
+    }
+
+    /**
+     * Function that allows to the distributor address to allocate some amounts of tokens to specific recipients
+     * @dev Needs to be initialized: Nobody has the DEFAULT_ADMIN_ROLE and all available tokens have been assigned
+     * @param recipients of token allocation
+     * @param amounts allocated amount
+     *
+     * Unlike allocate method it doesn't claim recipients available balance
+     */
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external override
+    {
+        require(
+            hasRole(DISTRIBUTOR_ROLE, msg.sender),
+            "TokenDistro::allocateMany: ONLY_DISTRIBUTOR_ROLE"
+        );
+        require(
+            balances[msg.sender].claimed == 0,
+            "TokenDistro::allocateMany: DISTRIBUTOR_CANNOT_CLAIM"
+        );
+
+        require(
+            recipients.length == amounts.length,
+            "TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH"
+        );
+
+        uint arrayLength = recipients.length;
+
+        for(uint i = 0; i < arrayLength; i++) {
+            require(
+                !hasRole(DISTRIBUTOR_ROLE, recipients[i]),
+                "TokenDistro::allocateMany: DISTRIBUTOR_NOT_VALID_RECIPIENT"
+            );
+
+            balances[msg.sender].allocatedTokens =
+            balances[msg.sender].allocatedTokens -
+            amounts[i];
+
+            balances[recipients[i]].allocatedTokens =
+            balances[recipients[i]].allocatedTokens +
+            amounts[i];
+
+            // It doesn't claim for recipient unlike allocate method
+
+            emit Allocate(msg.sender, recipients[i], amounts[i]);
+        }
     }
 
     /**
