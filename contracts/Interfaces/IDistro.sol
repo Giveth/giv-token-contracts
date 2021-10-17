@@ -64,14 +64,6 @@ interface IDistro {
     function allocate(address recipient, uint256 amount) external;
 
     /**
-     * Function that allows to the distributor address to allocate some amounts of tokens to specific recipients
-     * @dev Needs to be initialized: Nobody has the DEFAULT_ADMIN_ROLE and all available tokens have been assigned
-     * @param recipients of token allocation
-     * @param amounts allocated amount
-     */
-    function allocateMany(address[] memory recipients, uint256[] memory amounts) external;
-
-    /**
      * Function that allows a recipient to change its address
      * @dev The change can only be made to an address that has not previously received an allocation &
      * the distributor cannot change its address
