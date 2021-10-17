@@ -322,10 +322,6 @@ contract TokenDistro is
             "TokenDistro::cancelAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
         );
 
-        if (claimableNow(prevRecipient) > 0) {
-            _claim(prevRecipient);
-        }
-
         balances[newRecipient].allocatedTokens = balances[prevRecipient]
             .allocatedTokens;
         balances[prevRecipient].allocatedTokens = 0;
