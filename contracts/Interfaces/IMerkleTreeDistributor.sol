@@ -13,7 +13,6 @@ interface IMerkleTreeDistributor {
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
     function claim(
         uint256 index,
-        address account,
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external;
