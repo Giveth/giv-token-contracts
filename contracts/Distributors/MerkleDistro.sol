@@ -50,7 +50,6 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
 
     function claim(
         uint256 index,
-        address account,
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external override {
@@ -60,7 +59,7 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
         );
 
         // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
+        bytes32 node = keccak256(abi.encodePacked(index, msg.sender, amount));
         require(
             MerkleProofUpgradeable.verify(merkleProof, merkleRoot, node),
             "MerkleDistro::claim Invalid proof."
@@ -68,9 +67,9 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
 
         // Mark it claimed and allocate the tokens
         _setClaimed(index);
-        tokenDistro.allocate(account, amount);
+        tokenDistro.allocate(msg.sender, amount);
 
-        emit Claimed(index, account, account, amount);
+        emit Claimed(index, msg.sender, msg.sender, amount);
     }
 
     /**
