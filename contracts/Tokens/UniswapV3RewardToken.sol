@@ -38,7 +38,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         uniswapV3Staker = _uniswapV3Staker;
     }
 
-    function balanceOf(address account) public view {
+    function balanceOf(address account) public view override returns (uint256) {
         if (account == uniswapV3Staker) return uniswapBalance;
         return 0;
     }
@@ -80,9 +80,9 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     }
 
     function mint(address to, uint256 value)
-    external
-    onlyMinter
-    returns (bool)
+        external
+        onlyMinter
+        returns (bool)
     {
         _mint(to, value);
         return true;
@@ -93,18 +93,18 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     }
 
     function approve(address spender, uint256 value)
-    external
-    override
-    returns (bool)
+        external
+        override
+        returns (bool)
     {
         revert("GivethUniswapV3Reward:disabled");
         return true;
     }
 
     function transfer(address to, uint256 value)
-    external
-    override
-    returns (bool)
+        external
+        override
+        returns (bool)
     {
         _transfer(msg.sender, to, value);
         return true;
@@ -117,5 +117,15 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     ) external override returns (bool) {
         revert("GivethUniswapV3Reward:disabled");
         return true;
+    }
+
+    function allowance(address owner, address spender)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        revert("GivethUniswapV3Reward:disabled");
+        return 0;
     }
 }
