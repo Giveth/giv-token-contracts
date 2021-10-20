@@ -31,7 +31,7 @@ function csvJSON(csv: any, file: string) {
         const currentline = lines[i].split(',');
         const currentAddress = ethers.utils.getAddress(currentline[0]);
         const currentAllocation = ethers.utils.parseEther(currentline[1])
-        const currentReason = currentline[2];
+        const currentReason = currentline[2] || 'airdrop';
         if (!result[currentAddress]) {
             result[currentAddress] = {
                 address: currentAddress,
