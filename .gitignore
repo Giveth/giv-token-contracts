@@ -4,6 +4,7 @@ coverage
 #Hardhat files
 cache
 artifact
+artifacts
 
 package-lock.json
 yarn.lock
