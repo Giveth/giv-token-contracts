@@ -28,14 +28,12 @@ async function notifyRewardAmount(pool) {
     const unipoolTokenDistributor = await UnipoolTokenDistributor.attach(pool.address);
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
-    console.log("Period Finish:", periodFinish.toString());
-    console.log("Current Time:", currentTime);
+    console.log(periodFinish);
+    console.log(currentTime);
 
     // 1 hour of precision
     if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
-        console.log("pos:", pos);
-        console.log("distro[pos]", distro[pos]);
         const amount = ethers.utils
             .parseEther(pool.amount)
             .mul(distro[pos])

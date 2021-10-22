@@ -18,7 +18,12 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     address public uniswapV3Staker;
     uint256 public override totalSupply;
 
-    uint256 private uniswapBalance;
+    // Only balance of minter and uniswap v3 staker are needed
+    uint256 private minterBalance;
+    uint256 private uniswapV3StakerBalance;
+
+    // The only acceptable allowance is minter to staker
+    uint256 private minterToStakerAllowance;
 
     event ChangeMinter(address indexed minter);
     event RewardPaid(address indexed user, uint256 reward);
@@ -39,7 +44,8 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     }
 
     function balanceOf(address account) public view override returns (uint256) {
-        if (account == uniswapV3Staker) return uniswapBalance;
+        if (account == uniswapV3Staker) return uniswapV3StakerBalance;
+        if (account == minter) return minterBalance;
         return 0;
     }
 
@@ -50,12 +56,25 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
 
     function _mint(address to, uint256 value) internal {
         require(
-            to == uniswapV3Staker,
-            "GivethUniswapV3Reward:ONLY_TO_UNISWAP_STAKER"
+            to == minter,
+            "GivethUniswapV3Reward:ONLY_TO_MINTER"
         );
         totalSupply = totalSupply + value;
-        uniswapBalance = uniswapBalance + value;
+        minterBalance = minterBalance + value;
         emit Transfer(address(0), to, value);
+    }
+
+    function _approve(
+        address owner,
+        address spender,
+        uint256 value
+    ) private {
+        require(
+            owner == minter && spender == uniswapV3Staker,
+            "GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER"
+        );
+        minterToStakerAllowance = value;
+        emit Approval(owner, spender, value);
     }
 
     function _transfer(
@@ -63,12 +82,24 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) private {
+        // Minter sending to staker
+        if (from == minter) {
+            require(to == uniswapV3Staker,
+                "GivethUniswapV3Reward:MINTER_ONLY_TO_STAKER"
+            );
+            minterBalance = minterBalance - value;
+            uniswapV3StakerBalance = uniswapV3StakerBalance + value;
+            emit Transfer(from, to, value);
+            return;
+        }
+
+        // Staker sends pays the reward
         require(
             from == uniswapV3Staker && to != uniswapV3Staker,
             "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
         );
 
-        uniswapBalance = uniswapBalance - value;
+        uniswapV3StakerBalance = uniswapV3StakerBalance - value;
         tokenDistro.allocate(to, value);
         emit RewardPaid(to, value);
     }
@@ -97,7 +128,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         override
         returns (bool)
     {
-        revert("GivethUniswapV3Reward:disabled");
+        _approve(msg.sender, spender, value);
         return true;
     }
 
@@ -115,7 +146,12 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
-        revert("GivethUniswapV3Reward:disabled");
+        require(from == minter && to == uniswapV3Staker, "GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
+        if (minterToStakerAllowance != type(uint256).max) {
+        // Allowance is implicitly checked with solidity underflow protection
+            minterToStakerAllowance = minterToStakerAllowance - value;
+        }
+        _transfer(from, to, value);
         return true;
     }
 
@@ -125,7 +161,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         override
         returns (uint256)
     {
-        revert("GivethUniswapV3Reward:disabled");
+        if (owner == minter && spender == uniswapV3Staker) return minterToStakerAllowance;
         return 0;
     }
 }

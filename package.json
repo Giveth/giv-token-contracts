@@ -9,7 +9,7 @@
     "deploy:rinkeby": "HARDHAT_NETWORK=rinkeby node deployments/xDAI/1_tokenDistro_merkleDistro_Unipool.js 1632830400 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485 0xb3c4538b9413522c25e18ba1095f43ca780813f2 1200000 0x8fb2d187eba62970c13d0037304260b9fef721c5 250000 500000",
     "deploy:xDAI": "HARDHAT_NETWORK=xDAI node deployments/xDAI/1_tokenDistro_merkleDistro_Unipool.js 1628935200 ... ... 10000000 ... 2500000 7500000 729500000",
     "deploy:local:2": "node deployments/mainnet/2_tokenDistro_Unipools.js 1628935200 0x86B94D365c94De153d6023f243c2b6e6c6c7626C 0x8A094453df88D5D6B27162F949898e2d95462f80 1100000 0x632045A9CFa9d232d0dd46702033C850D0E06f0F 200000 200000",
-    "deploy:kovan": "HARDHAT_NETWORK=kovan node deployments/mainnet/2_tokenDistro_Unipools.js 1632830400 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246 0xa48C26fF05F47a2eEd88C09664de1cb604A21b01 10000000 0xe805c864992e6a6cBf46E7E81C7154B78155D0ac 2500000 2500000",
+    "deploy:kovan": "HARDHAT_NETWORK=kovan node deployments/mainnet/2_tokenDistro_Unipools.js 1634860800 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246 0x2bea44b6be3af46c5e191424e9dbc07ad05153fc 10000000 0xe805c864992e6a6cBf46E7E81C7154B78155D0ac 2500000 2500000",
     "deploy:mainnet": "HARDHAT_NETWORK=mainnet node deployments/mainnet/2_tokenDistro_Unipools.js 1628935200 ... ... 1100000 ... 200000 200000",
     "distributor:rinkeby": "HARDHAT_NETWORK=rinkeby node deployments/notifyRewardAmount/xDAI/distributor.js",
     "distributor:kovan": "HARDHAT_NETWORK=kovan node deployments/notifyRewardAmount/mainnet/distributor.js"

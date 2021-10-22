@@ -1,9 +1,10 @@
-/* eslint-disable */
+/* eslint-disable no-useless-concat */
 const hre = require("hardhat");
 const { ethers } = hre;
 const { upgrades } = hre;
 const fs = require("fs");
 const { BigNumber } = require("ethers");
+const v3StakerABI = require("../../abi/uniswap-v3-staker.json");
 
 const args = process.argv.slice(2);
 
@@ -23,11 +24,15 @@ async function main() {
     const startTime = args[0]; // first parameter timestamp -> 1628935200 //Saturday, 14 August 2021 10:00:00
     const cliffPeriod = 0;
     const duration = 11_262_857; // (TEST: 2 weeks = 24 hours => 11262857) final -> 5 years * 365 days * 24 hours * 3600 seconds = 157680000
+    const endTime = BigNumber.from(startTime)
+        .add(duration)
+        .toString();
     const initialPercentage = 10_00; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
     const cancelable = false;
     const LMDuration = 43200; //  (TEST: 2 weeks = 12 hours => 43200) final -> 2 weeks * 7 days * 24 hours * 3600 seconds =
-    const GIVETH_UNI = ethers.utils.getAddress(args[2]); // GIVETH_UNI pool address
+    const GIVETH_UNI_STAKER = "0x1f98407aaB862CdDeF78Ed252D6f557aA5b0f00d"; // GIVETH_UNI staker address
+    const GIVETH_UNI_POOL = ethers.utils.getAddress(args[2]); // GIVETH_UNI Pool Address
     const GIVETH_UNI_AMOUNT = args[3]; // GIVETH_UNI reward amount
     const GIVETH_BAL = ethers.utils.getAddress(args[4]); // GIVETH_BAL pool address
     const GIVETH_BAL_AMOUNT = args[5]; // GIVETH_BAL reward amount
@@ -89,10 +94,10 @@ async function main() {
         `${await tokenDistro.duration()}\n` + `TokenDistro - initialAmount:`,
         `${await tokenDistro.initialAmount()}\n` + `TokenDistro - token:`,
         `${await tokenDistro.token()}\n` + `TokenDistro - cancelable:`,
-        await tokenDistro.cancelable(),
     );
 
     console.log(
+        await tokenDistro.cancelable(),
         "This smartcontract needs: ",
         ethers.utils.formatEther(await tokenDistro.totalTokens()),
         "Tokens",
@@ -100,57 +105,139 @@ async function main() {
     console.log(`token.mint("${tokenDistro.address}","${await tokenDistro.totalTokens()}")`);
 
     console.log("\n######################################################");
-    console.log("#######   50GIV/ETH - Uni  Mainnet 1,100,000   #######");
+    console.log(`#######   50GIV/ETH - Uni  Mainnet ${GIVETH_UNI_AMOUNT.toString()}   #######`);
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
-    console.log("uni:", GIVETH_UNI);
+    console.log("uni staker:", GIVETH_UNI_STAKER);
     console.log("duration:", LMDuration);
 
-    const UnipoolTokenDistributor = await ethers.getContractFactory("UnipoolTokenDistributor");
-    const giveth_uni = await upgrades.deployProxy(UnipoolTokenDistributor, [
+    const UniswapV3RewardToken = await ethers.getContractFactory("UniswapV3RewardToken");
+    // eslint-disable-next-line camelcase
+    const giveth_uni_reward = await upgrades.deployProxy(UniswapV3RewardToken, [
+        deployer,
         tokenDistro.address,
-        GIVETH_UNI,
-        LMDuration,
+        GIVETH_UNI_STAKER,
     ]);
-    await giveth_uni.deployed();
+    await giveth_uni_reward.deployed();
     console.log("##############################################\n");
-    console.log("GIVETH_UNI deployed to:", giveth_uni.address);
+    console.log("GIVETH_UNI_REWARD deployed to:", giveth_uni_reward.address);
     console.log("\n##############################################\n");
 
-    // We grant permission to the MerkleDistro and assign tokens
-    await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_uni.address)).wait();
-    console.log("TokenDistro - assign: giveth_uni", GIVETH_UNI_AMOUNT.toString());
+    // Mint reward token for staker equal to GIVETH_UNI_AMOUNT
+    console.log("UniswapV3RewardToken - mint: GIVETH_UNI_STAKER", GIVETH_UNI_AMOUNT.toString());
     await (
-        await tokenDistro.assign(
-            giveth_uni.address,
+        await giveth_uni_reward.mint(
+            deployer,
             ethers.utils.parseEther(GIVETH_UNI_AMOUNT.toString()),
         )
     ).wait();
 
-    // Set reward distributor
-    await (await giveth_uni.setRewardDistribution(deployer)).wait();
+    // We grant permission to the MerkleDistro and assign tokens
+    await (
+        await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_uni_reward.address)
+    ).wait();
+    console.log("TokenDistro - assign: giveth_uni_reward", GIVETH_UNI_AMOUNT.toString());
+    await (
+        await tokenDistro.assign(
+            giveth_uni_reward.address,
+            ethers.utils.parseEther(GIVETH_UNI_AMOUNT.toString()),
+        )
+    ).wait();
+
+    // Setup Uniswap V3 Incentive incentive
+    const uniswapV3Staker = await ethers.getContractAt(v3StakerABI, GIVETH_UNI_STAKER);
+    // calculate incentiveId
+    const types = ["address", "address", "uint256", "uint256", "address"];
+    const values = [giveth_uni_reward.address, GIVETH_UNI_POOL, startTime, endTime, deployer];
+    const encodedKey = ethers.utils.defaultAbiCoder.encode(types, values);
+
+    const incentiveId = ethers.utils.keccak256(encodedKey);
+    console.log(`The new incentiveId will be ${incentiveId}`);
+
+    // check balance of acting account
+    console.log(`Checking if deployer (${deployer}) has enough rewards token balance...`);
+    const deployerBalance = await giveth_uni_reward.balanceOf(deployer);
+    const rewardAmount = ethers.utils.parseEther(GIVETH_UNI_AMOUNT);
+    const missingBalance = rewardAmount.sub(deployerBalance);
+    if (missingBalance.gt(0)) {
+        console.warn(`deployer (${deployer}) does not have enough balance to transfer reward!`);
+        console.warn(
+            `reward amount: ${ethers.utils.formatEther(rewardAmount)} (${rewardAmount.toString()})`,
+        );
+        console.warn(
+            `current balance: ${ethers.utils.formatEther(
+                deployerBalance,
+            )} (${deployerBalance.toString()})`,
+        );
+        console.warn(
+            `missing amount: ${ethers.utils.formatEther(
+                missingBalance,
+            )} (${missingBalance.toString()})`,
+        );
+        return;
+    }
+    console.log(
+        `Balance ${ethers.utils.formatEther(
+            deployerBalance,
+        )} (${deployerBalance.toString()}) is sufficient.`,
+    );
+
+    // set up allowance for reward amount
+    console.log(
+        `Checking if deployer (${deployer}) has approved staker contract to spend the reward...`,
+    );
+    const existingAllowance = await giveth_uni_reward.allowance(deployer, uniswapV3Staker.address);
+    const missingAllowance = rewardAmount.sub(existingAllowance);
+    if (missingAllowance.gt(0)) {
+        console.log(`Missing ${missingAllowance.toString()} allowance. Setting up allowance...`);
+        const allowanceTx = await giveth_uni_reward.approve(uniswapV3Staker.address, rewardAmount);
+        console.log(`Creating approve() tx ${allowanceTx.hash}...`);
+        await allowanceTx.wait();
+        console.log(`Tx ${allowanceTx.hash} confirmed!`);
+    } else {
+        console.log(
+            `Allowance ${ethers.utils.formatEther(
+                existingAllowance,
+            )} (${existingAllowance.toString()}) is sufficient.`,
+        );
+    }
+
+    const key = {
+        startTime,
+        endTime,
+        pool: GIVETH_UNI_POOL,
+        rewardToken: giveth_uni_reward.address,
+        refundee: deployer,
+    };
+
+    console.log("Key: ", key);
+    const tx = await uniswapV3Staker.createIncentive(key, rewardAmount, {
+        gasLimit: 200000, // similar tx on rinkeby cost ~88500, see https://rinkeby.etherscan.io/tx/0x76812c3bf5b187b3b1618289a71ad00df3bc32a2d615aa752eda67a71a77784a
+    });
+    console.log(`Creating incentive in tx ${tx.hash}...`);
+    await tx.wait();
 
     console.log("\n#######################");
     console.log("#####    Check    #####");
     console.log("#######################");
-    console.log("giveth_uni(tokenDistro,duration,periodFinish,uni):");
+    console.log("giveth_uni_reward(tokenDistro,duration,periodFinish,uni):");
+    console.log("giveth_uni_reward - tokenDistro:", `${await giveth_uni_reward.tokenDistro()}\n`);
     console.log(
-        "giveth_uni - tokenDistro:",
-        `${await giveth_uni.tokenDistro()}\n` + `giveth_uni - duration:`,
-        `${await giveth_uni.duration()}\n` + `giveth_uni - periodFinish:`,
-        `${await giveth_uni.periodFinish()}\n` + `giveth_uni - uni:`,
-        `${await giveth_uni.uni()}\n`,
+        "uniswap v3 staker - balance of giveth_uni_reward:",
+        `${ethers.utils.formatEther(await giveth_uni_reward.balanceOf(GIVETH_UNI_STAKER))}\n`,
     );
 
     console.log("\n######################################################");
-    console.log("####### 80GIV/ETH - Bal   Mainnet   200,000  #######");
+    console.log(`####### 80GIV/ETH - Bal   Mainnet   ${GIVETH_BAL_AMOUNT.toString()}  #######`);
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
     console.log("uni:", GIVETH_BAL);
     console.log("duration:", LMDuration);
 
+    const UnipoolTokenDistributor = await ethers.getContractFactory("UnipoolTokenDistributor");
+    // eslint-disable-next-line camelcase
     const giveth_bal = await upgrades.deployProxy(UnipoolTokenDistributor, [
         tokenDistro.address,
         GIVETH_BAL,
@@ -158,12 +245,12 @@ async function main() {
     ]);
     await giveth_bal.deployed();
     console.log("##############################################\n");
-    console.log("GIVETH_UNI deployed to:", giveth_bal.address);
+    console.log("GIVETH_BAL deployed to:", giveth_bal.address);
     console.log("\n##############################################\n");
 
     // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_bal.address)).wait();
-    console.log("TokenDistro - assign: giveth_uni", GIVETH_BAL_AMOUNT.toString());
+    console.log("TokenDistro - assign: giveth_uni_reward", GIVETH_BAL_AMOUNT.toString());
     await (
         await tokenDistro.assign(
             giveth_bal.address,
@@ -187,7 +274,9 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log("#######   GIVstaking ETH    Mainnet    200,000   #######");
+    console.log(
+        `#######   GIVstaking ETH    Mainnet    ${GIV_MAINNET_AMOUNT.toString()}   #######`,
+    );
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
@@ -206,7 +295,7 @@ async function main() {
 
     // We grant permisions to the MerkleDistro and assign tokens
     await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), unigiv.address)).wait();
-    console.log("TokenDistro - assign: giveth_uni", GIV_MAINNET_AMOUNT.toString());
+    console.log("TokenDistro - assign: giveth_uni_reward", GIV_MAINNET_AMOUNT.toString());
     await (
         await tokenDistro.assign(
             unigiv.address,
@@ -244,14 +333,14 @@ async function main() {
         ),
     );
     console.log(
-        "tokenDistro.balances(giveth_uni.address)",
+        "tokenDistro.balances(giveth_uni_reward.address)",
         "allocated:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(giveth_uni.address)).allocatedTokens.toString(),
+            (await tokenDistro.balances(giveth_uni_reward.address)).allocatedTokens.toString(),
         ),
         "claimed:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(giveth_uni.address)).claimed.toString(),
+            (await tokenDistro.balances(giveth_uni_reward.address)).claimed.toString(),
         ),
     );
     console.log(
@@ -276,8 +365,8 @@ async function main() {
     );
 
     console.log(
-        "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_uni.address)",
-        await tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_uni.address),
+        "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_uni_reward.address)",
+        await tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(), giveth_uni_reward.address),
     );
     console.log(
         "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_bal.address)",

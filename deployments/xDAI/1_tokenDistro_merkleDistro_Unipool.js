@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-useless-concat */
 const hre = require("hardhat");
 const { ethers } = hre;
 const { upgrades } = hre;
@@ -36,11 +36,13 @@ async function main() {
     const GIVWETH_XDAI = ethers.utils.getAddress(args[4]); // GIVWETH_XDAI pool address
     const GIVWETH_XDAI_AMOUNT = args[5]; // GIVWETH_XDAI reward amount
     const UNIGIV_AMOUNT = args[6]; // GIV pool reward
+    const RGIV_AMOUNT = args[7]; // rGIV
     const totalTokens = ethers.utils
         .parseEther(merkleTokens)
         .add(ethers.utils.parseEther(GIVHNY_XDAI_AMOUNT))
         .add(ethers.utils.parseEther(GIVWETH_XDAI_AMOUNT))
-        .add(ethers.utils.parseEther(UNIGIV_AMOUNT));
+        .add(ethers.utils.parseEther(UNIGIV_AMOUNT))
+        .add(ethers.utils.parseEther(RGIV_AMOUNT));
 
     console.log("\n#######################");
     console.log("##### Deployments #####");
@@ -156,6 +158,7 @@ async function main() {
     console.log("duration:", LMDuration);
 
     const UnipoolTokenDistributor = await ethers.getContractFactory("UnipoolTokenDistributor");
+    // eslint-disable-next-line camelcase
     const givhny_xdai = await upgrades.deployProxy(UnipoolTokenDistributor, [
         tokenDistro.address,
         GIVHNY_XDAI,
@@ -199,6 +202,7 @@ async function main() {
     console.log("uni:", GIVWETH_XDAI);
     console.log("duration:", LMDuration);
 
+    // eslint-disable-next-line camelcase
     const givweth_xdai = await upgrades.deployProxy(UnipoolTokenDistributor, [
         tokenDistro.address,
         GIVWETH_XDAI,
