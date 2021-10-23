@@ -210,19 +210,19 @@ tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),unigiv.address) true
 /Users/amin/.nvm/versions/node/v14.17.5/bin/node /Users/amin/.nvm/versions/node/v14.17.5/lib/node_modules/npm/bin/npm-cli.js run deploy:kovan --scripts-prepend-node-path=auto
 
 > hardhat-project@ deploy:kovan /Users/amin/Work/giveth/giv-token-contracts
-> HARDHAT_NETWORK=kovan node deployments/mainnet/2_tokenDistro_Unipools.js 1632830400 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246 0xa48C26fF05F47a2eEd88C09664de1cb604A21b01 1100000 0xe805c864992e6a6cBf46E7E81C7154B78155D0ac 200000 200000
+> HARDHAT_NETWORK=kovan node deployments/mainnet/2_tokenDistro_Unipools.js 1635007800 0x03472537CB64652Aa1224E4aaF6f33a34e73E877 0x487195072fB88ddE7DDA2Ef1A688C6380b995478 10000000 0x1ee71e1ed744ae6d4058f5c7797c2e583dbfb095 2500000 2500000
 
 
 #######################
 ##### Deployments #####
 #######################
 Deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-totalTokens: 1500000.0
-startTime: 1632830400
+totalTokens: 15000000.0
+startTime: 1635007800
 cliffPeriod: 0
-duration: 5631428
+duration: 11262857
 initialPercentage: 1000
-tokenAddress: 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246
+tokenAddress: 0x03472537CB64652Aa1224E4aaF6f33a34e73E877
 LMDuration: 43200
 cancelable: false
 
@@ -231,113 +231,133 @@ cancelable: false
 #######################
 
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-totalTokens: 1500000.0
-startTime: 1632830400
+totalTokens: 15000000.0
+startTime: 1635007800
 cliffPeriod: 0
-duration: 5631428
+duration: 11262857
 initialPercentage: 1000
-tokenAddress: 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246
+tokenAddress: 0x03472537CB64652Aa1224E4aaF6f33a34e73E877
 cancelable: false
 ########################
 
-TokenDistro deployed to: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
+TokenDistro deployed to: 0x60A936F085403160864653B7d0d2c3bc133d18D0
 
 #######################
 #####    Check    #####
 #######################
-TokenDistro - totalTokens: 1500000.0
-TokenDistro - startTime: 1632830400
-TokenDistro - cliffPeriod: 1632830400
-TokenDistro - duration: 5631428
-TokenDistro - initialAmount: 150000000000000000000000
-TokenDistro - token: 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246
-TokenDistro - cancelable: false
-This smartcontract needs:  1500000.0 Tokens
-token.mint("0x187aAFEd586AbB1A4D114aaE255e8641749d96a7","1500000000000000000000000")
+TokenDistro - totalTokens: 15000000.0
+TokenDistro - startTime: 1635007800
+TokenDistro - cliffPeriod: 1635007800
+TokenDistro - duration: 11262857
+TokenDistro - initialAmount: 1500000000000000000000000
+TokenDistro - token: 0x03472537CB64652Aa1224E4aaF6f33a34e73E877
+TokenDistro - cancelable:
+false This smart-contract needs:  15000000.0 Tokens
+token.mint("0x60A936F085403160864653B7d0d2c3bc133d18D0","15000000000000000000000000")
 
 ######################################################
-#######   50GIV/ETH - Uni  Mainnet 1,100,000   #######
+#######   50GIV/ETH - Uni  Mainnet 10000000   #######
 ######################################################
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-tokenDistribution: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
-uni: 0xa48C26fF05F47a2eEd88C09664de1cb604A21b01
+tokenDistribution: 0x60A936F085403160864653B7d0d2c3bc133d18D0
+uni staker: 0x1f98407aaB862CdDeF78Ed252D6f557aA5b0f00d
 duration: 43200
 ##############################################
 
-GIVETH_UNI deployed to: 0x1aD46D40648639f84a396Fef32132888038c5aA8
+GIVETH_UNI_REWARD deployed to: 0x6b66368EddB78E61179523cf21049af40f797F4E
 
 ##############################################
 
-TokenDistro - assign: giveth_uni 1100000
+UniswapV3RewardToken - mint: GIVETH_UNI_STAKER 10000000
+TokenDistro - assign: giveth_uni_reward 10000000
+The new incentiveId will be 0x550595f7254e7d91d5e063bf0a09cabe6632ab716e56bc9962905ca659e6c1f2
+Checking if deployer (0x5f672d71399d8cDbA64f596394b4f4381247E025) has enough rewards token balance...
+Balance 10000000.0 (10000000000000000000000000) is sufficient.
+Checking if deployer (0x5f672d71399d8cDbA64f596394b4f4381247E025) has approved staker contract to spend the reward...
+Missing 10000000000000000000000000 allowance. Setting up allowance...
+Creating approve() tx 0x02dcfc046e3e496f22ecf7bc36fe8888c8d3543eef3d1c75a8bf4d71e7ae2308...
+Tx 0x02dcfc046e3e496f22ecf7bc36fe8888c8d3543eef3d1c75a8bf4d71e7ae2308 confirmed!
+
+
+Key:  {
+  startTime: '1635007800',
+  endTime: '1646270657',
+  pool: '0x487195072fB88ddE7DDA2Ef1A688C6380b995478',
+  rewardToken: '0x6b66368EddB78E61179523cf21049af40f797F4E',
+  refundee: '0x5f672d71399d8cDbA64f596394b4f4381247E025'
+}
+
+
+
+Creating incentive in tx 0xc6dbc2bd743dce7b86e297b218ad843818b3373e79e4bae8df00d7690a899421...
 
 #######################
 #####    Check    #####
 #######################
-giveth_uni(tokenDistro,duration,periodFinish,uni):
-giveth_uni - tokenDistro: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
-giveth_uni - duration: 43200
-giveth_uni - periodFinish: 0
-giveth_uni - uni: 0xa48C26fF05F47a2eEd88C09664de1cb604A21b01
+giveth_uni_reward(tokenDistro,duration,periodFinish,uni):
+giveth_uni_reward - tokenDistro: 0x60A936F085403160864653B7d0d2c3bc133d18D0
+
+uniswap v3 staker - balance of giveth_uni_reward: 10000000.0
 
 
 ######################################################
-####### 80GIV/ETH - Bal   Mainnet   200,000  #######
+####### 80GIV/ETH - Bal   Mainnet   2500000  #######
 ######################################################
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-tokenDistribution: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
-uni: 0xe805c864992e6a6cBf46E7E81C7154B78155D0ac
+tokenDistribution: 0x60A936F085403160864653B7d0d2c3bc133d18D0
+uni: 0x1eE71e1Ed744AE6D4058F5c7797C2e583DbfB095
 duration: 43200
 ##############################################
 
-GIVETH_UNI deployed to: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
+GIVETH_BAL deployed to: 0x087Cbc387b8746A73E3EbA9A31782F5ee7B6cC45
 
 ##############################################
 
-TokenDistro - assign: giveth_uni 200000
+TokenDistro - assign: giveth_uni_reward 2500000
 
 #######################
 #####    Check    #####
 #######################
 giveth_bal(tokenDistro,duration,periodFinish,uni):
-giveth_bal - tokenDistro: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
+giveth_bal - tokenDistro: 0x60A936F085403160864653B7d0d2c3bc133d18D0
 giveth_bal - duration: 43200
 giveth_bal - periodFinish: 0
-giveth_bal - uni: 0xe805c864992e6a6cBf46E7E81C7154B78155D0ac
+giveth_bal - uni: 0x1eE71e1Ed744AE6D4058F5c7797C2e583DbfB095
 
 
 ######################################################
-#######   GIVstaking ETH    Mainnet    200,000   #######
+#######   GIVstaking ETH    Mainnet    2500000   #######
 ######################################################
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-tokenDistribution: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
-uni: 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246
+tokenDistribution: 0x60A936F085403160864653B7d0d2c3bc133d18D0
+uni: 0x03472537CB64652Aa1224E4aaF6f33a34e73E877
 duration: 43200
 ##############################################
 
-UNIGIV deployed to: 0xdE6D00f5Fbf44EfE5935CDD738BC3B57bB398bdc
+UNIGIV deployed to: 0x8d74ee0C611fA62210B66e051f31A0c103b6eDD6
 
 ##############################################
 
-TokenDistro - assign: giveth_uni 200000
+TokenDistro - assign: giveth_uni_reward 2500000
 
 #######################
 #####    Check    #####
 #######################
 unigiv(tokenDistro,duration,periodFinish,uni):
-unigiv - tokenDistro: 0x187aAFEd586AbB1A4D114aaE255e8641749d96a7
+unigiv - tokenDistro: 0x60A936F085403160864653B7d0d2c3bc133d18D0
 unigiv - duration: 43200
 unigiv - periodFinish: 0
-unigiv - uni: 0x46e37D6E86022a1A2b9E6380960130f8e3EB1246
+unigiv - uni: 0x03472537CB64652Aa1224E4aaF6f33a34e73E877
 
 
 #######################
 #####  Final checks ###
 #######################
 tokenDistro.balances(tokenDistro.address) allocated: 0.0 claimed: 0.0
-tokenDistro.balances(giveth_uni.address) allocated: 1100000.0 claimed: 0.0
-tokenDistro.balances(giveth_bal.address) allocated: 200000.0 claimed: 0.0
-tokenDistro.balances(unigiv.address) allocated: 200000.0 claimed: 0.0
-tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_uni.address) true
+tokenDistro.balances(giveth_uni_reward.address) allocated: 10000000.0 claimed: 0.0
+tokenDistro.balances(giveth_bal.address) allocated: 2500000.0 claimed: 0.0
+tokenDistro.balances(unigiv.address) allocated: 2500000.0 claimed: 0.0
+tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_uni_reward.address) true
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_bal.address) true
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),unigiv.address) true
 ```
