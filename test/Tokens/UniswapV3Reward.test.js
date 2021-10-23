@@ -78,14 +78,33 @@ describe("UniswapV3RewardToken", function() {
         GurTokenFactory = await ethers.getContractFactory("UniswapV3RewardTokenMock");
     });
 
-    it("should allow minter to only send via transferFrom", async function() {
+    it("should only mint for minter", async function() {
         const gurToken = await GurTokenFactory.deploy(
             multisigAddress,
             tokenDistro.address,
             uStakerAddress,
         );
 
-        await expect(gurToken.transfer(uStakerAddress, amount)).to.be.reverted;
+        await expect(gurToken.mint(multisigAddress, amount))
+            .to.emit(gurToken, "Transfer")
+            .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
+
+        await expect(gurToken.mint(uStakerAddress, amount)).to.be.revertedWith(
+            "GivethUniswapV3Reward:ONLY_TO_MINTER",
+        );
+
+        await expect(gurToken.mint(recipientAddress1, amount)).to.be.revertedWith(
+            "GivethUniswapV3Reward:ONLY_TO_MINTER",
+        );
+    });
+
+    it("should not allow minter to transfer tokens directly", async function() {
+        const gurToken = await GurTokenFactory.deploy(
+            multisigAddress,
+            tokenDistro.address,
+            uStakerAddress,
+        );
+
         await expect(gurToken.mint(multisigAddress, amount))
             .to.emit(gurToken, "Transfer")
             .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
@@ -100,26 +119,7 @@ describe("UniswapV3RewardToken", function() {
         );
     });
 
-    it("should not allow UniswapV3Staker to send to itself", async function() {
-        const gurToken = await GurTokenFactory.deploy(
-            multisigAddress,
-            tokenDistro.address,
-            recipientAddress1,
-        );
-
-        await expect(gurToken.mint(recipientAddress1, amount))
-            .to.emit(gurToken, "Transfer")
-            .withArgs(ethers.constants.AddressZero, recipientAddress1, amount);
-
-        const _transferAmount = amount.div(10);
-        await expect(
-            gurToken.connect(recipient1).transfer(recipientAddress1, _transferAmount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:NOT_VALID_TRANSFER");
-    });
-
-    // Copied from TokenDistro.test.js and refactored to use Transfer instead
-    // of Allocate
-    it("should be able to transfer the balance", async () => {
+    it("should allow approve transferFrom only for the transferring from minter to staker", async function() {
         const gurToken = await GurTokenFactory.deploy(
             multisigAddress,
             tokenDistro.address,
@@ -130,7 +130,72 @@ describe("UniswapV3RewardToken", function() {
             .to.emit(gurToken, "Transfer")
             .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
 
-        await expect(gurToken.transfer(uStakerAddress, amount))
+        const _transferAmount = amount.div(10);
+
+        await expect(gurToken.approve(recipientAddress1, _transferAmount)).to.be.revertedWith(
+            "GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER",
+        );
+
+        await expect(gurToken.approve(uStakerAddress, _transferAmount))
+            .to.emit(gurToken, "Approval")
+            .withArgs(multisigAddress, uStakerAddress, _transferAmount);
+
+        await expect(await gurToken.allowance(multisigAddress, uStakerAddress)).to.be.equal(
+            _transferAmount,
+        );
+
+        await expect(
+            gurToken.connect(recipient1).approve(recipientAddress2, _transferAmount),
+        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
+
+        await expect(
+            gurToken.connect(uStaker).approve(recipientAddress1, _transferAmount),
+        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
+
+        await expect(
+            gurToken.transferFrom(multisigAddress, uStakerAddress, _transferAmount),
+        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
+
+        await expect(
+            gurToken
+                .connect(uStaker)
+                .transferFrom(multisigAddress, recipientAddress1, _transferAmount),
+        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
+
+        await expect(
+            gurToken
+                .connect(uStaker)
+                .transferFrom(multisigAddress, uStakerAddress, _transferAmount),
+        )
+            .to.emit(gurToken, "Transfer")
+            .withArgs(multisigAddress, uStakerAddress, _transferAmount);
+
+        await expect(await gurToken.allowance(multisigAddress, uStakerAddress)).to.be.equal("0");
+
+        await expect(gurToken.connect(uStaker).transferFrom(multisigAddress, uStakerAddress, "1"))
+            .to.be.reverted;
+    });
+
+    // Copied from TokenDistro.test.js and refactored to use Transfer instead
+    // of Allocate
+    it("should Staker be able to transfer the balance", async () => {
+        const gurToken = await GurTokenFactory.deploy(
+            multisigAddress,
+            tokenDistro.address,
+            uStakerAddress,
+        );
+
+        await expect(gurToken.mint(multisigAddress, amount))
+            .to.emit(gurToken, "Transfer")
+            .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
+
+        await expect(gurToken.approve(uStakerAddress, amount))
+            .to.emit(gurToken, "Approval")
+            .withArgs(multisigAddress, uStakerAddress, amount);
+
+        await expect(
+            gurToken.connect(uStaker).transferFrom(multisigAddress, uStakerAddress, amount),
+        )
             .to.emit(gurToken, "Transfer")
             .withArgs(multisigAddress, uStakerAddress, amount);
 
@@ -152,8 +217,8 @@ describe("UniswapV3RewardToken", function() {
             await expect(gurToken.connect(uStaker).transfer(recipientAddress, amountRecipient))
                 .to.emit(tokenDistro, "Allocate")
                 .withArgs(gurTokenAddress, recipientAddress, amountRecipient)
-                .to.emit(gurToken, "Transfer")
-                .withArgs(uStakerAddress, ethers.constants.AddressZero, amountRecipient);
+                .to.emit(gurToken, "RewardPaid")
+                .withArgs(recipientAddress, amountRecipient);
 
             expect((await tokenDistro.balances(recipientAddress)).allocatedTokens).to.be.equal(
                 amountRecipient,
@@ -177,7 +242,13 @@ describe("UniswapV3RewardToken", function() {
             .to.emit(gurToken, "Transfer")
             .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
 
-        await expect(gurToken.transfer(uStakerAddress, amount))
+        await expect(gurToken.approve(uStakerAddress, amount))
+            .to.emit(gurToken, "Approval")
+            .withArgs(multisigAddress, uStakerAddress, amount);
+
+        await expect(
+            gurToken.connect(uStaker).transferFrom(multisigAddress, uStakerAddress, amount),
+        )
             .to.emit(gurToken, "Transfer")
             .withArgs(multisigAddress, uStakerAddress, amount);
 
@@ -201,9 +272,19 @@ describe("UniswapV3RewardToken", function() {
             .withArgs(ethers.constants.AddressZero, multisigAddress, amount);
 
         const transferAmount = amount.div(2);
-        await expect(gurToken.transfer(uStakerAddress, transferAmount))
+        await expect(gurToken.approve(uStakerAddress, amount))
+            .to.emit(gurToken, "Approval")
+            .withArgs(multisigAddress, uStakerAddress, amount);
+
+        await expect(
+            gurToken.connect(uStaker).transferFrom(multisigAddress, uStakerAddress, transferAmount),
+        )
             .to.emit(gurToken, "Transfer")
             .withArgs(multisigAddress, uStakerAddress, transferAmount);
+
+        await expect(await gurToken.allowance(multisigAddress, uStakerAddress)).to.be.equal(
+            transferAmount,
+        );
 
         const gurTokenAddress = gurToken.address;
 

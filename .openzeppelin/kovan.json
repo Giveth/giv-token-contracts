@@ -270,6 +270,16 @@
       "address": "0xE8E4BE4994CC9A66b0D2498beE683c0a394bb16E",
       "txHash": "0xbb62ce70b4934016105dee4e683a1806184e44b72322f77ffc1b667d22947e50",
       "kind": "transparent"
+    },
+    {
+      "address": "0xb14e6ea65C8B9549476d5782609804537c03e402",
+      "txHash": "0x13fc56ae85113b1b0682a656d0dc0c025cf462acee636fa3101e50e62215e759",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x124c3f383e6298a4cd48E67fFBEe662B8Dee8589",
+      "txHash": "0xdf0d7564eaf6de5a191f9c64d2bcdc7fa34a6e25ef7fb767fe9e188ce565c79c",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1819,6 +1829,112 @@
           },
           "t_contract(IERC20Upgradeable)891": {
             "label": "contract IERC20Upgradeable"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "ead84582b97554c3a1310e2e99076718b5f2fe81ecee5af3215402d1dfb38929": {
+      "address": "0x67E2Abad1b50c99C7Bc52204d21801E675Fd021A",
+      "txHash": "0xc1f640d32a97a925609b02016b550b5b610459a91e3651b5edd8b399d8264a8f",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "initialBalance",
+            "type": "t_uint256",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:10"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "minter",
+            "type": "t_address",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:16"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "tokenDistro",
+            "type": "t_contract(IDistro)4380",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:17"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "uniswapV3Staker",
+            "type": "t_address",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:18"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "totalSupply",
+            "type": "t_uint256",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:19"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "minterBalance",
+            "type": "t_uint256",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:22"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "uniswapV3StakerBalance",
+            "type": "t_uint256",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:23"
+          },
+          {
+            "contract": "UniswapV3RewardToken",
+            "label": "minterToStakerAllowance",
+            "type": "t_uint256",
+            "src": "contracts/Tokens/UniswapV3RewardToken.sol:26"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_contract(IDistro)4380": {
+            "label": "contract IDistro"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
           },
           "t_bool": {
             "label": "bool"

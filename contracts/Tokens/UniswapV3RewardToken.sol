@@ -137,6 +137,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         override
         returns (bool)
     {
+        require(msg.sender == uniswapV3Staker, "GivethUniswapV3Reward:NOT_VALID_TRANSFER");
         _transfer(msg.sender, to, value);
         return true;
     }
@@ -146,6 +147,10 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
+        // Only uniswapV3Staker can do the transferFrom
+        require(msg.sender == uniswapV3Staker, "GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
+
+        // Only from minter to uniswapV3Staker is allowed
         require(from == minter && to == uniswapV3Staker, "GivethUniswapV3Reward:ONLY_MINTER_TO_STAKER");
         if (minterToStakerAllowance != type(uint256).max) {
         // Allowance is implicitly checked with solidity underflow protection
