@@ -42,163 +42,163 @@ $ cat ./files/merkle_distributor_xdai_result.json  | jq '.merkleRoot'
 ## Deploy
 **To select the gasPrice you need to edit the hardhat.config.ts**
 
-### xDAI (Rinkeby)
+### xDAI 
 ```
-/Users/amin/.nvm/versions/node/v14.17.5/bin/node /Users/amin/.nvm/versions/node/v14.17.5/lib/node_modules/npm/bin/npm-cli.js run deploy:rinkeby --scripts-prepend-node-path=auto
+/Users/amin/.nvm/versions/node/v14.17.5/bin/node /Users/amin/.nvm/versions/node/v14.17.5/lib/node_modules/npm/bin/npm-cli.js run deploy:xDAI --scripts-prepend-node-path=auto
 
-> hardhat-project@ deploy:rinkeby /Users/amin/Work/giveth/giv-token-contracts
-> HARDHAT_NETWORK=rinkeby node deployments/xDAI/1_tokenDistro_merkleDistro_Unipool.js 1632830400 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485 0xb3c4538b9413522c25e18ba1095f43ca780813f2 1200000 0x8fb2d187eba62970c13d0037304260b9fef721c5 250000 500000
+> hardhat-project@ deploy:xDAI /Users/amin/Work/giveth/giv-token-contracts
+> HARDHAT_NETWORK=xDAI node deployments/xDAI/1_tokenDistro_merkleDistro_Unipool.js 1635007800 0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3 0xc81c327f43eC566E14C64AedE5DCf5d9c120D5eb 10000000 0x9Eb16810488760580232fBdd8D3f41994AB0e51D 2500000 7500000 729500000
 
 
 #######################
 ##### Deployments #####
 #######################
 Deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-totalTokens: 16853302.0
-startTime: 1632830400
+totalTokens: 920000000.0
+startTime: 1635007800
 cliffPeriod: 0
-duration: 5631428
+duration: 11262857
 initialPercentage: 1000
-tokenAddress: 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485
-LMDuration: 43200
-cancelable: false
+tokenAddress: 0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3
+LMDuration: 86400
+cancelable: true
 merkletree_file: ./files/merkle_distributor_xdai_result.json
-merkleTokens: 14903302.0
+merkleTokens: 170500000.0
 
 #######################
 ##### TokenDistro #####
 #######################
 
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-totalTokens: 16853302.0
-startTime: 1632830400
+totalTokens: 920000000.0
+startTime: 1635007800
 cliffPeriod: 0
-duration: 5631428
+duration: 11262857
 initialPercentage: 1000
-tokenAddress: 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485
-cancelable: false
+tokenAddress: 0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3
+cancelable: true
 ########################
 
-TokenDistro deployed to: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
+TokenDistro deployed to: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
 
 #######################
 #####    Check    #####
 #######################
-TokenDistro - totalTokens: 16853302.0
-TokenDistro - startTime: 1632830400
-TokenDistro - cliffPeriod: 1632830400
-TokenDistro - duration: 5631428
-TokenDistro - initialAmount: 1685330200000000000000000
-TokenDistro - token: 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485
-TokenDistro - cancelable: false
-This smartcontract needs:  16853302.0 Tokens
-token.mint("0x5703cD29e9216711b1114F53e94577A7207DBFBb","16853302000000000000000000")
+TokenDistro - totalTokens: 920000000.0
+TokenDistro - startTime: 1635007800
+TokenDistro - cliffPeriod: 1635007800
+TokenDistro - duration: 11262857
+TokenDistro - initialAmount: 92000000000000000000000000
+TokenDistro - token: 0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3
+TokenDistro - cancelable: true
+This smartcontract needs:  920000000.0 Tokens
+token.mint("0xf11aC05c97F8845f6b974e9e327129d36683cC90","920000000000000000000000000")
 
 ########################
 ##### MerkleDistro #####
 ########################
 
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-distroAddress: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
+distroAddress: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
 merkletree_file: ./files/merkle_distributor_xdai_result.json
 #######################
 
-MerkleDistro deployed to: 0x946580CB35D2f027201B366F011Ad3712Aa96a2E
+MerkleDistro deployed to: 0x8ECebE69d45d357e5aa2719999B69d7c65003932
 
 #######################
 
-TokenDistro - assign: MerkleDistro 14903302000000000000000000
+TokenDistro - assign: MerkleDistro 170500000000000000000000000
 
 #######################
 #####    Check    #####
 #######################
-MerkleDistro - _tokenDistro: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-MerkleDistro - _merkleRoot: 0x7358108e9153522c01c98af4678d166a72e10d4ca33e6d251d83550121db20fe
+MerkleDistro - _tokenDistro: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+MerkleDistro - _merkleRoot: 0x4fa0be3b7be950dc2a3ad7c9b53d4cc4977255359e7b70ae2f652bc162d2fb0f
 
 
 ######################################################
-####### 50GIV/HNY - honeyswap - xDai 1,200,000 #######
+####### 50GIV/HNY - honeyswap - xDai 10000000 #######
 ######################################################
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-tokenDistribution: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-uni: 0xb3C4538b9413522C25E18bA1095f43Ca780813F2
-duration: 43200
+tokenDistribution: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+uni: 0xc81c327f43eC566E14C64AedE5DCf5d9c120D5eb
+duration: 86400
 ##############################################
 
-GIVHNY_XDAI deployed to: 0xC3B9d4FC4A9CdD6a410A09Bae11d5619286254cE
+GIVHNY_XDAI deployed to: 0x491f1Cc76d619061b833287F493136A2D52BB18e
 
 ##############################################
 
-TokenDistro - assign: givhny_xdai 1200000
+TokenDistro - assign: givhny_xdai 10000000
 
 #######################
 #####    Check    #####
 #######################
 givhny_xdai(tokenDistro,duration,periodFinish,uni):
-givhny_xdai - tokenDistro: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-givhny_xdai - duration: 43200
+givhny_xdai - tokenDistro: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+givhny_xdai - duration: 86400
 givhny_xdai - periodFinish: 0
-givhny_xdai - uni: 0xb3C4538b9413522C25E18bA1095f43Ca780813F2
+givhny_xdai - uni: 0xc81c327f43eC566E14C64AedE5DCf5d9c120D5eb
 
 
 ######################################################
-####### 50GIV/WETH - honeyswap - xDai 250,000  #######
+####### 50GIV/WETH - honeyswap - xDai 2500000  #######
 ######################################################
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-tokenDistribution: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-uni: 0x8Fb2D187EBa62970C13D0037304260b9feF721c5
-duration: 43200
+tokenDistribution: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+uni: 0x9Eb16810488760580232fBdd8D3f41994AB0e51D
+duration: 86400
 ##############################################
 
-GIVHNY_XDAI deployed to: 0xa194A63a0F5B362C0958DC9FB2D01B2d5e2F9DB7
+GIVHNY_XDAI deployed to: 0x00e97BCf2E9A5F6ECF006f89B094255263B16686
 
 ##############################################
 
-TokenDistro - assign: givhny_xdai 250000
+TokenDistro - assign: givhny_xdai 2500000
 
 #######################
 #####    Check    #####
 #######################
 givweth_xdai(tokenDistro,duration,periodFinish,uni):
-givweth_xdai - tokenDistro: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-givweth_xdai - duration: 43200
+givweth_xdai - tokenDistro: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+givweth_xdai - duration: 86400
 givweth_xdai - periodFinish: 0
-givweth_xdai - uni: 0x8Fb2D187EBa62970C13D0037304260b9feF721c5
+givweth_xdai - uni: 0x9Eb16810488760580232fBdd8D3f41994AB0e51D
 
 
 ######################################################
-#######     GIVstaking xDai - xDai - 500,000   #######
+#######     GIVstaking xDai - xDai - 7500000   #######
 ######################################################
 deployer: 0x5f672d71399d8cDbA64f596394b4f4381247E025
-tokenDistribution: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-uni: 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485
-duration: 43200
+tokenDistribution: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+uni: 0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3
+duration: 86400
 ##############################################
 
-UNIGIV deployed to: 0x3c44b1E8b93efb496D0946Aa132E7b4C190d28fB
+UNIGIV deployed to: 0x4358c99abFe7A9983B6c96785b8870b5412C5B4B
 
 ##############################################
 
-TokenDistro - assign: givhny_xdai 500000
+TokenDistro - assign: givhny_xdai 7500000
 
 #######################
 #####    Check    #####
 #######################
 unigiv(tokenDistro,duration,periodFinish,uni):
-unigiv - tokenDistro: 0x5703cD29e9216711b1114F53e94577A7207DBFBb
-unigiv - duration: 43200
+unigiv - tokenDistro: 0xf11aC05c97F8845f6b974e9e327129d36683cC90
+unigiv - duration: 86400
 unigiv - periodFinish: 0
-unigiv - uni: 0x6F45aFf8c1e50DB099DAb43292C28240be2b7485
+unigiv - uni: 0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3
 
 
 #######################
 #####  Final checks ###
 #######################
-tokenDistro.balances(tokenDistro.address) allocated: 0.0 claimed: 0.0
-tokenDistro.balances(merkleDistro.address) allocated: 14903302.0 claimed: 0.0
-tokenDistro.balances(givhny_xdai.address) allocated: 1200000.0 claimed: 0.0
-tokenDistro.balances(givweth_xdai.address) allocated: 250000.0 claimed: 0.0
-tokenDistro.balances(unigiv.address) allocated: 500000.0 claimed: 0.0
+tokenDistro.balances(tokenDistro.address) allocated: 729500000.0 claimed: 0.0
+tokenDistro.balances(merkleDistro.address) allocated: 170500000.0 claimed: 0.0
+tokenDistro.balances(givhny_xdai.address) allocated: 10000000.0 claimed: 0.0
+tokenDistro.balances(givweth_xdai.address) allocated: 2500000.0 claimed: 0.0
+tokenDistro.balances(unigiv.address) allocated: 7500000.0 claimed: 0.0
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),merkleDistro.address) true
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),givhny_xdai.address) true
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),givweth_xdai.address) true

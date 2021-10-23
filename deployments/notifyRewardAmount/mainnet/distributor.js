@@ -4,14 +4,14 @@ const { ethers } = hre;
 
 const pools = [
     // { address: "0x51F3E5C39a11fe189585FA2FD61A6b60E4Bc723a", amount: "1100000" }, // Uniswap V3 is exception, get all at the beginning
-    { address: "0x3A2F69aC62888DbBa4fb36e18a76435E8357465E", amount: "200000" }, // BAL
-    { address: "0x9cA5A8c67677A6341D147978c2661Dc6abc82E2c", amount: "200000" }, // $GIV
+    { address: "0x087Cbc387b8746A73E3EbA9A31782F5ee7B6cC45", amount: "2500000" }, // BAL
+    { address: "0x8d74ee0C611fA62210B66e051f31A0c103b6eDD6", amount: "2500000" }, // $GIV
 ];
 
 // Two decimals of precision -> 760 = 7.60
 const distro = [1550, 1200, 950, 750, 650, 600, 600, 650, 700, 750, 650, 550, 400];
 
-const initTime = 1629374400;
+const initTime = 1635007800;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
@@ -30,6 +30,7 @@ async function notifyRewardAmount(pool) {
     // 1 hour of precision
     if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
+        console.log("pos:", pos);
         const amount = ethers.utils
             .parseEther(pool.amount)
             .mul(distro[pos])

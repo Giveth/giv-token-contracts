@@ -150,7 +150,7 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log("####### 50GIV/HNY - honeyswap - xDai 1,200,000 #######");
+    console.log(`####### 50GIV/HNY - honeyswap - xDai ${GIVHNY_XDAI_AMOUNT.toString()} #######`);
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
@@ -158,6 +158,9 @@ async function main() {
     console.log("duration:", LMDuration);
 
     const UnipoolTokenDistributor = await ethers.getContractFactory("UnipoolTokenDistributor");
+    const GardenUnipoolTokenDistributor = await ethers.getContractFactory(
+        "GardenUnipoolTokenDistributor",
+    );
     // eslint-disable-next-line camelcase
     const givhny_xdai = await upgrades.deployProxy(UnipoolTokenDistributor, [
         tokenDistro.address,
@@ -195,7 +198,7 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log("####### 50GIV/WETH - honeyswap - xDai 250,000  #######");
+    console.log(`####### 50GIV/WETH - honeyswap - xDai ${GIVWETH_XDAI_AMOUNT.toString()}  #######`);
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
@@ -241,14 +244,14 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log("#######     GIVstaking xDai - xDai - 500,000   #######");
+    console.log(`#######     GIVstaking xDai - xDai - ${UNIGIV_AMOUNT.toString()}   #######`);
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
     console.log("uni:", tokenAddress);
     console.log("duration:", LMDuration);
 
-    const unigiv = await upgrades.deployProxy(UnipoolTokenDistributor, [
+    const unigiv = await upgrades.deployProxy(GardenUnipoolTokenDistributor, [
         tokenDistro.address,
         tokenAddress,
         LMDuration,
