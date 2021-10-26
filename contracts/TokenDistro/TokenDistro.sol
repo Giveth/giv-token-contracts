@@ -222,9 +222,7 @@ contract TokenDistro is
             "TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH"
         );
 
-        uint arrayLength = recipients.length;
-
-        for(uint i = 0; i < arrayLength; i++) {
+        for(uint i = 0; i < recipients.length; i++) {
             require(
                 !hasRole(DISTRIBUTOR_ROLE, recipients[i]),
                 "TokenDistro::allocateMany: DISTRIBUTOR_NOT_VALID_RECIPIENT"
