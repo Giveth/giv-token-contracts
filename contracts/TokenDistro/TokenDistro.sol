@@ -145,8 +145,8 @@ contract TokenDistro is
      * Emits a {claim} event.
      *
      */
-    function claimForAddress(address recipient) external {
-        _claim(recipient);
+    function claimTo(address account) external {
+        _claim(account);
     }
 
     /**
