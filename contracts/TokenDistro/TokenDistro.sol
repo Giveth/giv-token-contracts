@@ -206,7 +206,8 @@ contract TokenDistro is
      * Unlike allocate method it doesn't claim recipients available balance
      */
     function allocateMany(address[] memory recipients, uint256[] memory amounts)
-        external override
+        external
+        override
     {
         require(
             hasRole(DISTRIBUTOR_ROLE, msg.sender),
@@ -222,19 +223,19 @@ contract TokenDistro is
             "TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH"
         );
 
-        for(uint i = 0; i < recipients.length; i++) {
+        for (uint256 i = 0; i < recipients.length; i++) {
             require(
                 !hasRole(DISTRIBUTOR_ROLE, recipients[i]),
                 "TokenDistro::allocateMany: DISTRIBUTOR_NOT_VALID_RECIPIENT"
             );
 
             balances[msg.sender].allocatedTokens =
-            balances[msg.sender].allocatedTokens -
-            amounts[i];
+                balances[msg.sender].allocatedTokens -
+                amounts[i];
 
             balances[recipients[i]].allocatedTokens =
-            balances[recipients[i]].allocatedTokens +
-            amounts[i];
+                balances[recipients[i]].allocatedTokens +
+                amounts[i];
 
             // It doesn't claim for recipient unlike allocate method
 

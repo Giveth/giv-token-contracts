@@ -31,10 +31,7 @@ async function notifyRewardAmount(pool) {
     if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
-        const amount = ethers.utils
-            .parseEther(pool.amount)
-            .mul(distro[pos])
-            .div(10000);
+        const amount = ethers.utils.parseEther(pool.amount).mul(distro[pos]).div(10000);
         console.log(
             "UnipoolTokenDistributor - notifyRewardAmount:",
             pool.address,

@@ -53,7 +53,7 @@ contract GIV is IERC20 {
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
     event ChangeMinter(address indexed minter);
 
-    modifier onlyMinter {
+    modifier onlyMinter() {
         require(msg.sender == minter, "GIV:NOT_MINTER");
         _;
     }

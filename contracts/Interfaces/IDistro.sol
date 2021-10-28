@@ -69,7 +69,8 @@ interface IDistro {
      * @param recipients of token allocation
      * @param amounts allocated amount
      */
-    function allocateMany(address[] memory recipients, uint256[] memory amounts) external;
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external;
 
     /**
      * Function that allows a recipient to change its address
