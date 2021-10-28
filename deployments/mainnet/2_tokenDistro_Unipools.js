@@ -28,9 +28,7 @@ async function main() {
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
     const cancelable = false;
     const LMDuration = 86_400; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
-    const endTime = BigNumber.from(startTime)
-        .add(LMDuration)
-        .toString();
+    const endTime = BigNumber.from(startTime).add(LMDuration).toString();
     const GIVETH_UNI_STAKER = "0x1f98407aaB862CdDeF78Ed252D6f557aA5b0f00d"; // GIVETH_UNI staker address
     const GIVETH_UNI_POOL = ethers.utils.getAddress(args[2]); // GIVETH_UNI Pool Address
     const GIVETH_UNI_AMOUNT = args[3]; // GIVETH_UNI reward amount
@@ -115,7 +113,6 @@ async function main() {
     const UniswapV3RewardToken = await ethers.getContractFactory("UniswapV3RewardToken");
     // eslint-disable-next-line camelcase
     const giveth_uni_reward = await upgrades.deployProxy(UniswapV3RewardToken, [
-        deployer,
         tokenDistro.address,
         GIVETH_UNI_STAKER,
     ]);
@@ -123,15 +120,6 @@ async function main() {
     console.log("##############################################\n");
     console.log("GIVETH_UNI_REWARD deployed to:", giveth_uni_reward.address);
     console.log("\n##############################################\n");
-
-    // Mint reward token for staker equal to GIVETH_UNI_AMOUNT
-    console.log("UniswapV3RewardToken - mint: GIVETH_UNI_STAKER", GIVETH_UNI_AMOUNT.toString());
-    await (
-        await giveth_uni_reward.mint(
-            deployer,
-            ethers.utils.parseEther(GIVETH_UNI_AMOUNT.toString()),
-        )
-    ).wait();
 
     // We grant permission to the MerkleDistro and assign tokens
     await (
@@ -155,53 +143,7 @@ async function main() {
     const incentiveId = ethers.utils.keccak256(encodedKey);
     console.log(`The new incentiveId will be ${incentiveId}`);
 
-    // check balance of acting account
-    console.log(`Checking if deployer (${deployer}) has enough rewards token balance...`);
-    const deployerBalance = await giveth_uni_reward.balanceOf(deployer);
     const rewardAmount = ethers.utils.parseEther(GIVETH_UNI_AMOUNT);
-    const missingBalance = rewardAmount.sub(deployerBalance);
-    if (missingBalance.gt(0)) {
-        console.warn(`deployer (${deployer}) does not have enough balance to transfer reward!`);
-        console.warn(
-            `reward amount: ${ethers.utils.formatEther(rewardAmount)} (${rewardAmount.toString()})`,
-        );
-        console.warn(
-            `current balance: ${ethers.utils.formatEther(
-                deployerBalance,
-            )} (${deployerBalance.toString()})`,
-        );
-        console.warn(
-            `missing amount: ${ethers.utils.formatEther(
-                missingBalance,
-            )} (${missingBalance.toString()})`,
-        );
-        return;
-    }
-    console.log(
-        `Balance ${ethers.utils.formatEther(
-            deployerBalance,
-        )} (${deployerBalance.toString()}) is sufficient.`,
-    );
-
-    // set up allowance for reward amount
-    console.log(
-        `Checking if deployer (${deployer}) has approved staker contract to spend the reward...`,
-    );
-    const existingAllowance = await giveth_uni_reward.allowance(deployer, uniswapV3Staker.address);
-    const missingAllowance = rewardAmount.sub(existingAllowance);
-    if (missingAllowance.gt(0)) {
-        console.log(`Missing ${missingAllowance.toString()} allowance. Setting up allowance...`);
-        const allowanceTx = await giveth_uni_reward.approve(uniswapV3Staker.address, rewardAmount);
-        console.log(`Creating approve() tx ${allowanceTx.hash}...`);
-        await allowanceTx.wait();
-        console.log(`Tx ${allowanceTx.hash} confirmed!`);
-    } else {
-        console.log(
-            `Allowance ${ethers.utils.formatEther(
-                existingAllowance,
-            )} (${existingAllowance.toString()}) is sufficient.`,
-        );
-    }
 
     const key = {
         startTime,
@@ -378,7 +320,7 @@ async function main() {
     );
 }
 
-main().catch(e => {
+main().catch((e) => {
     console.error(e);
     process.exit(1);
 });
