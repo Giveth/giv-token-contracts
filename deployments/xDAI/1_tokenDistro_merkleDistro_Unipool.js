@@ -279,8 +279,7 @@ async function main() {
         "unigiv - tokenDistro:",
         `${await unigiv.tokenDistro()}\n` + `unigiv - duration:`,
         `${await unigiv.duration()}\n` + `unigiv - periodFinish:`,
-        `${await unigiv.periodFinish()}\n` + `unigiv - uni:`,
-        `${await unigiv.uni()}\n`,
+        `${await unigiv.periodFinish()}\n`,
     );
 
     console.log("\n#######################");
@@ -358,7 +357,7 @@ async function main() {
     );
 }
 
-main().catch(e => {
+main().catch((e) => {
     console.error(e);
     process.exit(1);
 });

@@ -208,16 +208,16 @@ contract GardenUnipoolTokenDistributor is
     ) internal override returns (bool) {
         if (_from == address(0)) {
             // Token mintings (wrapping tokens)
-            super.stake(_to, _amount);
+            stake(_to, _amount);
             return true;
         } else if (_to == address(0)) {
             // Token burning (unwrapping tokens)
-            super.withdraw(_from, _amount);
+            withdraw(_from, _amount);
             return true;
         } else {
             // Standard transfer
-            super.withdraw(_from, _amount);
-            super.stake(_to, _amount);
+            withdraw(_from, _amount);
+            stake(_to, _amount);
             return true;
         }
     }

@@ -14,7 +14,9 @@
     "deploy:mainnet": "HARDHAT_NETWORK=mainnet node deployments/mainnet/2_tokenDistro_Unipools.js 1628935200 ... ... 1100000 ... 200000 200000",
     "distributor:rinkeby": "HARDHAT_NETWORK=rinkeby node deployments/notifyRewardAmount/xDAI/distributor.js",
     "distributor:xDAI": "HARDHAT_NETWORK=xDAI node deployments/notifyRewardAmount/xDAI/distributor.js",
-    "distributor:kovan": "HARDHAT_NETWORK=kovan node deployments/notifyRewardAmount/mainnet/distributor.js"
+    "distributor:kovan": "HARDHAT_NETWORK=kovan node deployments/notifyRewardAmount/mainnet/distributor.js",
+    "deploy:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI node scripts/deployGardenUnipool.js",
+    "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI node scripts/upgradeGardenUnipool.js"
   },
   "pre-commit": ["prettier:sol"],
   "devDependencies": {

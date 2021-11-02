@@ -4,8 +4,8 @@ const { ethers } = hre;
 
 const pools = [
     // { address: "0x51F3E5C39a11fe189585FA2FD61A6b60E4Bc723a", amount: "1100000" }, // Uniswap V3 is exception, get all at the beginning
-    { address: "0x087Cbc387b8746A73E3EbA9A31782F5ee7B6cC45", amount: "2500000" }, // BAL
-    { address: "0x8d74ee0C611fA62210B66e051f31A0c103b6eDD6", amount: "2500000" }, // $GIV
+    { address: "0x5dA8196427475C0026B465454156f0D31236C88B", amount: "2500000" }, // BAL
+    { address: "0x61296aEC102bE83Aaa350B408b5F6B9466F86Dd9", amount: "2500000" }, // $GIV
 ];
 
 // Two decimals of precision -> 760 = 7.60
