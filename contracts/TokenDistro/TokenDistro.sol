@@ -31,7 +31,7 @@ contract TokenDistro is
 
     mapping(address => accountStatus) public balances; // Mapping with all accounts that have received an allocation
 
-    uint256 public totalTokens; // total tokens to be distribute
+    uint256 public override totalTokens; // total tokens to be distribute
     uint256 public startTime; // Instant of time in which distribution begins
     uint256 public cliffTime; // Instant of time in which tokens will begin to be released
     uint256 public duration;
