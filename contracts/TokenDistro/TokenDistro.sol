@@ -42,6 +42,15 @@ contract TokenDistro is
     bool public cancelable; // Variable that allows the ADMIN_ROLE to cancel an allocation
 
     /**
+     * @dev Emitted when the DISTRIBUTOR allocate an amount of givBack to a recipient
+     */
+    event GivBackPaid(
+        address indexed distributor,
+        address indexed recipient,
+        uint256 amount
+    );
+
+    /**
      * @dev Initially the deployer of the contract will be able to assign the tokens to one or several addresses,
      *      these addresses (EOA or Smart Contracts) are responsible to allocate tokens to specific addresses which can
      *      later claim them
@@ -205,10 +214,10 @@ contract TokenDistro is
      *
      * Unlike allocate method it doesn't claim recipients available balance
      */
-    function allocateMany(address[] memory recipients, uint256[] memory amounts)
-        external
-        override
-    {
+    function _allocateMany(
+        address[] memory recipients,
+        uint256[] memory amounts
+    ) internal {
         require(
             hasRole(DISTRIBUTOR_ROLE, msg.sender),
             "TokenDistro::allocateMany: ONLY_DISTRIBUTOR_ROLE"
@@ -240,6 +249,23 @@ contract TokenDistro is
             // It doesn't claim for recipient unlike allocate method
 
             emit Allocate(msg.sender, recipients[i], amounts[i]);
+        }
+    }
+
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external
+        override
+    {
+        _allocateMany(recipients, amounts);
+    }
+
+    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts)
+        external
+        override
+    {
+        _allocateMany(recipients, amounts);
+        for (uint256 i = 0; i < recipients.length; i++) {
+            emit GivBackPaid(msg.sender, recipients[i], amounts[i]);
         }
     }
 

@@ -77,6 +77,9 @@ interface IDistro {
     function allocateMany(address[] memory recipients, uint256[] memory amounts)
         external;
 
+    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts)
+        external;
+
     /**
      * Function that allows a recipient to change its address
      * @dev The change can only be made to an address that has not previously received an allocation &
