@@ -6,7 +6,7 @@ const { upgrades } = hre;
 async function main() {
     const tokenAddress = "0x5d32A9BaF31A793dBA7275F77856A47A0F5d09b3";
     const tokenDistroAddress = "0xf11aC05c97F8845f6b974e9e327129d36683cC90";
-    const unipoolRewardAmount = 0;
+    const unipoolRewardAmount = ethers.utils.parseEther("3000000");
     const UNIGIV_AMOUNT = ethers.utils.formatEther(unipoolRewardAmount);
 
     const deployer = (await ethers.getSigners())[0].address;
