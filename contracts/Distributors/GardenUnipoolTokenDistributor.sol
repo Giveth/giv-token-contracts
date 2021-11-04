@@ -91,7 +91,7 @@ contract GardenUnipoolTokenDistributor is
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
         if (account != address(0)) {
-            rewards[account] = earned(account);
+            rewards[account] = _earned(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         _;
@@ -110,7 +110,7 @@ contract GardenUnipoolTokenDistributor is
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
-        return MathUpgradeable.min(block.timestamp, periodFinish);
+        return MathUpgradeable.min(getTimestamp(), periodFinish);
     }
 
     function rewardPerToken() public view returns (uint256) {
@@ -127,7 +127,33 @@ contract GardenUnipoolTokenDistributor is
             );
     }
 
+    /**
+     * Function to get the current timestamp from the block
+     */
+    function getTimestamp() public view virtual returns (uint256) {
+        return block.timestamp;
+    }
+
+    /**
+     * Function to get the tokens will transferred at the claim tx to user wallet
+     * @notice The difference with _earned function return will be locked in TokenDistro
+     * to be streamed and be released gradually
+     */
     function earned(address account) public view returns (uint256) {
+        uint256 _totalEarned = _earned(account);
+        uint256 _tokenDistroReleasedTokens = tokenDistro.globallyClaimableAt(
+            getTimestamp()
+        );
+        uint256 _tokenDistroTotalTokens = tokenDistro.totalTokens();
+
+        return
+            (_totalEarned * _tokenDistroReleasedTokens) /
+            _tokenDistroTotalTokens;
+    }
+
+    // @dev This will do the same earned function of UnipoolTokenDistributor contract does.
+    // Returns the exact amount will be allocated on TokenDistro at the end
+    function _earned(address account) public view returns (uint256) {
         return
             balanceOf(account)
                 .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
@@ -163,7 +189,7 @@ contract GardenUnipoolTokenDistributor is
     }
 
     function _getReward(address user) internal {
-        uint256 reward = earned(user);
+        uint256 reward = _earned(user);
         if (reward > 0) {
             rewards[user] = 0;
             //token.safeTransfer(msg.sender, reward);
@@ -177,15 +203,16 @@ contract GardenUnipoolTokenDistributor is
         onlyRewardDistribution
         updateReward(address(0))
     {
-        if (block.timestamp >= periodFinish) {
+        uint256 _timestamp = getTimestamp();
+        if (_timestamp >= periodFinish) {
             rewardRate = reward.div(duration);
         } else {
-            uint256 remaining = periodFinish.sub(block.timestamp);
+            uint256 remaining = periodFinish.sub(_timestamp);
             uint256 leftover = remaining.mul(rewardRate);
             rewardRate = reward.add(leftover).div(duration);
         }
-        lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp.add(duration);
+        lastUpdateTime = _timestamp;
+        periodFinish = _timestamp.add(duration);
         emit RewardAdded(reward);
     }
 

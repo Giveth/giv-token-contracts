@@ -34,6 +34,11 @@ interface IDistro {
     event StartTimeChanged(uint256 newStartTime, uint256 newCliffTime);
 
     /**
+     * @dev Returns the total amount of tokens will be streamed
+     */
+    function totalTokens() external view returns (uint256);
+
+    /**
      * Function that allows the DEFAULT_ADMIN_ROLE to assign set a new startTime if it hasn't started yet
      * @param newStartTime new startTime
      *
