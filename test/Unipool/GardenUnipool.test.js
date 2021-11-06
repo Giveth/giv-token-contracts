@@ -134,22 +134,39 @@ describe("TokenDistro", () => {
 
         const checkUserEarnValues = async (_account) => {
             const _accountAddress = await _account.getAddress();
-            const _earnedAmount = await GardenUnipool._earned(_accountAddress);
-            const earnedAmount = await GardenUnipool.earned(_accountAddress);
-            const tokenDistroClaimableAmount = await TokenDistro.claimableNow(
+            const claimableStreamAmount = await GardenUnipool.claimableStream(
                 _accountAddress,
             );
-            const releasedAmount = earnedAmount.add(tokenDistroClaimableAmount);
+            const earnedAmount = await GardenUnipool.earned(_accountAddress);
+            // Ready claimable amount on TokenDistro before getting reward from Garden Unipool
+            const tokenDistroReadyClaimableAmount =
+                await TokenDistro.claimableNow(_accountAddress);
+
+            const releasedAmount = earnedAmount.add(
+                tokenDistroReadyClaimableAmount,
+            );
+            const userBalanceBefore = await Token.balanceOf(_accountAddress);
 
             await expect(GardenUnipool.connect(_account).getReward())
                 .to.emit(GardenUnipool, "RewardPaid")
-                .withArgs(_accountAddress, _earnedAmount)
+                .withArgs(_accountAddress, claimableStreamAmount)
                 .to.emit(TokenDistro, "Allocate")
-                .withArgs(GardenUnipool.address, _accountAddress, _earnedAmount)
-                .to.emit(TokenDistro, "Claim")
-                .withArgs(_accountAddress, releasedAmount)
-                .to.emit(Token, "Transfer")
-                .withArgs(TokenDistro.address, _accountAddress, releasedAmount);
+                .withArgs(
+                    GardenUnipool.address,
+                    _accountAddress,
+                    claimableStreamAmount,
+                );
+
+            const userBalanceAfter = await Token.balanceOf(_accountAddress);
+            const transferredAmount = userBalanceAfter.sub(userBalanceBefore);
+
+            // Since token distro adds two numbers (claimable inside itself and earned amount) and then
+            // do the division, the two fraction may add up to more than 1 and result in tiny difference
+            expect(transferredAmount).to.be.closeTo(
+                releasedAmount,
+                1,
+                "The transferred amount doesn't match the expected released amount",
+            );
         };
 
         const doStep = async (_step, _accounts) => {
@@ -164,7 +181,7 @@ describe("TokenDistro", () => {
         await doStep(1, [recipient1]);
         await doStep(2, [recipient1, recipient2]);
         await doStep(3, [recipient2, recipient3]);
-        await doStep(8, [recipient4]);
+        await doStep(8, [recipient1, recipient2, recipient3, recipient4]);
 
         await GardenUnipool.connect(recipient1).getReward();
         await GardenUnipool.connect(recipient2).getReward();

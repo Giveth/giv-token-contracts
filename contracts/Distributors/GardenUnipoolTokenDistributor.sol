@@ -91,7 +91,7 @@ contract GardenUnipoolTokenDistributor is
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
         if (account != address(0)) {
-            rewards[account] = _earned(account);
+            rewards[account] = claimableStream(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         _;
@@ -135,12 +135,12 @@ contract GardenUnipoolTokenDistributor is
     }
 
     /**
-     * Function to get the tokens will transferred at the claim tx to user wallet
-     * @notice The difference with _earned function return will be locked in TokenDistro
-     * to be streamed and be released gradually
+     * Function to get the amount of tokens is transferred in the claim tx
+     * @notice The difference between what this returns and what the claimableStream function returns
+     *  will be locked in TokenDistro to be streamed and released gradually
      */
     function earned(address account) public view returns (uint256) {
-        uint256 _totalEarned = _earned(account);
+        uint256 _totalEarned = claimableStream(account);
         uint256 _tokenDistroReleasedTokens = tokenDistro.globallyClaimableAt(
             getTimestamp()
         );
@@ -151,9 +151,9 @@ contract GardenUnipoolTokenDistributor is
             _tokenDistroTotalTokens;
     }
 
-    // @dev This will do the same earned function of UnipoolTokenDistributor contract does.
-    // Returns the exact amount will be allocated on TokenDistro at the end
-    function _earned(address account) public view returns (uint256) {
+    // @dev This does the same thing the earned function of UnipoolTokenDistributor contract does.
+    // Returns the exact amount will be allocated on TokenDistro
+    function claimableStream(address account) public view returns (uint256) {
         return
             balanceOf(account)
                 .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
@@ -189,7 +189,7 @@ contract GardenUnipoolTokenDistributor is
     }
 
     function _getReward(address user) internal {
-        uint256 reward = _earned(user);
+        uint256 reward = claimableStream(user);
         if (reward > 0) {
             rewards[user] = 0;
             //token.safeTransfer(msg.sender, reward);

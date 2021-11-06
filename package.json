@@ -16,7 +16,8 @@
     "distributor:xDAI": "HARDHAT_NETWORK=xDAI node deployments/notifyRewardAmount/xDAI/distributor.js",
     "distributor:kovan": "HARDHAT_NETWORK=kovan node deployments/notifyRewardAmount/mainnet/distributor.js",
     "deploy:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI node scripts/deployGardenUnipool.js",
-    "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI node scripts/upgradeGardenUnipool.js"
+    "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI node scripts/upgradeGardenUnipool.js",
+    "upgrade:TokenDistro:xDAI": "HARDHAT_NETWORK=xDAI node scripts/upgradeTokenDistro.js"
   },
   "pre-commit": ["prettier:sol"],
   "devDependencies": {
