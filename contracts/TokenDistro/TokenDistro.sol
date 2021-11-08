@@ -204,7 +204,7 @@ contract TokenDistro is
             balances[recipient].allocatedTokens +
             amount;
 
-        if (claimableNow(recipient) > 0) {
+        if (claim && claimableNow(recipient) > 0) {
             _claim(recipient);
         }
 
