@@ -122,10 +122,8 @@ describe("TokenDistro", () => {
         ).to.be.reverted;
 
         // Check total amount
-        await expect(
-            (
-                await TokenDistro.balances(TokenDistro.address)
-            ).allocatedTokens,
+        expect(
+            (await TokenDistro.balances(TokenDistro.address)).allocatedTokens,
         ).to.be.equal(amount);
 
         // Allocate the total in two chunks

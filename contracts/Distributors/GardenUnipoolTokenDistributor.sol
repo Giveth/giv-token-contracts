@@ -36,10 +36,7 @@ contract LPTokenWrapper is Initializable {
     uint256 private _totalSupply;
     mapping(address => uint256) internal _balances;
 
-    function __LPTokenWrapper_initialize()
-        public
-        initializer
-    {}
+    function __LPTokenWrapper_initialize() public initializer {}
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
