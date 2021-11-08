@@ -71,7 +71,7 @@ contract MerkleDistro is
 
         // Mark it claimed and allocate the tokens
         _setClaimed(index);
-        tokenDistro.allocate(msg.sender, amount);
+        tokenDistro.allocate(msg.sender, amount, true);
 
         emit Claimed(index, msg.sender, msg.sender, amount);
     }
@@ -98,7 +98,7 @@ contract MerkleDistro is
 
         // Mark it claimed and allocate the tokens
         _setClaimed(index);
-        tokenDistro.allocate(recipient, amount);
+        tokenDistro.allocate(recipient, amount, true);
 
         emit Claimed(index, account, recipient, amount);
     }

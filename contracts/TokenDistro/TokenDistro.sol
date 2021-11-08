@@ -44,11 +44,20 @@ contract TokenDistro is
     /**
      * @dev Emitted when the DISTRIBUTOR allocate an amount of givBack to a recipient
      */
-    event GivBackPaid(
-        address indexed distributor,
-        address indexed recipient,
-        uint256 amount
-    );
+    event GivBackPaid(address distributor);
+
+    modifier onlyDistributor() {
+        require(
+            hasRole(DISTRIBUTOR_ROLE, msg.sender),
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE"
+        );
+
+        require(
+            balances[msg.sender].claimed == 0,
+            "TokenDistro::onlyDistributor: DISTRIBUTOR_CANNOT_CLAIM"
+        );
+        _;
+    }
 
     /**
      * @dev Initially the deployer of the contract will be able to assign the tokens to one or several addresses,
@@ -172,23 +181,19 @@ contract TokenDistro is
      * Function that allows to the distributor address to allocate some amount of tokens to a specific recipient
      * @param recipient of token allocation
      * @param amount allocated amount
+     * @param claim whether claim after allocate
      *
      * Emits a {Allocate} event.
      *
      */
-    function allocate(address recipient, uint256 amount) external override {
-        require(
-            hasRole(DISTRIBUTOR_ROLE, msg.sender),
-            "TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE"
-        );
+    function _allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) internal {
         require(
             !hasRole(DISTRIBUTOR_ROLE, recipient),
             "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT"
-        );
-
-        require(
-            balances[msg.sender].claimed == 0,
-            "TokenDistro::allocate: DISTRIBUTOR_CANNOT_CLAIM"
         );
 
         balances[msg.sender].allocatedTokens =
@@ -199,11 +204,19 @@ contract TokenDistro is
             balances[recipient].allocatedTokens +
             amount;
 
-        if (claimableNow(recipient) > 0) {
+        if (claim && claimableNow(recipient) > 0) {
             _claim(recipient);
         }
 
         emit Allocate(msg.sender, recipient, amount);
+    }
+
+    function allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) external override onlyDistributor {
+        _allocate(recipient, amount, claim);
     }
 
     /**
@@ -217,38 +230,14 @@ contract TokenDistro is
     function _allocateMany(
         address[] memory recipients,
         uint256[] memory amounts
-    ) internal {
-        require(
-            hasRole(DISTRIBUTOR_ROLE, msg.sender),
-            "TokenDistro::allocateMany: ONLY_DISTRIBUTOR_ROLE"
-        );
-        require(
-            balances[msg.sender].claimed == 0,
-            "TokenDistro::allocateMany: DISTRIBUTOR_CANNOT_CLAIM"
-        );
-
+    ) internal onlyDistributor {
         require(
             recipients.length == amounts.length,
             "TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH"
         );
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            require(
-                !hasRole(DISTRIBUTOR_ROLE, recipients[i]),
-                "TokenDistro::allocateMany: DISTRIBUTOR_NOT_VALID_RECIPIENT"
-            );
-
-            balances[msg.sender].allocatedTokens =
-                balances[msg.sender].allocatedTokens -
-                amounts[i];
-
-            balances[recipients[i]].allocatedTokens =
-                balances[recipients[i]].allocatedTokens +
-                amounts[i];
-
-            // It doesn't claim for recipient unlike allocate method
-
-            emit Allocate(msg.sender, recipients[i], amounts[i]);
+            _allocate(recipients[i], amounts[i], false);
         }
     }
 
@@ -264,9 +253,7 @@ contract TokenDistro is
         override
     {
         _allocateMany(recipients, amounts);
-        for (uint256 i = 0; i < recipients.length; i++) {
-            emit GivBackPaid(msg.sender, recipients[i], amounts[i]);
-        }
+        emit GivBackPaid(msg.sender);
     }
 
     /**

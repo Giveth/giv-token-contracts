@@ -23,6 +23,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         public
         initializer
     {
+        __Ownable_init();
         tokenDistro = _tokenDistribution;
         uniswapV3Staker = _uniswapV3Staker;
     }
@@ -44,8 +45,9 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         );
 
         totalSupply = totalSupply - value;
-        tokenDistro.allocate(to, value);
+        tokenDistro.allocate(to, value, true);
         emit RewardPaid(to, value);
+        emit Transfer(from, to, value);
     }
 
     function approve(address spender, uint256 value)
@@ -62,10 +64,16 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         returns (bool)
     {
         require(
-            msg.sender == uniswapV3Staker,
+            msg.sender == uniswapV3Staker && to != uniswapV3Staker,
             "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
         );
-        _transfer(msg.sender, to, value);
+
+        totalSupply = totalSupply - value;
+        tokenDistro.allocate(to, value, true);
+
+        emit RewardPaid(to, value);
+        emit Transfer(msg.sender, to, value);
+
         return true;
     }
 
@@ -95,6 +103,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         override
         returns (uint256)
     {
+        // TODO: for staker is spender return infinite amount
         return 0;
     }
 }

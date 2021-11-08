@@ -65,8 +65,9 @@ interface IDistro {
      * @dev Needs to be initialized: Nobody has the DEFAULT_ADMIN_ROLE and all available tokens have been assigned
      * @param recipient of token allocation
      * @param amount allocated amount
+     * @param claim whether claim after allocate
      */
-    function allocate(address recipient, uint256 amount) external;
+    function allocate(address recipient, uint256 amount, bool claim) external;
 
     /**
      * Function that allows to the distributor address to allocate some amounts of tokens to specific recipients
