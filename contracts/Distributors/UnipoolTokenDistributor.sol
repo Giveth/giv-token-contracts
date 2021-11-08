@@ -164,7 +164,7 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         if (reward > 0) {
             rewards[msg.sender] = 0;
             //token.safeTransfer(msg.sender, reward);
-            tokenDistro.allocate(msg.sender, reward);
+            tokenDistro.allocate(msg.sender, reward, true);
             emit RewardPaid(msg.sender, reward);
         }
     }

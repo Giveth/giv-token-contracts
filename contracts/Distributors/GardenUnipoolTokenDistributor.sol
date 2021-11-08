@@ -30,11 +30,16 @@ import "./TokenManagerHook.sol";
  *      * Change transfer to allocate (TokenVesting)
  *      * Added `stakeWithPermit` function for NODE and the BridgeToken
  */
-contract LPTokenWrapper {
+contract LPTokenWrapper is Initializable {
     using SafeMathUpgradeable for uint256;
 
     uint256 private _totalSupply;
     mapping(address => uint256) internal _balances;
+
+    function __LPTokenWrapper_initialize()
+        public
+        initializer
+    {}
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -103,6 +108,7 @@ contract GardenUnipoolTokenDistributor is
         uint256 _duration
     ) public initializer {
         __Ownable_init();
+        __LPTokenWrapper_initialize();
         tokenDistro = _tokenDistribution;
         duration = _duration;
         periodFinish = 0;
@@ -193,7 +199,7 @@ contract GardenUnipoolTokenDistributor is
         if (reward > 0) {
             rewards[user] = 0;
             //token.safeTransfer(msg.sender, reward);
-            tokenDistro.allocate(user, reward);
+            tokenDistro.allocate(user, reward, true);
             emit RewardPaid(user, reward);
         }
     }
