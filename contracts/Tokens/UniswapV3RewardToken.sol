@@ -33,23 +33,6 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         return 0;
     }
 
-    function _transfer(
-        address from,
-        address to,
-        uint256 value
-    ) private {
-        // Staker sends pays the reward
-        require(
-            from == uniswapV3Staker && to != uniswapV3Staker,
-            "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
-        );
-
-        totalSupply = totalSupply - value;
-        tokenDistro.allocate(to, value, true);
-        emit RewardPaid(to, value);
-        emit Transfer(from, to, value);
-    }
-
     function approve(address spender, uint256 value)
         external
         override
@@ -103,6 +86,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         override
         returns (uint256)
     {
+        if (spender == uniswapV3Staker) return type(uint256).max;
         // TODO: for staker is spender return infinite amount
         return 0;
     }

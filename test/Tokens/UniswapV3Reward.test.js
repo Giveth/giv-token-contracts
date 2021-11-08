@@ -80,6 +80,21 @@ describe("UniswapV3RewardToken", () => {
         );
     });
 
+    it("should allow infinite allowance for staker", async () => {
+        const gurToken = await GurTokenFactory.deploy(
+            tokenDistro.address,
+            uStakerAddress,
+        );
+
+        expect(
+            await gurToken.allowance(recipientAddress1, uStakerAddress),
+        ).to.be.equal(
+            ethers.BigNumber.from(
+                "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            ),
+        );
+    });
+
     it("should allow trasnferFrom only by staker to itself", async () => {
         const gurToken = await GurTokenFactory.deploy(
             tokenDistro.address,
@@ -108,11 +123,9 @@ describe("UniswapV3RewardToken", () => {
                 .transferFrom(recipientAddress1, multisigAddress, amount),
         ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_TO_STAKER");
 
-        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(0);
-        await expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(
-            0,
-        );
-        await expect(await gurToken.totalSupply()).to.be.equal(0);
+        expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(0);
+        expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(0);
+        expect(await gurToken.totalSupply()).to.be.equal(0);
 
         await expect(
             gurToken
@@ -122,10 +135,8 @@ describe("UniswapV3RewardToken", () => {
             .to.emit(gurToken, "Transfer")
             .withArgs(ethers.constants.AddressZero, uStakerAddress, amount);
 
-        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
-            amount,
-        );
-        await expect(await gurToken.totalSupply()).to.be.equal(amount);
+        expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(amount);
+        expect(await gurToken.totalSupply()).to.be.equal(amount);
     });
 
     it("should allow only staker to transfer token directly", async () => {
@@ -160,16 +171,14 @@ describe("UniswapV3RewardToken", () => {
             .to.emit(gurToken, "RewardPaid")
             .withArgs(recipientAddress1, transferAmount);
 
-        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
+        expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
             amount.sub(transferAmount),
         );
-        await expect(await gurToken.totalSupply()).to.be.equal(
+        expect(await gurToken.totalSupply()).to.be.equal(
             amount.sub(transferAmount),
         );
 
-        await expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(
-            0,
-        );
+        expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(0);
         await expect(
             gurToken
                 .connect(recipient1)
