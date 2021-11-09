@@ -1,13 +1,6 @@
 {
-    "parserOptions": {
-        "sourceType": "module",
-        "ecmaVersion": 2021
-    },
-    "env": {
-        "es6": true,
-        "node": true,
-        "mocha": true
-    },
+    "parser": "@typescript-eslint/parser",
+    "plugins": [ "@typescript-eslint" ],
     "extends": ["airbnb-base", "plugin:prettier/recommended", "prettier"],
     "rules": {
         "no-underscore-dangle": 0,
@@ -34,6 +27,24 @@
                 "useTab": true,
                 "tabWidth": 4
             }
+        ],
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+                "js": "never",
+                "jsx": "never",
+                "ts": "never",
+                "tsx": "never"
+            }
         ]
+    },
+    "ignorePatterns": ["./typechain-types/*"],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
     }
 }
