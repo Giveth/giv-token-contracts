@@ -1,31 +1,34 @@
-require("dotenv").config();
-require("@nomiclabs/hardhat-waffle");
-require("hardhat-gas-reporter");
-require("solidity-coverage");
-require("@openzeppelin/hardhat-upgrades");
-require("@nomiclabs/hardhat-etherscan");
+import * as dotenv from "dotenv";
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-etherscan";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
+import "@openzeppelin/hardhat-upgrades";
+import { HardhatUserConfig } from "hardhat/config";
 
-const DEFAULT_MNEMONIC = "test test test test test test test test test test test test";
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-// eslint-disable-next-line no-undef
-task("accounts", "Prints the list of accounts", async () => {
-    // eslint-disable-next-line no-undef
-    const accounts = await ethers.getSigners();
+dotenv.config();
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const account of accounts) {
-        console.log(account.address);
-    }
-});
+const DEFAULT_MNEMONIC =
+    "test test test test test test test test test test test test";
+// // This is a sample Hardhat task. To learn how to create your own go to
+// // https://hardhat.org/guides/create-task.html
+// // eslint-disable-next-line no-undef
+// task("accounts", "Prints the list of accounts", async () => {
+//     // eslint-disable-next-line no-undef
+//     const accounts = await ethers.getSigners();
+
+//     // eslint-disable-next-line no-restricted-syntax
+//     for (const account of accounts) {
+//         console.log(account.address);
+//     }
+// });
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
-module.exports = {
+const config: HardhatUserConfig = {
     solidity: {
         compilers: [
             {
@@ -71,22 +74,30 @@ module.exports = {
         rinkeby: {
             url: `https://rinkeby.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             gasPrice: 123000000000,
-            accounts: process.env.PRIVATE_KEY ? [`${process.env.PRIVATE_KEY}`] : [],
+            accounts: process.env.PRIVATE_KEY
+                ? [`${process.env.PRIVATE_KEY}`]
+                : [],
         },
         kovan: {
             url: `https://kovan.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             gasPrice: 123000000000,
-            accounts: process.env.PRIVATE_KEY ? [`${process.env.PRIVATE_KEY}`] : [],
+            accounts: process.env.PRIVATE_KEY
+                ? [`${process.env.PRIVATE_KEY}`]
+                : [],
         },
         mainnet: {
             url: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             gasPrice: 52454545454,
-            accounts: process.env.PRIVATE_KEY ? [`${process.env.PRIVATE_KEY}`] : [],
+            accounts: process.env.PRIVATE_KEY
+                ? [`${process.env.PRIVATE_KEY}`]
+                : [],
         },
         xDAI: {
             url: `https://xdai.poanetwork.dev`,
             gasPrice: 1000000000,
-            accounts: process.env.PRIVATE_KEY ? [`${process.env.PRIVATE_KEY}`] : [],
+            accounts: process.env.PRIVATE_KEY
+                ? [`${process.env.PRIVATE_KEY}`]
+                : [],
         },
     },
     gasReporter: {
@@ -98,3 +109,5 @@ module.exports = {
         apiKey: `${process.env.ETHERSCAN_API_KEY}`,
     },
 };
+
+export default config;

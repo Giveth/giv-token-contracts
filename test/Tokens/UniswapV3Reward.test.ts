@@ -1,26 +1,32 @@
-let TokenDistroFactory,
-    tokenDistro,
-    GivTokenFactory,
-    givToken,
-    GurTokenFactory,
-    multisig,
-    multisig2,
-    multisig3,
-    recipient1,
-    recipient2,
-    recipient3,
-    recipient4;
-let multisigAddress,
-    multisig2Address,
-    multisig3Address,
-    recipientAddress1,
-    recipientAddress2,
-    recipientAddress3,
-    recipientAddress4,
-    addrs;
-const { expect } = require("chai");
-const hre = require("hardhat");
-const { ethers } = hre;
+import { ethers } from "hardhat";
+import { expect } from "chai";
+import { describe, beforeEach, it } from "mocha";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { ContractFactory } from "ethers";
+import { TokenDistro } from "../../typechain-types/TokenDistro";
+import { GIV } from "../../typechain-types/GIV";
+import { UniswapV3RewardToken } from "../../typechain-types/UniswapV3RewardToken";
+
+let tokenDistroFactory: ContractFactory,
+    tokenDistro: TokenDistro,
+    givTokenFactory: ContractFactory,
+    givToken: GIV,
+    gurTokenFactory: ContractFactory,
+    multisig: SignerWithAddress,
+    multisig2: SignerWithAddress,
+    multisig3: SignerWithAddress,
+    recipient1: SignerWithAddress,
+    recipient2: SignerWithAddress,
+    recipient3: SignerWithAddress,
+    recipient4: SignerWithAddress;
+let multisigAddress: string,
+    multisig2Address: string,
+    multisig3Address: string,
+    recipientAddress1: string,
+    recipientAddress2: string,
+    recipientAddress3: string,
+    recipientAddress4: string,
+    addrs: Array<SignerWithAddress>;
 
 const amount = ethers.utils.parseEther("80000000");
 const startToCliff = 180 * (3600 * 24);
@@ -41,7 +47,7 @@ describe("UniswapV3RewardToken", () => {
             recipient3,
             recipient4,
             ...addrs
-        ] = await hre.ethers.getSigners();
+        ] = await ethers.getSigners();
 
         multisigAddress = await multisig.getAddress();
         multisig2Address = await multisig2.getAddress();
@@ -54,17 +60,18 @@ describe("UniswapV3RewardToken", () => {
         uStaker = multisig2;
         uStakerAddress = multisig2Address;
 
-        GivTokenFactory = await ethers.getContractFactory("GIV");
-        givToken = await GivTokenFactory.deploy(multisigAddress);
+        givTokenFactory = await ethers.getContractFactory("GIV");
+        givToken = (await givTokenFactory.deploy(multisigAddress)) as GIV;
         await givToken.deployed();
         await givToken.mint(multisigAddress, amount);
 
-        TokenDistroFactory = await ethers.getContractFactory("TokenDistroMock");
+        tokenDistroFactory = await ethers.getContractFactory("TokenDistroMock");
 
         const offset = 90 * (3600 * 24);
-        const startTime = (await ethers.provider.getBlock()).timestamp + offset;
+        const startTime =
+            (await ethers.provider.getBlock("latest")).timestamp + offset;
 
-        tokenDistro = await TokenDistroFactory.deploy(
+        tokenDistro = (await tokenDistroFactory.deploy(
             amount,
             startTime,
             startToCliff,
@@ -72,34 +79,19 @@ describe("UniswapV3RewardToken", () => {
             initialPercentage,
             givToken.address,
             false,
-        );
+        )) as TokenDistro;
 
         await givToken.transfer(tokenDistro.address, amount);
-        GurTokenFactory = await ethers.getContractFactory(
+        gurTokenFactory = await ethers.getContractFactory(
             "UniswapV3RewardTokenMock",
         );
     });
 
-    it("should allow infinite allowance for staker", async () => {
-        const gurToken = await GurTokenFactory.deploy(
-            tokenDistro.address,
-            uStakerAddress,
-        );
-
-        expect(
-            await gurToken.allowance(recipientAddress1, uStakerAddress),
-        ).to.be.equal(
-            ethers.BigNumber.from(
-                "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            ),
-        );
-    });
-
     it("should allow trasnferFrom only by staker to itself", async () => {
-        const gurToken = await GurTokenFactory.deploy(
+        const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
             uStakerAddress,
-        );
+        )) as UniswapV3RewardToken;
 
         await expect(
             gurToken.transferFrom(multisigAddress, uStakerAddress, amount),
@@ -123,9 +115,11 @@ describe("UniswapV3RewardToken", () => {
                 .transferFrom(recipientAddress1, multisigAddress, amount),
         ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_TO_STAKER");
 
-        expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(0);
-        expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(0);
-        expect(await gurToken.totalSupply()).to.be.equal(0);
+        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(0);
+        await expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(
+            0,
+        );
+        await expect(await gurToken.totalSupply()).to.be.equal(0);
 
         await expect(
             gurToken
@@ -135,15 +129,17 @@ describe("UniswapV3RewardToken", () => {
             .to.emit(gurToken, "Transfer")
             .withArgs(ethers.constants.AddressZero, uStakerAddress, amount);
 
-        expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(amount);
-        expect(await gurToken.totalSupply()).to.be.equal(amount);
+        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
+            amount,
+        );
+        await expect(await gurToken.totalSupply()).to.be.equal(amount);
     });
 
     it("should allow only staker to transfer token directly", async () => {
-        const gurToken = await GurTokenFactory.deploy(
+        const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
             uStakerAddress,
-        );
+        )) as UniswapV3RewardToken;
         await tokenDistro.grantRole(
             await tokenDistro.DISTRIBUTOR_ROLE(),
             gurToken.address,
@@ -171,14 +167,16 @@ describe("UniswapV3RewardToken", () => {
             .to.emit(gurToken, "RewardPaid")
             .withArgs(recipientAddress1, transferAmount);
 
-        expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
+        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
             amount.sub(transferAmount),
         );
-        expect(await gurToken.totalSupply()).to.be.equal(
+        await expect(await gurToken.totalSupply()).to.be.equal(
             amount.sub(transferAmount),
         );
 
-        expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(0);
+        await expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(
+            0,
+        );
         await expect(
             gurToken
                 .connect(recipient1)
@@ -194,10 +192,10 @@ describe("UniswapV3RewardToken", () => {
     // Copied from TokenDistro.test.js and refactored to use Transfer instead
     // of Allocate
     it("should Staker be able to transfer the balance", async () => {
-        const gurToken = await GurTokenFactory.deploy(
+        const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
             uStakerAddress,
-        );
+        )) as UniswapV3RewardToken;
         await gurToken
             .connect(uStaker)
             .transferFrom(multisigAddress, uStakerAddress, amount);
@@ -211,9 +209,7 @@ describe("UniswapV3RewardToken", () => {
             gurToken
                 .connect(uStaker)
                 .transfer(recipientAddress1, amountRecipient1),
-        ).to.be.revertedWith(
-            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
-        );
+        ).to.be.revertedWith("TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE");
 
         const gurTokenAddress = gurToken.address;
 
@@ -246,10 +242,10 @@ describe("UniswapV3RewardToken", () => {
     });
 
     it("should not transfer more than token distro assigned value", async () => {
-        const gurToken = await GurTokenFactory.deploy(
+        const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
             uStakerAddress,
-        );
+        )) as UniswapV3RewardToken;
         await gurToken
             .connect(uStaker)
             .transferFrom(multisigAddress, uStakerAddress, amount);
@@ -268,10 +264,10 @@ describe("UniswapV3RewardToken", () => {
     });
 
     it("should not transfer more than minted value", async () => {
-        const gurToken = await GurTokenFactory.deploy(
+        const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
             uStakerAddress,
-        );
+        )) as UniswapV3RewardToken;
 
         const transferAmount = amount.div(2);
         gurToken

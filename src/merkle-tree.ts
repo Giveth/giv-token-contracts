@@ -1,123 +1,128 @@
-import { bufferToHex, keccak256 } from 'ethereumjs-util'
+import { bufferToHex, keccak256 } from "ethereumjs-util";
 
 export default class MerkleTree {
-  private readonly elements: Buffer[]
-  private readonly bufferElementPositionIndex: { [hexElement: string]: number }
-  private readonly layers: Buffer[][]
+    private readonly elements: Buffer[];
 
-  constructor(elements: Buffer[]) {
-    this.elements = [...elements]
-    // Sort elements
-    this.elements.sort(Buffer.compare)
-    // Deduplicate elements
-    this.elements = MerkleTree.bufDedup(this.elements)
+    private readonly bufferElementPositionIndex: {
+        [hexElement: string]: number;
+    };
 
-    this.bufferElementPositionIndex = this.elements.reduce<{ [hexElement: string]: number }>((memo, el, index) => {
-      memo[bufferToHex(el)] = index
-      return memo
-    }, {})
+    private readonly layers: Buffer[][];
 
-    // Create layers
-    this.layers = this.getLayers(this.elements)
-  }
+    constructor(elements: Buffer[]) {
+        this.elements = [...elements];
+        // Sort elements
+        this.elements.sort(Buffer.compare);
+        // Deduplicate elements
+        this.elements = MerkleTree.bufDedup(this.elements);
 
-  getLayers(elements: Buffer[]): Buffer[][] {
-    if (elements.length === 0) {
-      throw new Error('empty tree')
+        this.bufferElementPositionIndex = this.elements.reduce<{
+            [hexElement: string]: number;
+        }>((memo, el, index) => {
+            memo[bufferToHex(el)] = index;
+            return memo;
+        }, {});
+
+        // Create layers
+        this.layers = MerkleTree.getLayers(this.elements);
     }
 
-    const layers = []
-    layers.push(elements)
+    static getLayers(elements: Buffer[]): Buffer[][] {
+        if (elements.length === 0) {
+            throw new Error("empty tree");
+        }
 
-    // Get next layer until we reach the root
-    while (layers[layers.length - 1].length > 1) {
-      layers.push(this.getNextLayer(layers[layers.length - 1]))
+        const layers: Array<Buffer[]> = [];
+        layers.push(elements);
+
+        // Get next layer until we reach the root
+        while (layers[layers.length - 1].length > 1) {
+            layers.push(MerkleTree.getNextLayer(layers[layers.length - 1]));
+        }
+
+        return layers;
     }
 
-    return layers
-  }
+    static getNextLayer(elements: Buffer[]): Buffer[] {
+        return elements.reduce<Buffer[]>((layer, el, idx, arr) => {
+            if (idx % 2 === 0) {
+                // Hash the current element with its pair element
+                layer.push(MerkleTree.combinedHash(el, arr[idx + 1]));
+            }
 
-  getNextLayer(elements: Buffer[]): Buffer[] {
-    return elements.reduce<Buffer[]>((layer, el, idx, arr) => {
-      if (idx % 2 === 0) {
-        // Hash the current element with its pair element
-        layer.push(MerkleTree.combinedHash(el, arr[idx + 1]))
-      }
-
-      return layer
-    }, [])
-  }
-
-  static combinedHash(first: Buffer, second: Buffer): Buffer {
-    if (!first) {
-      return second
-    }
-    if (!second) {
-      return first
+            return layer;
+        }, []);
     }
 
-    return keccak256(MerkleTree.sortAndConcat(first, second))
-  }
+    static combinedHash(first: Buffer, second: Buffer): Buffer {
+        if (!first) {
+            return second;
+        }
+        if (!second) {
+            return first;
+        }
 
-  getRoot(): Buffer {
-    return this.layers[this.layers.length - 1][0]
-  }
-
-  getHexRoot(): string {
-    return bufferToHex(this.getRoot())
-  }
-
-  getProof(el: Buffer) {
-    let idx = this.bufferElementPositionIndex[bufferToHex(el)]
-
-    if (typeof idx !== 'number') {
-      throw new Error('Element does not exist in Merkle tree')
+        return keccak256(MerkleTree.sortAndConcat(first, second));
     }
 
-    return this.layers.reduce((proof, layer) => {
-      const pairElement = MerkleTree.getPairElement(idx, layer)
-
-      if (pairElement) {
-        proof.push(pairElement)
-      }
-
-      idx = Math.floor(idx / 2)
-
-      return proof
-    }, [])
-  }
-
-  getHexProof(el: Buffer): string[] {
-    const proof = this.getProof(el)
-
-    return MerkleTree.bufArrToHexArr(proof)
-  }
-
-  private static getPairElement(idx: number, layer: Buffer[]): Buffer | null {
-    const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1
-
-    if (pairIdx < layer.length) {
-      return layer[pairIdx]
-    } else {
-      return null
-    }
-  }
-
-  private static bufDedup(elements: Buffer[]): Buffer[] {
-    return elements.filter((el, idx) => {
-      return idx === 0 || !elements[idx - 1].equals(el)
-    })
-  }
-
-  private static bufArrToHexArr(arr: Buffer[]): string[] {
-    if (arr.some((el) => !Buffer.isBuffer(el))) {
-      throw new Error('Array is not an array of buffers')
+    getRoot(): Buffer {
+        return this.layers[this.layers.length - 1][0];
     }
 
-    return arr.map((el) => '0x' + el.toString('hex'))
-  }
+    getHexRoot(): string {
+        return bufferToHex(this.getRoot());
+    }
 
-  private static sortAndConcat(...args: Buffer[]): Buffer {
-    return Buffer.concat([...args].sort(Buffer.compare))
-  }
+    getProof(el: Buffer) {
+        let idx = this.bufferElementPositionIndex[bufferToHex(el)];
+
+        if (typeof idx !== "number") {
+            throw new Error("Element does not exist in Merkle tree");
+        }
+
+        return this.layers.reduce((proof, layer) => {
+            const pairElement = MerkleTree.getPairElement(idx, layer);
+
+            if (pairElement) {
+                proof.push(pairElement);
+            }
+
+            idx = Math.floor(idx / 2);
+
+            return proof;
+        }, []);
+    }
+
+    getHexProof(el: Buffer): string[] {
+        const proof = this.getProof(el);
+
+        return MerkleTree.bufArrToHexArr(proof);
+    }
+
+    private static getPairElement(idx: number, layer: Buffer[]): Buffer | null {
+        const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
+
+        if (pairIdx < layer.length) {
+            return layer[pairIdx];
+        }
+        return null;
+    }
+
+    private static bufDedup(elements: Buffer[]): Buffer[] {
+        return elements.filter((el, idx) => {
+            return idx === 0 || !elements[idx - 1].equals(el);
+        });
+    }
+
+    private static bufArrToHexArr(arr: Buffer[]): string[] {
+        if (arr.some((el) => !Buffer.isBuffer(el))) {
+            throw new Error("Array is not an array of buffers");
+        }
+
+        return arr.map((el) => `0x${el.toString("hex")}`);
+    }
+
+    private static sortAndConcat(...args: Buffer[]): Buffer {
+        return Buffer.concat([...args].sort(Buffer.compare));
+    }
 }
