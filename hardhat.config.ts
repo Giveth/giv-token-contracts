@@ -49,7 +49,36 @@ const config: HardhatUserConfig = {
                     },
                 },
             },
+            {
+                version: "0.7.6",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 999999,
+                    },
+                },
+            },
         ],
+        overrides: {
+            "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol": {
+                version: "0.7.6",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 999999,
+                    },
+                },
+            },
+            "@uniswap/v3-core/contracts/libraries/FullMath.sol": {
+                version: "0.7.6",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 999999,
+                    },
+                },
+            },
+        },
     },
     networks: {
         ropsten: {
