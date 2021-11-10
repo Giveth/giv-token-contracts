@@ -30,7 +30,9 @@ async function main() {
     // eslint-disable-next-line camelcase
     const merkletree_file = "./files/merkle_distributor_xdai_result.json";
     const data = JSON.parse(fs.readFileSync(merkletree_file));
-    const merkleTokens = ethers.utils.formatEther(BigNumber.from(data.tokenTotal).toString());
+    const merkleTokens = ethers.utils.formatEther(
+        BigNumber.from(data.tokenTotal).toString(),
+    );
     const GIVHNY_XDAI = ethers.utils.getAddress(args[2]); // GIVHNY_XDAI pool address
     const GIVHNY_XDAI_AMOUNT = args[3]; // GIVHNY_XDAI reward amount
     const GIVWETH_XDAI = ethers.utils.getAddress(args[4]); // GIVWETH_XDAI pool address
@@ -48,7 +50,10 @@ async function main() {
     console.log("##### Deployments #####");
     console.log("#######################");
     console.log("Deployer:", deployer);
-    console.log("totalTokens:", ethers.utils.formatEther(totalTokens.toString()));
+    console.log(
+        "totalTokens:",
+        ethers.utils.formatEther(totalTokens.toString()),
+    );
     console.log("startTime:", startTime);
     console.log("cliffPeriod:", cliffPeriod);
     console.log("duration:", duration);
@@ -64,7 +69,10 @@ async function main() {
     console.log("#######################\n");
 
     console.log("deployer:", deployer);
-    console.log("totalTokens:", ethers.utils.formatEther(totalTokens.toString()));
+    console.log(
+        "totalTokens:",
+        ethers.utils.formatEther(totalTokens.toString()),
+    );
     console.log("startTime:", startTime);
     console.log("cliffPeriod:", cliffPeriod);
     console.log("duration:", duration);
@@ -106,7 +114,11 @@ async function main() {
         ethers.utils.formatEther(await tokenDistro.totalTokens()),
         "Tokens",
     );
-    console.log(`token.mint("${tokenDistro.address}","${await tokenDistro.totalTokens()}")`);
+    console.log(
+        `token.mint("${
+            tokenDistro.address
+        }","${await tokenDistro.totalTokens()}")`,
+    );
 
     console.log("\n########################");
     console.log("##### MerkleDistro #####");
@@ -127,7 +139,10 @@ async function main() {
 
     // We grant permisions to the MerkleDistro and assign tokens
     await (
-        await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), merkleDistro.address)
+        await tokenDistro.grantRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            merkleDistro.address,
+        )
     ).wait();
     console.log(
         "TokenDistro - assign: MerkleDistro",
@@ -150,14 +165,18 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log(`####### 50GIV/HNY - honeyswap - xDai ${GIVHNY_XDAI_AMOUNT.toString()} #######`);
+    console.log(
+        `####### 50GIV/HNY - honeyswap - xDai ${GIVHNY_XDAI_AMOUNT.toString()} #######`,
+    );
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
     console.log("uni:", GIVHNY_XDAI);
     console.log("duration:", LMDuration);
 
-    const UnipoolTokenDistributor = await ethers.getContractFactory("UnipoolTokenDistributor");
+    const UnipoolTokenDistributor = await ethers.getContractFactory(
+        "UnipoolTokenDistributor",
+    );
     const GardenUnipoolTokenDistributor = await ethers.getContractFactory(
         "GardenUnipoolTokenDistributor",
     );
@@ -173,8 +192,16 @@ async function main() {
     console.log("\n##############################################\n");
 
     // We grant permissions to the MerkleDistro and assign tokens
-    await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), givhny_xdai.address)).wait();
-    console.log("TokenDistro - assign: givhny_xdai", GIVHNY_XDAI_AMOUNT.toString());
+    await (
+        await tokenDistro.grantRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            givhny_xdai.address,
+        )
+    ).wait();
+    console.log(
+        "TokenDistro - assign: givhny_xdai",
+        GIVHNY_XDAI_AMOUNT.toString(),
+    );
     await (
         await tokenDistro.assign(
             givhny_xdai.address,
@@ -198,7 +225,9 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log(`####### 50GIV/WETH - honeyswap - xDai ${GIVWETH_XDAI_AMOUNT.toString()}  #######`);
+    console.log(
+        `####### 50GIV/WETH - honeyswap - xDai ${GIVWETH_XDAI_AMOUNT.toString()}  #######`,
+    );
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
@@ -218,9 +247,15 @@ async function main() {
 
     // We grant permisions to the MerkleDistro and assign tokens
     await (
-        await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), givweth_xdai.address)
+        await tokenDistro.grantRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            givweth_xdai.address,
+        )
     ).wait();
-    console.log("TokenDistro - assign: givhny_xdai", GIVWETH_XDAI_AMOUNT.toString());
+    console.log(
+        "TokenDistro - assign: givhny_xdai",
+        GIVWETH_XDAI_AMOUNT.toString(),
+    );
     await (
         await tokenDistro.assign(
             givweth_xdai.address,
@@ -244,7 +279,9 @@ async function main() {
     );
 
     console.log("\n######################################################");
-    console.log(`#######     GIVstaking xDai - xDai - ${UNIGIV_AMOUNT.toString()}   #######`);
+    console.log(
+        `#######     GIVstaking xDai - xDai - ${UNIGIV_AMOUNT.toString()}   #######`,
+    );
     console.log("######################################################");
     console.log("deployer:", deployer);
     console.log("tokenDistribution:", tokenDistro.address);
@@ -262,10 +299,18 @@ async function main() {
     console.log("\n##############################################\n");
 
     // We grant permisions to the MerkleDistro and assign tokens
-    await (await tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), unigiv.address)).wait();
+    await (
+        await tokenDistro.grantRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            unigiv.address,
+        )
+    ).wait();
     console.log("TokenDistro - assign: givhny_xdai", UNIGIV_AMOUNT.toString());
     await (
-        await tokenDistro.assign(unigiv.address, ethers.utils.parseEther(UNIGIV_AMOUNT.toString()))
+        await tokenDistro.assign(
+            unigiv.address,
+            ethers.utils.parseEther(UNIGIV_AMOUNT.toString()),
+        )
     ).wait();
 
     // Set reward distributor
@@ -289,71 +334,103 @@ async function main() {
         "tokenDistro.balances(tokenDistro.address)",
         "allocated:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(tokenDistro.address)).allocatedTokens.toString(),
+            (
+                await tokenDistro.balances(tokenDistro.address)
+            ).allocatedTokens.toString(),
         ),
         "claimed:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(tokenDistro.address)).claimed.toString(),
+            (
+                await tokenDistro.balances(tokenDistro.address)
+            ).claimed.toString(),
         ),
     );
     console.log(
         "tokenDistro.balances(merkleDistro.address)",
         "allocated:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(merkleDistro.address)).allocatedTokens.toString(),
+            (
+                await tokenDistro.balances(merkleDistro.address)
+            ).allocatedTokens.toString(),
         ),
         "claimed:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(merkleDistro.address)).claimed.toString(),
+            (
+                await tokenDistro.balances(merkleDistro.address)
+            ).claimed.toString(),
         ),
     );
     console.log(
         "tokenDistro.balances(givhny_xdai.address)",
         "allocated:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(givhny_xdai.address)).allocatedTokens.toString(),
+            (
+                await tokenDistro.balances(givhny_xdai.address)
+            ).allocatedTokens.toString(),
         ),
         "claimed:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(givhny_xdai.address)).claimed.toString(),
+            (
+                await tokenDistro.balances(givhny_xdai.address)
+            ).claimed.toString(),
         ),
     );
     console.log(
         "tokenDistro.balances(givweth_xdai.address)",
         "allocated:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(givweth_xdai.address)).allocatedTokens.toString(),
+            (
+                await tokenDistro.balances(givweth_xdai.address)
+            ).allocatedTokens.toString(),
         ),
         "claimed:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(givweth_xdai.address)).claimed.toString(),
+            (
+                await tokenDistro.balances(givweth_xdai.address)
+            ).claimed.toString(),
         ),
     );
     console.log(
         "tokenDistro.balances(unigiv.address)",
         "allocated:",
         ethers.utils.formatEther(
-            (await tokenDistro.balances(unigiv.address)).allocatedTokens.toString(),
+            (
+                await tokenDistro.balances(unigiv.address)
+            ).allocatedTokens.toString(),
         ),
         "claimed:",
-        ethers.utils.formatEther((await tokenDistro.balances(unigiv.address)).claimed.toString()),
+        ethers.utils.formatEther(
+            (await tokenDistro.balances(unigiv.address)).claimed.toString(),
+        ),
     );
 
     console.log(
         "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),merkleDistro.address)",
-        await tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(), merkleDistro.address),
+        await tokenDistro.hasRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            merkleDistro.address,
+        ),
     );
     console.log(
         "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),givhny_xdai.address)",
-        await tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(), givhny_xdai.address),
+        await tokenDistro.hasRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            givhny_xdai.address,
+        ),
     );
     console.log(
         "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),givweth_xdai.address)",
-        await tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(), givweth_xdai.address),
+        await tokenDistro.hasRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            givweth_xdai.address,
+        ),
     );
     console.log(
         "tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),unigiv.address)",
-        await tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(), unigiv.address),
+        await tokenDistro.hasRole(
+            tokenDistro.DISTRIBUTOR_ROLE(),
+            unigiv.address,
+        ),
     );
 }
 
