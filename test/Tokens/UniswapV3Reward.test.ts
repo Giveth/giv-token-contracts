@@ -209,7 +209,9 @@ describe("UniswapV3RewardToken", () => {
             gurToken
                 .connect(uStaker)
                 .transfer(recipientAddress1, amountRecipient1),
-        ).to.be.revertedWith("TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE");
+        ).to.be.revertedWith(
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
+        );
 
         const gurTokenAddress = gurToken.address;
 

@@ -32,7 +32,7 @@ const startToCliff = 180 * (3600 * 24);
 const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
 
-describe("tokenDistro", () => {
+describe("GardenUnipoolTokenDistributor", () => {
     beforeEach(async () => {
         [
             multisig,

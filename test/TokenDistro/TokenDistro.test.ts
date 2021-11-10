@@ -241,13 +241,13 @@ describe("TokenDistro", () => {
                 .connect(multisig2)
                 .allocateMany([recipientAddress1], [amount]),
         ).to.be.revertedWith(
-            "TokenDistro::allocateMany: ONLY_DISTRIBUTOR_ROLE",
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
         );
 
         await expect(
             tokenDistro.allocateMany([multisigAddress], [amount]),
         ).to.be.revertedWith(
-            "TokenDistro::allocateMany: DISTRIBUTOR_NOT_VALID_RECIPIENT",
+            "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT",
         );
 
         await expect(
@@ -329,13 +329,13 @@ describe("TokenDistro", () => {
                 .connect(multisig2)
                 .sendGIVbacks([recipientAddress1], [amount]),
         ).to.be.revertedWith(
-            "TokenDistro::allocateMany: ONLY_DISTRIBUTOR_ROLE",
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
         );
 
         await expect(
             tokenDistro.sendGIVbacks([multisigAddress], [amount]),
         ).to.be.revertedWith(
-            "TokenDistro::allocateMany: DISTRIBUTOR_NOT_VALID_RECIPIENT",
+            "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT",
         );
 
         await expect(
@@ -372,14 +372,7 @@ describe("TokenDistro", () => {
             .to.emit(tokenDistro, "Allocate")
             .withArgs(multisigAddress, recipientAddress4, amountRecipient4)
             .to.emit(tokenDistro, "GivBackPaid")
-            .withArgs(multisigAddress, recipientAddress1, amountRecipient1)
-            .to.emit(tokenDistro, "GivBackPaid")
-            .withArgs(multisigAddress, recipientAddress2, amountRecipient2)
-            .to.emit(tokenDistro, "GivBackPaid")
-            .withArgs(multisigAddress, recipientAddress3, amountRecipient3)
-            .to.emit(tokenDistro, "GivBackPaid")
-            .withArgs(multisigAddress, recipientAddress4, amountRecipient4);
-
+            .withArgs(multisigAddress);
         expect(
             (await tokenDistro.balances(recipientAddress1)).allocatedTokens,
         ).to.be.equal(amountRecipient1);
@@ -421,27 +414,39 @@ describe("TokenDistro", () => {
         await tokenDistro.connect(multisig).assign(multisigAddress, amount);
 
         await expect(
-            tokenDistro.connect(multisig2).allocate(recipientAddress1, amount),
-        ).to.be.revertedWith("TokenDistro::allocate: ONLY_DISTRIBUTOR_ROLE");
+            tokenDistro
+                .connect(multisig2)
+                .allocate(recipientAddress1, amount, true),
+        ).to.be.revertedWith(
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
+        );
 
         await expect(
-            tokenDistro.allocate(multisigAddress, amount),
+            tokenDistro.allocate(multisigAddress, amount, true),
         ).to.be.revertedWith(
             "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT",
         );
 
-        await expect(tokenDistro.allocate(recipientAddress1, amountRecipient1))
+        await expect(
+            tokenDistro.allocate(recipientAddress1, amountRecipient1, true),
+        )
             .to.emit(tokenDistro, "Allocate")
             .withArgs(multisigAddress, recipientAddress1, amountRecipient1);
 
-        await expect(tokenDistro.allocate(recipientAddress2, amountRecipient2))
+        await expect(
+            tokenDistro.allocate(recipientAddress2, amountRecipient2, true),
+        )
             .to.emit(tokenDistro, "Allocate")
             .withArgs(multisigAddress, recipientAddress2, amountRecipient2);
 
-        await expect(tokenDistro.allocate(recipientAddress3, amountRecipient3))
+        await expect(
+            tokenDistro.allocate(recipientAddress3, amountRecipient3, true),
+        )
             .to.emit(tokenDistro, "Allocate")
             .withArgs(multisigAddress, recipientAddress3, amountRecipient3);
-        await expect(tokenDistro.allocate(recipientAddress4, amountRecipient4))
+        await expect(
+            tokenDistro.allocate(recipientAddress4, amountRecipient4, true),
+        )
             .to.emit(tokenDistro, "Allocate")
             .withArgs(multisigAddress, recipientAddress4, amountRecipient4);
 
@@ -491,10 +496,10 @@ describe("TokenDistro", () => {
             .div(amount);
 
         await token.mint(tokenDistro.address, amount);
-        tokenDistro.allocate(recipientAddress1, amountRecipient1);
-        tokenDistro.allocate(recipientAddress2, amountRecipient2);
-        tokenDistro.allocate(recipientAddress3, amountRecipient3);
-        tokenDistro.allocate(recipientAddress4, amountRecipient4);
+        tokenDistro.allocate(recipientAddress1, amountRecipient1, true);
+        tokenDistro.allocate(recipientAddress2, amountRecipient2, true);
+        tokenDistro.allocate(recipientAddress3, amountRecipient3, true);
+        tokenDistro.allocate(recipientAddress4, amountRecipient4, true);
         await expect(
             tokenDistro.claimableAt(
                 multisigAddress,
@@ -599,10 +604,10 @@ describe("TokenDistro", () => {
         const amountRecipient3 = amountRecipient2.div(4);
         const amountRecipient4 = amountRecipient3.div(5);
 
-        await tokenDistro.allocate(recipientAddress1, amountRecipient1);
-        await tokenDistro.allocate(recipientAddress2, amountRecipient2);
-        await tokenDistro.allocate(recipientAddress3, amountRecipient3);
-        await tokenDistro.allocate(recipientAddress4, amountRecipient4);
+        await tokenDistro.allocate(recipientAddress1, amountRecipient1, true);
+        await tokenDistro.allocate(recipientAddress2, amountRecipient2, true);
+        await tokenDistro.allocate(recipientAddress3, amountRecipient3, true);
+        await tokenDistro.allocate(recipientAddress4, amountRecipient4, true);
 
         const nowTimestamp =
             (await ethers.provider.getBlock("latest")).timestamp + 1;
@@ -690,9 +695,9 @@ describe("TokenDistro", () => {
         await token.mint(tokenDistro.address, amount);
 
         const amountRecipient1 = amount.div(2);
-        await tokenDistro.allocate(recipientAddress1, amountRecipient1);
+        await tokenDistro.allocate(recipientAddress1, amountRecipient1, true);
         const amountRecipient3 = amount.div(2);
-        await tokenDistro.allocate(recipientAddress3, amountRecipient3);
+        await tokenDistro.allocate(recipientAddress3, amountRecipient3, true);
 
         await tokenDistro.connect(recipient1).claim();
 
@@ -753,8 +758,8 @@ describe("TokenDistro", () => {
         const amountRecipient2 = amountRecipient1.div(2);
         const amountRecipient3 = amountRecipient2.div(2);
 
-        await tokenDistro.allocate(recipientAddress1, amountRecipient1);
-        await tokenDistro.allocate(recipientAddress3, amountRecipient3);
+        await tokenDistro.allocate(recipientAddress1, amountRecipient1, true);
+        await tokenDistro.allocate(recipientAddress3, amountRecipient3, true);
 
         await tokenDistro.connect(recipient1).claim();
 
@@ -807,9 +812,9 @@ describe("TokenDistro", () => {
         await token.mint(tokenDistro.address, amount);
 
         const amountRecipient1 = amount.div(2);
-        await tokenDistro.allocate(recipientAddress1, amountRecipient1);
+        await tokenDistro.allocate(recipientAddress1, amountRecipient1, true);
         const amountRecipient3 = amount.div(2);
-        await tokenDistro.allocate(recipientAddress3, amountRecipient3);
+        await tokenDistro.allocate(recipientAddress3, amountRecipient3, true);
 
         await tokenDistro.connect(recipient1).claim();
 
@@ -870,9 +875,9 @@ describe("TokenDistro", () => {
         await token.mint(tokenDistro.address, amount);
 
         const amountRecipient1 = amount.div(2);
-        await tokenDistro.allocate(recipientAddress1, amountRecipient1);
+        await tokenDistro.allocate(recipientAddress1, amountRecipient1, true);
         const amountRecipient3 = amount.div(2);
-        await tokenDistro.allocate(recipientAddress3, amountRecipient3);
+        await tokenDistro.allocate(recipientAddress3, amountRecipient3, true);
 
         await tokenDistro.connect(recipient1).claim();
 

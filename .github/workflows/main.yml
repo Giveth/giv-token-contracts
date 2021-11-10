@@ -27,4 +27,4 @@ jobs:
       - name: setup
         run: npm install -g npm@latest && npm i
       - name: test
-        run: npm run test
+        run: npm run compile && npm run test

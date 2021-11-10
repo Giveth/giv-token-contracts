@@ -3,7 +3,7 @@
   "scripts": {
     "prettier:sol": "prettier --write 'contracts/**/*.sol'",
     "compile": "hardhat compile",
-    "clear-cache": "rm -rf artifacts/ cache/ typechain/",
+    "clear-cache": "rm -rf artifacts/ cache/ typechain-types/",
     "test": "hardhat test",
     "csv2json": "ts-node scripts/csv2json.ts ./files/GIV_tokens_-_AIRDROP_TEST_LIST.csv ./files/merkle_distributor_xdai.json",
     "generate-merkle-root": "ts-node scripts/generate-merkle-root.ts --input ./files/merkle_distributor_xdai.json --output ./files/merkle_distributor_xdai_result.json",
