@@ -185,7 +185,7 @@ contract TokenManagerHook is ReentrancyGuard {
         address _tokenManager,
         uint256 _hookId,
         address _token
-    ) internal {
+    ) internal virtual {
         return;
     }
 
@@ -193,7 +193,7 @@ contract TokenManagerHook is ReentrancyGuard {
         address _tokenManager,
         uint256 _hookId,
         address _token
-    ) internal {
+    ) internal virtual {
         return;
     }
 
@@ -209,7 +209,7 @@ contract TokenManagerHook is ReentrancyGuard {
         address _holder,
         address _spender,
         uint256 _amount
-    ) internal returns (bool) {
+    ) internal virtual returns (bool) {
         return true;
     }
 }

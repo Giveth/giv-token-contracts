@@ -7,12 +7,8 @@ import "../Distributors/GardenUnipoolTokenDistributor.sol";
 contract GardenUnipoolTokenDistributorMock is GardenUnipoolTokenDistributor {
     uint256 public currentTimestamp;
 
-    constructor(
-        IDistro _tokenDistribution,
-        IERC20Upgradeable _uni,
-        uint256 _duration
-    ) {
-        initialize(_tokenDistribution, _uni, _duration);
+    constructor(IDistro _tokenDistribution, uint256 _duration) {
+        initialize(_tokenDistribution, _duration);
     }
 
     function setTimestamp(uint256 timestamp) public {

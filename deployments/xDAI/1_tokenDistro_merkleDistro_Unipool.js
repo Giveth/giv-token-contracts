@@ -290,7 +290,6 @@ async function main() {
 
     const unigiv = await upgrades.deployProxy(GardenUnipoolTokenDistributor, [
         tokenDistro.address,
-        tokenAddress,
         LMDuration,
     ]);
     await unigiv.deployed();

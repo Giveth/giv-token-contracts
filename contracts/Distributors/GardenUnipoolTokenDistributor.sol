@@ -14,7 +14,6 @@ pragma solidity =0.8.6;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../Interfaces/IDistro.sol";
 import "./TokenManagerHook.sol";
 
@@ -63,7 +62,6 @@ contract GardenUnipoolTokenDistributor is
     OwnableUpgradeable
 {
     using SafeMathUpgradeable for uint256;
-    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IDistro public tokenDistro;
     uint256 public duration;
@@ -99,11 +97,10 @@ contract GardenUnipoolTokenDistributor is
         _;
     }
 
-    function initialize(
-        IDistro _tokenDistribution,
-        IERC20Upgradeable _uni,
-        uint256 _duration
-    ) public initializer {
+    function initialize(IDistro _tokenDistribution, uint256 _duration)
+        public
+        initializer
+    {
         __Ownable_init();
         __LPTokenWrapper_initialize();
         tokenDistro = _tokenDistribution;
@@ -142,7 +139,7 @@ contract GardenUnipoolTokenDistributor is
      * @notice The difference between what this returns and what the claimableStream function returns
      *  will be locked in TokenDistro to be streamed and released gradually
      */
-    function earned(address account) public view returns (uint256) {
+    function earned(address account) external view returns (uint256) {
         uint256 _totalEarned = claimableStream(account);
         uint256 _tokenDistroReleasedTokens = tokenDistro.globallyClaimableAt(
             getTimestamp()

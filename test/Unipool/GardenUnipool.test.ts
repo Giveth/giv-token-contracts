@@ -84,7 +84,6 @@ describe("GardenUnipoolTokenDistributor", () => {
 
         const gardenUnipool = (await gardenUnipoolFactory.deploy(
             tokenDistro.address,
-            givToken.address,
             lmDuration,
         )) as GardenUnipoolTokenDistributorMock;
         await gardenUnipool.setRewardDistribution(multisigAddress);
