@@ -87,7 +87,6 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         returns (uint256)
     {
         if (spender == uniswapV3Staker) return type(uint256).max;
-        // TODO: for staker is spender return infinite amount
         return 0;
     }
 }
