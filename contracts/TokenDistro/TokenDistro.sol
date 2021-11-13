@@ -164,6 +164,9 @@ contract TokenDistro is
      *
      */
     function claimTo(address account) external {
+        // This check is not necessary as it does not break anything, just changes the claimed value
+        // for this contract
+        //require(address(this) != account, "TokenDistro::claimTo: CANNOT_CLAIM_FOR_CONTRACT_ITSELF");
         _claim(account);
     }
 
