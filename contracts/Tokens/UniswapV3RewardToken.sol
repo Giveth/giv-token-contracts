@@ -47,7 +47,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         returns (bool)
     {
         require(
-            msg.sender == uniswapV3Staker && to != uniswapV3Staker,
+            msg.sender == uniswapV3Staker,
             "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
         );
 
@@ -55,8 +55,6 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         tokenDistro.allocate(to, value, true);
 
         emit RewardPaid(to, value);
-        emit Transfer(msg.sender, to, value);
-
         return true;
     }
 
