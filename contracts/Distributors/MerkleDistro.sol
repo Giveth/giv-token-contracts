@@ -19,14 +19,21 @@ import "../Interfaces/IDistro.sol";
  *      * Use tokenDistro.allocate instead of token transfer
  */
 
-contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeable {
+contract MerkleDistro is
+    IMerkleTreeDistributor,
+    Initializable,
+    OwnableUpgradeable
+{
     IDistro public tokenDistro;
     bytes32 public override merkleRoot;
 
     // This is a packed array of booleans.
     mapping(uint256 => uint256) private claimedBitMap;
 
-    function initialize(IDistro _tokenDistro, bytes32 _merkleRoot) public initializer {
+    function initialize(IDistro _tokenDistro, bytes32 _merkleRoot)
+        public
+        initializer
+    {
         __Ownable_init();
         tokenDistro = _tokenDistro;
         merkleRoot = _merkleRoot;
@@ -53,10 +60,7 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external override {
-        require(
-            !isClaimed(index),
-            "MerkleDistro::claim Drop already claimed."
-        );
+        require(!isClaimed(index), "MerkleDistro::claim Drop already claimed.");
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, msg.sender, amount));
@@ -67,7 +71,7 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
 
         // Mark it claimed and allocate the tokens
         _setClaimed(index);
-        tokenDistro.allocate(msg.sender, amount);
+        tokenDistro.allocate(msg.sender, amount, true);
 
         emit Claimed(index, msg.sender, msg.sender, amount);
     }
@@ -83,10 +87,7 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external override onlyOwner {
-        require(
-            !isClaimed(index),
-            "MerkleDistro::claim Drop already claimed."
-        );
+        require(!isClaimed(index), "MerkleDistro::claim Drop already claimed.");
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
@@ -97,7 +98,7 @@ contract MerkleDistro is IMerkleTreeDistributor, Initializable, OwnableUpgradeab
 
         // Mark it claimed and allocate the tokens
         _setClaimed(index);
-        tokenDistro.allocate(recipient, amount);
+        tokenDistro.allocate(recipient, amount, true);
 
         emit Claimed(index, account, recipient, amount);
     }

@@ -34,6 +34,11 @@ interface IDistro {
     event StartTimeChanged(uint256 newStartTime, uint256 newCliffTime);
 
     /**
+     * @dev Returns the total amount of tokens will be streamed
+     */
+    function totalTokens() external view returns (uint256);
+
+    /**
      * Function that allows the DEFAULT_ADMIN_ROLE to assign set a new startTime if it hasn't started yet
      * @param newStartTime new startTime
      *
@@ -60,8 +65,13 @@ interface IDistro {
      * @dev Needs to be initialized: Nobody has the DEFAULT_ADMIN_ROLE and all available tokens have been assigned
      * @param recipient of token allocation
      * @param amount allocated amount
+     * @param claim whether claim after allocate
      */
-    function allocate(address recipient, uint256 amount) external;
+    function allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) external;
 
     /**
      * Function that allows to the distributor address to allocate some amounts of tokens to specific recipients
@@ -69,7 +79,11 @@ interface IDistro {
      * @param recipients of token allocation
      * @param amounts allocated amount
      */
-    function allocateMany(address[] memory recipients, uint256[] memory amounts) external;
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external;
+
+    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts)
+        external;
 
     /**
      * Function that allows a recipient to change its address

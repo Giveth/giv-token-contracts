@@ -13,111 +13,50 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     string public constant symbol = "GUR";
     uint8 public constant decimals = 18;
 
-    address public minter;
     IDistro public tokenDistro;
     address public uniswapV3Staker;
     uint256 public override totalSupply;
-    mapping(address => uint256) public override balanceOf;
-    mapping(address => mapping(address => uint256)) public override allowance;
 
-    event ChangeMinter(address indexed minter);
     event RewardPaid(address indexed user, uint256 reward);
 
-    modifier onlyMinter {
-        require(msg.sender == minter, "GivethUniswapV3Reward:NOT_MINTER");
-        _;
-    }
-
-    function initialize(
-        address _initialMinter,
-        IDistro _tokenDistribution,
-        address _uniswapV3Staker
-    ) public initializer {
-        _changeMinter(_initialMinter);
+    function initialize(IDistro _tokenDistribution, address _uniswapV3Staker)
+        public
+        initializer
+    {
+        __Ownable_init();
         tokenDistro = _tokenDistribution;
         uniswapV3Staker = _uniswapV3Staker;
     }
 
-    function _changeMinter(address newMinter) internal {
-        minter = newMinter;
-        emit ChangeMinter(newMinter);
-    }
-
-    function _mint(address to, uint256 value) internal {
-        totalSupply = totalSupply + value;
-        balanceOf[to] = balanceOf[to] + value;
-        emit Transfer(address(0), to, value);
-    }
-
-    function _burn(address from, uint256 value) internal {
-        // Balance is implicitly checked with solidity underflow protection
-        balanceOf[from] = balanceOf[from] - value;
-        totalSupply = totalSupply - value;
-        emit Transfer(from, address(0), value);
-    }
-
-    function _transfer(
-        address from,
-        address to,
-        uint256 value
-    ) private {
-        require(
-            to != address(this) && to != address(0),
-            "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
-        );
-        if (from == minter) {
-            // Balance is implicitly checked with SafeMath's underflow protection
-            require(to == uniswapV3Staker, "GivethUniswapV3Reward:NOT_VALID_TRANSFER");
-            balanceOf[from] = balanceOf[from] - value;
-            balanceOf[to] = balanceOf[to] + value;
-            emit Transfer(from, to, value);
-        } else {
-            require(from == uniswapV3Staker && to != uniswapV3Staker, "GivethUniswapV3Reward:NOT_VALID_TRANSFER");
-            _burn(from, value);
-            tokenDistro.allocate(to, value);
-            emit RewardPaid(to, value);
-        }
-    }
-
-    function getChainId() public view returns (uint256 chainId) {
-        assembly {
-            chainId := chainid()
-        }
-    }
-
-    function mint(address to, uint256 value)
-    external
-    onlyMinter
-    returns (bool)
-    {
-        _mint(to, value);
-        return true;
-    }
-
-    function changeMinter(address newMinter) external onlyMinter {
-        _changeMinter(newMinter);
-    }
-
-    function burn(uint256 value) external returns (bool) {
-        _burn(msg.sender, value);
-        return true;
+    function balanceOf(address account) public view override returns (uint256) {
+        if (account == uniswapV3Staker) return totalSupply;
+        return 0;
     }
 
     function approve(address spender, uint256 value)
-    external
-    override
-    returns (bool)
+        external
+        override
+        returns (bool)
     {
-        revert("GivethUniswapV3Reward:disabled");
         return true;
     }
 
     function transfer(address to, uint256 value)
-    external
-    override
-    returns (bool)
+        external
+        override
+        returns (bool)
     {
-        _transfer(msg.sender, to, value);
+        require(
+            msg.sender == uniswapV3Staker && to != uniswapV3Staker,
+            "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
+        );
+
+        totalSupply = totalSupply - value;
+        tokenDistro.allocate(to, value, true);
+
+        emit RewardPaid(to, value);
+        emit Transfer(msg.sender, to, value);
+
         return true;
     }
 
@@ -126,8 +65,29 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
-        revert("GivethUniswapV3Reward:disabled");
+        // Only uniswapV3Staker can do the transferFrom
+        require(
+            msg.sender == uniswapV3Staker,
+            "GivethUniswapV3Reward:ONLY_STAKER"
+        );
+
+        // Only to uniswapV3Staker is allowed
+        require(to == uniswapV3Staker, "GivethUniswapV3Reward:ONLY_TO_STAKER");
+
+        totalSupply = totalSupply + value;
+
+        emit Transfer(address(0), to, value);
         return true;
     }
 
+    function allowance(address owner, address spender)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        if (spender == uniswapV3Staker) return type(uint256).max;
+        // TODO: for staker is spender return infinite amount
+        return 0;
+    }
 }
