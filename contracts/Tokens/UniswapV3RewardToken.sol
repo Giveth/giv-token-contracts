@@ -63,7 +63,10 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
-        require(tx.origin == owner(), "GivethUniswapV3Reward:transferFrom:ONLY_OWNER_CAN_ADD_INCENTIVES");
+        require(
+            tx.origin == owner(),
+            "GivethUniswapV3Reward:transferFrom:ONLY_OWNER_CAN_ADD_INCENTIVES"
+        );
 
         // Only uniswapV3Staker can do the transferFrom
         require(
