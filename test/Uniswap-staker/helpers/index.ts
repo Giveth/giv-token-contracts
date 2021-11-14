@@ -21,6 +21,8 @@ import {
     UniswapV3Staker,
     IUniswapV3Pool,
     TestIncentiveId,
+    UniswapV3RewardToken,
+    TokenDistro,
 } from "../../../typechain-types";
 import { HelperTypes } from "./types";
 import { ActorFixture } from "../shared/actors";
@@ -119,20 +121,20 @@ export class HelperCommands {
             startTime,
             endTime,
         };
-        const bal = await params.rewardToken.balanceOf(
-            incentiveCreator.address,
-        );
+        // const bal = await params.rewardToken.balanceOf(
+        //     incentiveCreator.address,
+        // );
+        //
+        // if (bal < params.totalReward) {
+        //     await params.rewardToken.transfer(
+        //         incentiveCreator.address,
+        //         params.totalReward,
+        //     );
+        // }
 
-        if (bal < params.totalReward) {
-            await params.rewardToken.transfer(
-                incentiveCreator.address,
-                params.totalReward,
-            );
-        }
-
-        await params.rewardToken
-            .connect(incentiveCreator)
-            .approve(this.staker.address, params.totalReward);
+        // await params.rewardToken
+        //     .connect(incentiveCreator)
+        //     .approve(this.staker.address, params.totalReward);
 
         await this.staker.connect(incentiveCreator).createIncentive(
             {
@@ -342,9 +344,18 @@ export class HelperCommands {
 
         await this.nft.connect(params.lp).burn(params.tokenId, maxGas);
 
-        const balance = await params.createIncentiveResult.rewardToken
-            .connect(params.lp)
-            .balanceOf(params.lp.address);
+        const tokenDistroAddress =
+            await params.createIncentiveResult.rewardToken.tokenDistro();
+        const tokenDistroFactory = await ethers.getContractFactory(
+            "TokenDistro",
+        );
+        const tokenDistro = tokenDistroFactory.attach(
+            tokenDistroAddress,
+        ) as TokenDistro;
+
+        const balance = (
+            await tokenDistro.connect(params.lp).balances(params.lp.address)
+        ).allocatedTokens;
 
         return {
             balance,
@@ -373,23 +384,23 @@ export class HelperCommands {
             )
         ).wait();
 
-        const transferFilter = rewardToken.filters.Transfer(
-            this.staker.address,
+        const rewardPaidFilter = rewardToken.filters.RewardPaid(
             incentiveCreator.address,
             null,
         );
-        const transferTopic = rewardToken.interface.getEventTopic("Transfer");
+        const transferTopic = rewardToken.interface.getEventTopic("RewardPaid");
         const logItem = receipt.logs.find((log) =>
             log.topics.includes(transferTopic),
         );
         const events = await rewardToken.queryFilter(
-            transferFilter,
+            rewardPaidFilter,
             logItem?.blockHash,
         );
         let amountTransferred: BigNumber;
 
         if (events.length === 1) {
-            amountTransferred = events[0].args[2];
+            // eslint-disable-next-line prefer-destructuring
+            amountTransferred = events[0].args[1];
         } else {
             throw new Error("Could not find transfer event");
         }
@@ -488,7 +499,7 @@ export class HelperCommands {
 export class ERC20Helper {
     ensureBalancesAndApprovals = async (
         actor: Wallet,
-        tokens: TestERC20 | Array<TestERC20>,
+        tokens: TestERC20 | UniswapV3RewardToken | Array<TestERC20>,
         balance: BigNumber,
         spender?: string,
     ) => {
@@ -505,7 +516,7 @@ export class ERC20Helper {
 
     ensureBalance = async (
         actor: Wallet,
-        token: TestERC20,
+        token: TestERC20 | UniswapV3RewardToken,
         balance: BigNumber,
     ) => {
         const currentBalance = await token.balanceOf(actor.address);

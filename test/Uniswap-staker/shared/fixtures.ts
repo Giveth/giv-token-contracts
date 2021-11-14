@@ -19,6 +19,8 @@ import {
     IUniswapV3Factory,
     IUniswapV3Pool,
     TestIncentiveId,
+    UniswapV3RewardTokenMock,
+    TokenDistroMock,
 } from "../../../typechain-types";
 import { NFTDescriptor } from "../typechain/NFTDescriptor";
 import { FeeAmount, BigNumber, encodePriceSqrt, MAX_GAS_LIMIT } from ".";
@@ -76,6 +78,8 @@ type UniswapFactoryFixture = {
     router: ISwapRouter;
     nft: INonfungiblePositionManager;
     tokens: [TestERC20, TestERC20, TestERC20];
+    rewardToken: UniswapV3RewardTokenMock;
+    tokenDistro: TokenDistroMock;
 };
 
 export const uniswapFactoryFixture: Fixture<UniswapFactoryFixture> = async (
@@ -84,11 +88,52 @@ export const uniswapFactoryFixture: Fixture<UniswapFactoryFixture> = async (
 ) => {
     const { weth9, factory, router } = await v3RouterFixture(wallets, provider);
     const tokenFactory = await ethers.getContractFactory("TestERC20");
+    const gurTokenFactory = await ethers.getContractFactory(
+        "UniswapV3RewardTokenMock",
+    );
+    const tokenDistroFactory = await ethers.getContractFactory(
+        "TokenDistroMock",
+    );
+
     const tokens = (await Promise.all([
         tokenFactory.deploy(constants.MaxUint256.div(2)), // do not use maxu256 to avoid overflowing
         tokenFactory.deploy(constants.MaxUint256.div(2)),
         tokenFactory.deploy(constants.MaxUint256.div(2)),
     ])) as [TestERC20, TestERC20, TestERC20];
+    const offset = 90 * (3600 * 24);
+    const startTime =
+        (await ethers.provider.getBlock("latest")).timestamp + offset;
+    const startToCliff = 180 * (3600 * 24);
+    const startToEnd = 730 * (3600 * 24);
+    const initialPercentage = 0;
+    const rewardAmount = constants.MaxUint256.div(2);
+
+    const givToken = (await tokenFactory.deploy(
+        constants.MaxUint256.div(2),
+    )) as TestERC20;
+
+    const tokenDistro = (await tokenDistroFactory.deploy(
+        rewardAmount,
+        startTime,
+        startToCliff,
+        startToEnd,
+        initialPercentage,
+        givToken.address,
+        false,
+    )) as TokenDistroMock;
+
+    await givToken.transfer(tokenDistro.address, rewardAmount);
+
+    const rewardToken = (await gurTokenFactory.deploy(
+        tokenDistro.address,
+        ethers.constants.AddressZero,
+    )) as UniswapV3RewardTokenMock;
+
+    await tokenDistro.grantRole(
+        await tokenDistro.DISTRIBUTOR_ROLE(),
+        rewardToken.address,
+    );
+    await tokenDistro.assign(rewardToken.address, rewardAmount);
 
     const nftDescriptorLibrary = await nftDescriptorLibraryFixture(
         wallets,
@@ -143,6 +188,8 @@ export const uniswapFactoryFixture: Fixture<UniswapFactoryFixture> = async (
         factory,
         router,
         tokens,
+        rewardToken,
+        tokenDistro,
         nft,
     };
 };
@@ -202,6 +249,7 @@ export const mintPosition = async (
     }
 
     if (tokenId === undefined) {
+        // eslint-disable-next-line no-throw-literal
         throw "could not find tokenId after mint";
     } else {
         return tokenId.toString();
@@ -221,17 +269,20 @@ export type UniswapFixtureType = {
     tokens: [TestERC20, TestERC20, TestERC20];
     token0: TestERC20;
     token1: TestERC20;
-    rewardToken: TestERC20;
+    token2: TestERC20;
+    rewardToken: UniswapV3RewardTokenMock;
+    tokenDistro: TokenDistroMock;
 };
 export const uniswapFixture: Fixture<UniswapFixtureType> = async (
     wallets,
     provider,
 ) => {
-    const { tokens, nft, factory, router } = await uniswapFactoryFixture(
-        wallets,
-        provider,
-    );
-    const signer = new ActorFixture(wallets, provider).stakerDeployer();
+    const { tokens, nft, factory, router, rewardToken, tokenDistro } =
+        await uniswapFactoryFixture(wallets, provider);
+    const actors = new ActorFixture(wallets, provider);
+    const signer = actors.stakerDeployer();
+    const incentiveCreator = actors.incentiveCreator();
+
     const stakerFactory = await ethers.getContractFactory(
         "UniswapV3Staker",
         signer,
@@ -243,6 +294,9 @@ export const uniswapFixture: Fixture<UniswapFixtureType> = async (
         2 ** 32,
     )) as UniswapV3Staker;
 
+    await rewardToken.setStakerAddress(staker.address);
+    await rewardToken.transferOwnership(incentiveCreator.address);
+
     const testIncentiveIdFactory = await ethers.getContractFactory(
         "TestIncentiveId",
         signer,
@@ -250,6 +304,7 @@ export const uniswapFixture: Fixture<UniswapFixtureType> = async (
     const testIncentiveId =
         (await testIncentiveIdFactory.deploy()) as TestIncentiveId;
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const token of tokens) {
         await token.approve(nft.address, constants.MaxUint256);
     }
@@ -296,7 +351,9 @@ export const uniswapFixture: Fixture<UniswapFixtureType> = async (
         poolObj,
         token0: tokens[0],
         token1: tokens[1],
-        rewardToken: tokens[2],
+        token2: tokens[2],
+        rewardToken,
+        tokenDistro,
     };
 };
 

@@ -70,7 +70,8 @@ describe("integration", async () => {
             const epoch = await blockTimestamp();
 
             const {
-                tokens: [token0, token1, rewardToken],
+                tokens: [token0, token1],
+                rewardToken,
             } = context;
             const helpers = HelperCommands.fromTestContext(
                 context,

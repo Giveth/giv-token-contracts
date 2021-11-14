@@ -1,5 +1,5 @@
 import { BigNumber, Wallet } from "ethers";
-import { TestERC20 } from "../../../typechain-types";
+import { TestERC20, UniswapV3RewardToken } from "../../../typechain-types";
 import { FeeAmount } from "../shared";
 
 export module HelperTypes {
@@ -9,7 +9,7 @@ export module HelperTypes {
 
     export module CreateIncentive {
         export type Args = {
-            rewardToken: TestERC20;
+            rewardToken: UniswapV3RewardToken;
             poolAddress: string;
             startTime: number;
             endTime?: number;
@@ -18,7 +18,7 @@ export module HelperTypes {
         };
         export type Result = {
             poolAddress: string;
-            rewardToken: TestERC20;
+            rewardToken: UniswapV3RewardToken;
             totalReward: BigNumber;
             startTime: number;
             endTime: number;

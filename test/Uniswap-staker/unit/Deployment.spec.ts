@@ -28,6 +28,7 @@ describe("unit/Deployment", () => {
             2 ** 32,
             2 ** 32,
         )) as UniswapV3Staker;
+        // eslint-disable-next-line no-unused-expressions
         expect(staker.address).to.be.a.string;
     });
 
