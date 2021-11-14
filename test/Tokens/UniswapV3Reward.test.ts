@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { describe, beforeEach, it } from "mocha";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Contract, ContractFactory } from "ethers";
+import { ContractFactory } from "ethers";
 import { TokenDistro } from "../../typechain-types/TokenDistro";
 import { GIV } from "../../typechain-types/GIV";
 import { UniswapV3RewardToken } from "../../typechain-types/UniswapV3RewardToken";
@@ -172,7 +172,7 @@ describe("UniswapV3RewardToken", () => {
         ).to.be.revertedWith("GivethUniswapV3Reward:transfer:ONLY_STAKER");
 
         await expect(
-            uniV3StakerContract.safeTransferMock(
+            uniV3StakerContract.claimRewardMock(
                 gurToken.address,
                 transferAmount,
             ),
@@ -194,7 +194,7 @@ describe("UniswapV3RewardToken", () => {
         await expect(
             uniV3StakerContract
                 .connect(multisig2)
-                .safeTransferMock(gurToken.address, transferAmount),
+                .claimRewardMock(gurToken.address, transferAmount),
         )
             .to.emit(gurToken, "RewardPaid")
             .withArgs(multisig2Address, transferAmount);
@@ -230,7 +230,7 @@ describe("UniswapV3RewardToken", () => {
         await expect(
             uniV3StakerContract
                 .connect(recipient1)
-                .safeTransferMock(gurToken.address, amountRecipient1),
+                .claimRewardMock(gurToken.address, amountRecipient1),
         ).to.be.revertedWith(
             "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
         );
@@ -247,7 +247,7 @@ describe("UniswapV3RewardToken", () => {
             await expect(
                 uniV3StakerContract
                     .connect(recipientSigner)
-                    .safeTransferMock(gurToken.address, amountRecipient),
+                    .claimRewardMock(gurToken.address, amountRecipient),
             )
                 .to.emit(tokenDistro, "Allocate")
                 .withArgs(
@@ -301,7 +301,7 @@ describe("UniswapV3RewardToken", () => {
         await expect(
             uniV3StakerContract
                 .connect(recipient1)
-                .safeTransferMock(gurToken.address, amount),
+                .claimRewardMock(gurToken.address, amount),
         ).to.be.reverted;
     });
 
@@ -337,7 +337,7 @@ describe("UniswapV3RewardToken", () => {
         await expect(
             uniV3StakerContract
                 .connect(recipient1)
-                .safeTransferMock(gurToken.address, amount),
+                .claimRewardMock(gurToken.address, amount),
         ).to.be.reverted;
     });
 });

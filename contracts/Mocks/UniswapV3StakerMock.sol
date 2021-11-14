@@ -22,7 +22,7 @@ contract UniswapV3StakerMock {
         key.rewardToken.safeTransferFrom(msg.sender, address(this), reward);
     }
 
-    function safeTransferMock(IERC20 rewardToken, uint256 amount) external {
+    function claimRewardMock(IERC20 rewardToken, uint256 amount) external {
         rewardToken.safeTransfer(msg.sender, amount);
     }
 }
