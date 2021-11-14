@@ -2,9 +2,9 @@
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import '../interfaces/IUniswapV3Staker.sol';
+import "../interfaces/IUniswapV3Staker.sol";
 
-import '../libraries/RewardMath.sol';
+import "../libraries/RewardMath.sol";
 
 /// @dev Test contract for RewardMatrh
 contract TestRewardMath {

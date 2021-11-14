@@ -2,14 +2,14 @@
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
-import '@uniswap/v3-core/contracts/interfaces/IERC20Minimal.sol';
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
+import "@uniswap/v3-core/contracts/interfaces/IERC20Minimal.sol";
 
-import '@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
-import '@uniswap/v3-periphery/contracts/interfaces/IMulticall.sol';
+import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/IMulticall.sol";
 
 /// @title Uniswap V3 Staker Interface
 /// @notice Allows staking nonfungible liquidity tokens in exchange for reward tokens
@@ -31,7 +31,10 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     function factory() external view returns (IUniswapV3Factory);
 
     /// @notice The nonfungible position manager with which this staking contract is compatible
-    function nonfungiblePositionManager() external view returns (INonfungiblePositionManager);
+    function nonfungiblePositionManager()
+        external
+        view
+        returns (INonfungiblePositionManager);
 
     /// @notice The max duration of an incentive in seconds
     function maxIncentiveDuration() external view returns (uint256);
@@ -76,13 +79,19 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     function stakes(uint256 tokenId, bytes32 incentiveId)
         external
         view
-        returns (uint160 secondsPerLiquidityInsideInitialX128, uint128 liquidity);
+        returns (
+            uint160 secondsPerLiquidityInsideInitialX128,
+            uint128 liquidity
+        );
 
     /// @notice Returns amounts of reward tokens owed to a given address according to the last time all stakes were updated
     /// @param rewardToken The token for which to check rewards
     /// @param owner The owner for which the rewards owed are checked
     /// @return rewardsOwed The amount of the reward token claimable by the owner
-    function rewards(IERC20Minimal rewardToken, address owner) external view returns (uint256 rewardsOwed);
+    function rewards(IERC20Minimal rewardToken, address owner)
+        external
+        view
+        returns (uint256 rewardsOwed);
 
     /// @notice Creates a new liquidity mining incentive program
     /// @param key Details of the incentive to create
@@ -92,7 +101,9 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @notice Ends an incentive after the incentive end time has passed and all stakes have been withdrawn
     /// @param key Details of the incentive to end
     /// @return refund The remaining reward tokens when the incentive is ended
-    function endIncentive(IncentiveKey memory key) external returns (uint256 refund);
+    function endIncentive(IncentiveKey memory key)
+        external
+        returns (uint256 refund);
 
     /// @notice Transfers ownership of a deposit from the sender to the given recipient
     /// @param tokenId The ID of the token (and the deposit) to transfer
@@ -163,13 +174,21 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @param tokenId The ID of the deposit (and token) that is being transferred
     /// @param oldOwner The owner before the deposit was transferred
     /// @param newOwner The owner after the deposit was transferred
-    event DepositTransferred(uint256 indexed tokenId, address indexed oldOwner, address indexed newOwner);
+    event DepositTransferred(
+        uint256 indexed tokenId,
+        address indexed oldOwner,
+        address indexed newOwner
+    );
 
     /// @notice Event emitted when a Uniswap V3 LP token has been staked
     /// @param tokenId The unique identifier of an Uniswap V3 LP token
     /// @param liquidity The amount of liquidity staked
     /// @param incentiveId The incentive in which the token is staking
-    event TokenStaked(uint256 indexed tokenId, bytes32 indexed incentiveId, uint128 liquidity);
+    event TokenStaked(
+        uint256 indexed tokenId,
+        bytes32 indexed incentiveId,
+        uint128 liquidity
+    );
 
     /// @notice Event emitted when a Uniswap V3 LP token has been unstaked
     /// @param tokenId The unique identifier of an Uniswap V3 LP token

@@ -2,9 +2,9 @@
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import '@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
+import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
 /// @notice Encapsulates the logic for getting info about a NFT token ID
 library NFTPositionInfo {
@@ -32,9 +32,20 @@ library NFTPositionInfo {
         address token0;
         address token1;
         uint24 fee;
-        (, , token0, token1, fee, tickLower, tickUpper, liquidity, , , , ) = nonfungiblePositionManager.positions(
-            tokenId
-        );
+        (
+            ,
+            ,
+            token0,
+            token1,
+            fee,
+            tickLower,
+            tickUpper,
+            liquidity,
+            ,
+            ,
+            ,
+
+        ) = nonfungiblePositionManager.positions(tokenId);
 
         pool = IUniswapV3Pool(
             PoolAddress.computeAddress(
