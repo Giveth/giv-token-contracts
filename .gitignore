@@ -3,7 +3,7 @@ node_modules
 coverage
 #Hardhat files
 cache
-artifact
+artifacts
 typechain-types
 
 package-lock.json
