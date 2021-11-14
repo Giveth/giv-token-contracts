@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity =0.8.6;
+pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -45,8 +45,9 @@ contract Unipool is LPTokenWrapper, IRewardDistributionRecipient {
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
-    uint256 public lastUpdateTime;
-    uint256 public rewardPerTokenStored;
+    uint256 public lastUpdateTime = 0;
+    uint256 public rewardPerTokenStored = 0;
+    uint256 public duration = 0;
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
@@ -54,6 +55,10 @@ contract Unipool is LPTokenWrapper, IRewardDistributionRecipient {
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+
+    constructor(uint256 _duration) {
+        duration = _duration;
+    }
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -91,17 +96,21 @@ contract Unipool is LPTokenWrapper, IRewardDistributionRecipient {
                 .add(rewards[account]);
     }
 
+    // stake visibility is public as overriding LPTokenWrapper's stake() function
     function stake(uint256 amount) public override updateReward(msg.sender) {
+        require(amount > 0, "Cannot stake 0");
+
         super.stake(amount);
         emit Staked(msg.sender, amount);
     }
 
     function withdraw(uint256 amount) public override updateReward(msg.sender) {
+        require(amount > 0, "Cannot withdraw 0");
         super.withdraw(amount);
         emit Withdrawn(msg.sender, amount);
     }
 
-    function exit() public {
+    function exit() external {
         withdraw(balanceOf(msg.sender));
         getReward();
     }
@@ -115,8 +124,7 @@ contract Unipool is LPTokenWrapper, IRewardDistributionRecipient {
         }
     }
 
-    // Duration is the time diff from (now  - when snx rewards will be mintable again) to handle slippage in minting
-    function notifyRewardAmount(uint256 reward, uint256 duration)
+    function notifyRewardAmount(uint256 reward)
         external
         override
         onlyRewardDistribution
@@ -131,6 +139,7 @@ contract Unipool is LPTokenWrapper, IRewardDistributionRecipient {
         }
         lastUpdateTime = block.timestamp;
         periodFinish = block.timestamp.add(duration);
+
         emit RewardAdded(reward, duration);
     }
 }

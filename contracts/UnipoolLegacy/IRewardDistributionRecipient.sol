@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity =0.8.6;
+pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 abstract contract IRewardDistributionRecipient is Ownable {
-    address rewardDistribution;
+    address public rewardDistribution;
 
-    function notifyRewardAmount(uint256 reward, uint256 duration)
-        external
-        virtual;
+    function notifyRewardAmount(uint256 reward) external virtual;
 
     modifier onlyRewardDistribution() {
         require(
