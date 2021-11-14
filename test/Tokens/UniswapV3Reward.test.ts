@@ -244,23 +244,19 @@ describe("UniswapV3RewardToken", () => {
         await tokenDistro.assign(gurTokenAddress, amount);
 
         async function testTransfer(recipientSigner, amountRecipient) {
+            const { address: recipientAddress } = recipientSigner;
             await expect(
                 uniV3StakerContract
                     .connect(recipientSigner)
                     .claimRewardMock(gurToken.address, amountRecipient),
             )
                 .to.emit(tokenDistro, "Allocate")
-                .withArgs(
-                    gurTokenAddress,
-                    recipientSigner.address,
-                    amountRecipient,
-                )
+                .withArgs(gurTokenAddress, recipientAddress, amountRecipient)
                 .to.emit(gurToken, "RewardPaid")
-                .withArgs(recipientSigner.address, amountRecipient);
+                .withArgs(recipientAddress, amountRecipient);
 
             expect(
-                (await tokenDistro.balances(recipientSigner.address))
-                    .allocatedTokens,
+                (await tokenDistro.balances(recipientAddress)).allocatedTokens,
             ).to.be.equal(amountRecipient);
         }
 
