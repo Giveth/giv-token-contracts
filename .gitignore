@@ -11,3 +11,4 @@ yarn.lock
 yarn-error.log
 
 coverage.json
+artifacts/

@@ -48,7 +48,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     {
         require(
             msg.sender == uniswapV3Staker,
-            "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
+            "GivethUniswapV3Reward:transfer:ONLY_STAKER"
         );
 
         totalSupply = totalSupply - value;
@@ -64,18 +64,21 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         uint256 value
     ) external override returns (bool) {
         require(
-            tx.origin == owner(),
+            from == owner(),
             "GivethUniswapV3Reward:transferFrom:ONLY_OWNER_CAN_ADD_INCENTIVES"
         );
 
         // Only uniswapV3Staker can do the transferFrom
         require(
             msg.sender == uniswapV3Staker,
-            "GivethUniswapV3Reward:ONLY_STAKER"
+            "GivethUniswapV3Reward:transferFrom:ONLY_STAKER"
         );
 
         // Only to uniswapV3Staker is allowed
-        require(to == uniswapV3Staker, "GivethUniswapV3Reward:ONLY_TO_STAKER");
+        require(
+            to == uniswapV3Staker,
+            "GivethUniswapV3Reward:transferFrom:ONLY_TO_STAKER"
+        );
 
         totalSupply = totalSupply + value;
 

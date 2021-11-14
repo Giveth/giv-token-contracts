@@ -2,16 +2,21 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { describe, beforeEach, it } from "mocha";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ContractFactory } from "ethers";
+import { Contract, ContractFactory } from "ethers";
 import { TokenDistro } from "../../typechain-types/TokenDistro";
 import { GIV } from "../../typechain-types/GIV";
 import { UniswapV3RewardToken } from "../../typechain-types/UniswapV3RewardToken";
+import {
+    IncentiveKeyStruct,
+    UniswapV3StakerMock,
+} from "../../typechain-types/UniswapV3StakerMock";
 
 let tokenDistroFactory: ContractFactory,
     tokenDistro: TokenDistro,
     givTokenFactory: ContractFactory,
     givToken: GIV,
     gurTokenFactory: ContractFactory,
+    uniV3StakerFactory: ContractFactory,
     multisig: SignerWithAddress,
     multisig2: SignerWithAddress,
     multisig3: SignerWithAddress,
@@ -33,9 +38,6 @@ const startToCliff = 180 * (3600 * 24);
 const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
 
-let uStaker;
-let uStakerAddress;
-
 describe("UniswapV3RewardToken", () => {
     beforeEach(async () => {
         [
@@ -56,9 +58,6 @@ describe("UniswapV3RewardToken", () => {
         recipientAddress2 = await recipient2.getAddress();
         recipientAddress3 = await recipient3.getAddress();
         recipientAddress4 = await recipient4.getAddress();
-
-        uStaker = multisig2;
-        uStakerAddress = multisig2Address;
 
         givTokenFactory = await ethers.getContractFactory("GIV");
         givToken = (await givTokenFactory.deploy(multisigAddress)) as GIV;
@@ -85,89 +84,103 @@ describe("UniswapV3RewardToken", () => {
         gurTokenFactory = await ethers.getContractFactory(
             "UniswapV3RewardTokenMock",
         );
+
+        uniV3StakerFactory = await ethers.getContractFactory(
+            "UniswapV3StakerMock",
+        );
     });
 
-    it("should allow trasnferFrom only by staker to itself", async () => {
+    it("should allow transferFrom only by staker to itself and tx origin is owner", async () => {
+        const uniV3StakerContract =
+            (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
+        const uniV3StakerAddress = uniV3StakerContract.address;
+
         const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
-            uStakerAddress,
+            uniV3StakerAddress,
         )) as UniswapV3RewardToken;
 
-        await expect(
-            gurToken.transferFrom(multisigAddress, uStakerAddress, amount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_STAKER");
+        const incentiveKey: IncentiveKeyStruct = {
+            rewardToken: gurToken.address,
+            pool: recipientAddress4, // does not matter because it's mock
+            startTime: 0, // does not matter because it's mock
+            endTime: 0, // does not matter because it's mock
+            refundee: recipientAddress4, // does not matter because it's mock
+        };
 
+        // check that only multisig can be the caller to the staker
         await expect(
-            gurToken
-                .connect(recipient1)
-                .transferFrom(recipientAddress1, uStakerAddress, amount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_STAKER");
+            uniV3StakerContract
+                .connect(multisig2)
+                .createIncentive(incentiveKey, amount),
+        ).to.be.revertedWith(
+            "GivethUniswapV3Reward:transferFrom:ONLY_OWNER_CAN_ADD_INCENTIVES",
+        );
 
+        // check msg.sender of the reward token must be the stake contracts
         await expect(
-            gurToken
-                .connect(uStaker)
-                .transferFrom(recipientAddress1, multisigAddress, amount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_TO_STAKER");
+            gurToken.transferFrom(multisigAddress, uniV3StakerAddress, amount),
+        ).to.be.revertedWith("GivethUniswapV3Reward:transferFrom:ONLY_STAKER");
 
-        await expect(
-            gurToken
-                .connect(uStaker)
-                .transferFrom(recipientAddress1, multisigAddress, amount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:ONLY_TO_STAKER");
-
-        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(0);
+        await expect(await gurToken.balanceOf(uniV3StakerAddress)).to.be.equal(
+            0,
+        );
         await expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(
             0,
         );
         await expect(await gurToken.totalSupply()).to.be.equal(0);
 
-        await expect(
-            gurToken
-                .connect(uStaker)
-                .transferFrom(recipientAddress1, uStakerAddress, amount),
-        )
+        await expect(uniV3StakerContract.createIncentive(incentiveKey, amount))
             .to.emit(gurToken, "Transfer")
-            .withArgs(ethers.constants.AddressZero, uStakerAddress, amount);
+            .withArgs(ethers.constants.AddressZero, uniV3StakerAddress, amount);
 
-        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
+        await expect(await gurToken.balanceOf(uniV3StakerAddress)).to.be.equal(
             amount,
         );
         await expect(await gurToken.totalSupply()).to.be.equal(amount);
     });
 
     it("should allow only staker to transfer token directly", async () => {
+        const uniV3StakerContract =
+            (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
+        const uniV3StakerAddress = uniV3StakerContract.address;
+
         const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
-            uStakerAddress,
+            uniV3StakerAddress,
         )) as UniswapV3RewardToken;
+
+        const incentiveKey: IncentiveKeyStruct = {
+            rewardToken: gurToken.address,
+            pool: recipientAddress4, // does not matter because it's mock
+            startTime: 0, // does not matter because it's mock
+            endTime: 0, // does not matter because it's mock
+            refundee: recipientAddress4, // does not matter because it's mock
+        };
+
         await tokenDistro.grantRole(
             await tokenDistro.DISTRIBUTOR_ROLE(),
             gurToken.address,
         );
         await tokenDistro.assign(gurToken.address, amount);
 
-        await gurToken
-            .connect(uStaker)
-            .transferFrom(recipientAddress1, uStakerAddress, amount);
+        await uniV3StakerContract.createIncentive(incentiveKey, amount);
 
         const transferAmount = amount.div(10);
         await expect(
-            gurToken.transfer(uStakerAddress, transferAmount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:NOT_VALID_TRANSFER");
+            gurToken.transfer(uniV3StakerAddress, transferAmount),
+        ).to.be.revertedWith("GivethUniswapV3Reward:transfer:ONLY_STAKER");
 
         await expect(
-            gurToken.connect(uStaker).transfer(uStakerAddress, transferAmount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:NOT_VALID_TRANSFER");
-
-        await expect(
-            gurToken
-                .connect(uStaker)
-                .transfer(recipientAddress1, transferAmount),
+            uniV3StakerContract.safeTransferMock(
+                gurToken.address,
+                transferAmount,
+            ),
         )
             .to.emit(gurToken, "RewardPaid")
-            .withArgs(recipientAddress1, transferAmount);
+            .withArgs(multisigAddress, transferAmount);
 
-        await expect(await gurToken.balanceOf(uStakerAddress)).to.be.equal(
+        await expect(await gurToken.balanceOf(uniV3StakerAddress)).to.be.equal(
             amount.sub(transferAmount),
         );
         await expect(await gurToken.totalSupply()).to.be.equal(
@@ -177,28 +190,37 @@ describe("UniswapV3RewardToken", () => {
         await expect(await gurToken.balanceOf(recipientAddress1)).to.be.equal(
             0,
         );
+
         await expect(
-            gurToken
-                .connect(recipient1)
-                .transfer(uStakerAddress, transferAmount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:NOT_VALID_TRANSFER");
-        await expect(
-            gurToken
-                .connect(recipient1)
-                .transfer(recipientAddress2, transferAmount),
-        ).to.be.revertedWith("GivethUniswapV3Reward:NOT_VALID_TRANSFER");
+            uniV3StakerContract
+                .connect(multisig2)
+                .safeTransferMock(gurToken.address, transferAmount),
+        )
+            .to.emit(gurToken, "RewardPaid")
+            .withArgs(multisig2Address, transferAmount);
     });
 
     // Copied from TokenDistro.test.js and refactored to use Transfer instead
     // of Allocate
     it("should Staker be able to transfer the balance", async () => {
+        const uniV3StakerContract =
+            (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
+        const uniV3StakerAddress = uniV3StakerContract.address;
+
         const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
-            uStakerAddress,
+            uniV3StakerAddress,
         )) as UniswapV3RewardToken;
-        await gurToken
-            .connect(uStaker)
-            .transferFrom(multisigAddress, uStakerAddress, amount);
+
+        const incentiveKey: IncentiveKeyStruct = {
+            rewardToken: gurToken.address,
+            pool: recipientAddress4, // does not matter because it's mock
+            startTime: 0, // does not matter because it's mock
+            endTime: 0, // does not matter because it's mock
+            refundee: recipientAddress4, // does not matter because it's mock
+        };
+
+        await uniV3StakerContract.createIncentive(incentiveKey, amount);
 
         const amountRecipient1 = amount.div(2);
         const amountRecipient2 = amountRecipient1.div(2);
@@ -206,9 +228,9 @@ describe("UniswapV3RewardToken", () => {
         const amountRecipient4 = amountRecipient3.div(2);
 
         await expect(
-            gurToken
-                .connect(uStaker)
-                .transfer(recipientAddress1, amountRecipient1),
+            uniV3StakerContract
+                .connect(recipient1)
+                .safeTransferMock(gurToken.address, amountRecipient1),
         ).to.be.revertedWith(
             "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
         );
@@ -221,36 +243,52 @@ describe("UniswapV3RewardToken", () => {
         );
         await tokenDistro.assign(gurTokenAddress, amount);
 
-        async function testTransfer(recipientAddress, amountRecipient) {
+        async function testTransfer(recipientSigner, amountRecipient) {
             await expect(
-                gurToken
-                    .connect(uStaker)
-                    .transfer(recipientAddress, amountRecipient),
+                uniV3StakerContract
+                    .connect(recipientSigner)
+                    .safeTransferMock(gurToken.address, amountRecipient),
             )
                 .to.emit(tokenDistro, "Allocate")
-                .withArgs(gurTokenAddress, recipientAddress, amountRecipient)
+                .withArgs(
+                    gurTokenAddress,
+                    recipientSigner.address,
+                    amountRecipient,
+                )
                 .to.emit(gurToken, "RewardPaid")
-                .withArgs(recipientAddress, amountRecipient);
+                .withArgs(recipientSigner.address, amountRecipient);
 
             expect(
-                (await tokenDistro.balances(recipientAddress)).allocatedTokens,
+                (await tokenDistro.balances(recipientSigner.address))
+                    .allocatedTokens,
             ).to.be.equal(amountRecipient);
         }
 
-        await testTransfer(recipientAddress1, amountRecipient1);
-        await testTransfer(recipientAddress2, amountRecipient2);
-        await testTransfer(recipientAddress3, amountRecipient3);
-        await testTransfer(recipientAddress4, amountRecipient4);
+        await testTransfer(recipient1, amountRecipient1);
+        await testTransfer(recipient2, amountRecipient2);
+        await testTransfer(recipient3, amountRecipient3);
+        await testTransfer(recipient4, amountRecipient4);
     });
 
     it("should not transfer more than token distro assigned value", async () => {
+        const uniV3StakerContract =
+            (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
+        const uniV3StakerAddress = uniV3StakerContract.address;
+
         const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
-            uStakerAddress,
+            uniV3StakerAddress,
         )) as UniswapV3RewardToken;
-        await gurToken
-            .connect(uStaker)
-            .transferFrom(multisigAddress, uStakerAddress, amount);
+
+        const incentiveKey: IncentiveKeyStruct = {
+            rewardToken: gurToken.address,
+            pool: recipientAddress4, // does not matter because it's mock
+            startTime: 0, // does not matter because it's mock
+            endTime: 0, // does not matter because it's mock
+            refundee: recipientAddress4, // does not matter because it's mock
+        };
+
+        await uniV3StakerContract.createIncentive(incentiveKey, amount);
 
         const gurTokenAddress = gurToken.address;
 
@@ -261,20 +299,32 @@ describe("UniswapV3RewardToken", () => {
         await tokenDistro.assign(gurTokenAddress, amount.div(2));
 
         await expect(
-            gurToken.connect(uStaker).transfer(recipientAddress1, amount),
+            uniV3StakerContract
+                .connect(recipient1)
+                .safeTransferMock(gurToken.address, amount),
         ).to.be.reverted;
     });
 
     it("should not transfer more than minted value", async () => {
+        const uniV3StakerContract =
+            (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
+        const uniV3StakerAddress = uniV3StakerContract.address;
+
         const gurToken = (await gurTokenFactory.deploy(
             tokenDistro.address,
-            uStakerAddress,
+            uniV3StakerAddress,
         )) as UniswapV3RewardToken;
 
+        const incentiveKey: IncentiveKeyStruct = {
+            rewardToken: gurToken.address,
+            pool: recipientAddress4, // does not matter because it's mock
+            startTime: 0, // does not matter because it's mock
+            endTime: 0, // does not matter because it's mock
+            refundee: recipientAddress4, // does not matter because it's mock
+        };
+
         const transferAmount = amount.div(2);
-        gurToken
-            .connect(uStaker)
-            .transferFrom(multisigAddress, uStakerAddress, transferAmount);
+        await uniV3StakerContract.createIncentive(incentiveKey, transferAmount);
 
         const gurTokenAddress = gurToken.address;
 
@@ -285,7 +335,9 @@ describe("UniswapV3RewardToken", () => {
         await tokenDistro.assign(gurTokenAddress, amount);
 
         await expect(
-            gurToken.connect(uStaker).transfer(recipientAddress1, amount),
+            uniV3StakerContract
+                .connect(recipient1)
+                .safeTransferMock(gurToken.address, amount),
         ).to.be.reverted;
     });
 });
