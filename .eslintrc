@@ -13,6 +13,9 @@
         "func-names": "off",
         "no-plusplus": "off",
         "one-var": "off",
+        "no-use-before-define": "off",
+        "no-await-in-loop": "off",
+        "no-return-await": "off",
         "import/no-extraneous-dependencies": "off",
         "no-unused-vars": "off",
         "import/newline-after-import": "off",
@@ -43,7 +46,7 @@
     "settings": {
         "import/resolver": {
             "node": {
-                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+                "extensions": [".js", ".jsx", ".ts", ".d.ts", ".tsx"]
             }
         }
     }

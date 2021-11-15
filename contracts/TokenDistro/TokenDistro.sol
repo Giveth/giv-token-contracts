@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity =0.8.6;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradable-v4/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "openzeppelin-contracts-upgradable-v4/token/ERC20/IERC20Upgradeable.sol";
+import "openzeppelin-contracts-upgradable-v4/access/AccessControlEnumerableUpgradeable.sol";
+import "openzeppelin-contracts-upgradable-v4/proxy/utils/Initializable.sol";
 import "../Interfaces/IDistro.sol";
 
 /**

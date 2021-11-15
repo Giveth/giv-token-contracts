@@ -2,9 +2,9 @@
 
 pragma solidity =0.8.6;
 
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradable-v4/utils/cryptography/MerkleProofUpgradeable.sol";
+import "openzeppelin-contracts-upgradable-v4/access/OwnableUpgradeable.sol";
+import "openzeppelin-contracts-upgradable-v4/proxy/utils/Initializable.sol";
 import "../Interfaces/IMerkleTreeDistributor.sol";
 import "../Interfaces/IDistro.sol";
 
