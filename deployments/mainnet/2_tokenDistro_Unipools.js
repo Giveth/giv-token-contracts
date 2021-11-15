@@ -28,7 +28,9 @@ async function main() {
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
     const cancelable = false;
     const LMDuration = 86_400; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
-    const endTime = BigNumber.from(startTime).add(LMDuration).toString();
+    const endTime = BigNumber.from(startTime)
+        .add(LMDuration * 13)
+        .toString();
     const GIVETH_UNI_STAKER = "0x1f98407aaB862CdDeF78Ed252D6f557aA5b0f00d"; // GIVETH_UNI staker address
     const GIVETH_UNI_POOL = ethers.utils.getAddress(args[2]); // GIVETH_UNI Pool Address
     const GIVETH_UNI_AMOUNT = args[3]; // GIVETH_UNI reward amount
