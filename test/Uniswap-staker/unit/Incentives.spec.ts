@@ -53,14 +53,15 @@ describe("unit/Incentives", async () => {
             subject = async (
                 params: Partial<ContractParams.CreateIncentive> = {},
             ) => {
-                await erc20Helper.ensureBalancesAndApprovals(
-                    incentiveCreator,
-                    params.rewardToken
-                        ? await erc20Wrap(params?.rewardToken)
-                        : context.rewardToken,
-                    totalReward,
-                    context.staker.address,
-                );
+                // Doesn't need for UniswapV3RewardToken
+                // await erc20Helper.ensureBalancesAndApprovals(
+                //     incentiveCreator,
+                //     params.rewardToken
+                //         ? await erc20Wrap(params?.rewardToken)
+                //         : context.rewardToken,
+                //     totalReward,
+                //     context.staker.address,
+                // );
 
                 const { startTime, endTime } = makeTimestamps(
                     await blockTimestamp(),

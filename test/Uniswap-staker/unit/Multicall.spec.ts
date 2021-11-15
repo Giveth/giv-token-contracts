@@ -75,12 +75,17 @@ describe("unit/Multicall", () => {
             deadline: currentTime + 10_000,
         });
 
-        await erc20Helper.ensureBalancesAndApprovals(
-            multicaller,
-            context.rewardToken,
-            totalReward,
-            context.staker.address,
-        );
+        // It's not required for UniswapV3RewardToken
+        // await erc20Helper.ensureBalancesAndApprovals(
+        //     multicaller,
+        //     context.rewardToken,
+        //     totalReward,
+        //     context.staker.address,
+        // );
+
+        await context.rewardToken
+            .connect(incentiveCreator)
+            .transferOwnership(multicaller.address);
 
         const createIncentiveTx = context.staker.interface.encodeFunctionData(
             "createIncentive",
