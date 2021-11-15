@@ -5,9 +5,9 @@ name: Main CI
 
 on:
   push:
-    branches: [main, feat/UniswapV3]
+    branches: [main, develop]
   pull_request:
-    branches: [main, feat/UniswapV3]
+    branches: [main, develop]
 
 jobs:
   build:
