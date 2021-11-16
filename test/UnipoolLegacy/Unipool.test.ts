@@ -1,6 +1,6 @@
-import { ethers, network } from "hardhat";
+import { ethers } from "hardhat";
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import { assert, expect } from "chai";
+import { expect } from "chai";
 import { describe, it, beforeEach } from "mocha";
 import { constants } from "ethers";
 import { UniMock, SnxMock, UnipoolMock } from "../../typechain-types";
@@ -28,14 +28,7 @@ function expectAlmostEqual(
     const expected = BigNumber.from(expectedOrig).div(WeiPerEther);
     const actual = BigNumber.from(actualOrig).div(WeiPerEther);
 
-    assert(
-        expected.eq(actual) ||
-            expected.add(1).eq(actual) ||
-            expected.add(2).eq(actual) ||
-            actual.add(1).eq(expected) ||
-            actual.add(2).eq(expected),
-        `Expected ${actual.toString()} to be almost equal ${expected.toString()}`,
-    );
+    expect(actual).to.be.closeTo(expected, 2);
 }
 
 describe("Unipool Legacy", () => {
@@ -174,7 +167,7 @@ describe("Unipool Legacy", () => {
         //
 
         // 72000 SNX per week for 3 weeks
-        await Unipool.connect(wallet1).notifyRewardAmount(toWei("7200"));
+        await Unipool.connect(wallet1).notifyRewardAmount(toWei("72000"));
 
         await setAutomine(false);
         await Unipool.connect(wallet1).stake(toWei("1"));
@@ -184,12 +177,13 @@ describe("Unipool Legacy", () => {
 
         await increaseTimeTo(started.add(duration.weeks(1)));
 
-        await Unipool.connect(wallet2).stake(toWei("5"));
+        await Unipool.connect(wallet3).stake(toWei("5"));
 
         expectAlmostEqual(await Unipool.rewardPerToken(), toWei("18000"));
         expectAlmostEqual(await Unipool.earned(wallet1Address), toWei("18000"));
         expectAlmostEqual(await Unipool.earned(wallet2Address), toWei("54000"));
 
+        await Unipool.connect(wallet1).notifyRewardAmount(toWei("72000"));
         await increaseTimeTo(started.add(duration.weeks(2)));
 
         expectAlmostEqual(await Unipool.rewardPerToken(), toWei("26000")); // 18k + 8k
@@ -199,6 +193,7 @@ describe("Unipool Legacy", () => {
 
         await Unipool.connect(wallet2).exit();
 
+        await Unipool.connect(wallet1).notifyRewardAmount(toWei("72000"));
         await increaseTimeTo(started.add(duration.weeks(3)));
 
         expectAlmostEqual(await Unipool.rewardPerToken(), toWei("38000")); // 18k + 8k + 12k
@@ -256,7 +251,7 @@ describe("Unipool Legacy", () => {
         await increaseTimeTo(started.add(duration.weeks(1)));
 
         expectAlmostEqual(await Unipool.rewardPerToken(), toWei("2500"));
-        expect(await Unipool.earned(wallet1Address)).to.be.eq("2500");
-        expect(await Unipool.earned(wallet2Address)).to.be.eq("7500");
+        expectAlmostEqual(await Unipool.earned(wallet1Address), toWei("2500"));
+        expectAlmostEqual(await Unipool.earned(wallet2Address), toWei("7500"));
     });
 });
