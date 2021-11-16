@@ -6,11 +6,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "outDir": "dist",
-    "typeRoots": ["./typechain-types", "./node_modules/@types"],
+    "typeRoots": ["./typechain-types", "./node_modules/@types", "./test/Uniswap-staker/typechain"],
     "types": ["node", "chai", "mocha","@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"],
     "noImplicitAny": false
   },
   "include": ["./scripts", "./test"],
-  "files": ["./hardhat.config.ts"],
-  "exclude": ["./typechain-types"]
+  "files": ["./hardhat.config.ts"]
 }

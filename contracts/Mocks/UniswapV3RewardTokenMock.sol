@@ -8,4 +8,8 @@ contract UniswapV3RewardTokenMock is UniswapV3RewardToken {
     constructor(IDistro _tokenDistribution, address _uniswapV3Staker) {
         initialize(_tokenDistribution, _uniswapV3Staker);
     }
+
+    function setStakerAddress(address _stakerAddress) external {
+        uniswapV3Staker = _stakerAddress;
+    }
 }

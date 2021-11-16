@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.6;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "openzeppelin-contracts-v4/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts-upgradable-v4/access/OwnableUpgradeable.sol";
 import "../Interfaces/IDistro.sol";
 
 contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
@@ -48,7 +48,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     {
         require(
             msg.sender == uniswapV3Staker,
-            "GivethUniswapV3Reward:NOT_VALID_TRANSFER"
+            "GivethUniswapV3Reward:transfer:ONLY_STAKER"
         );
 
         totalSupply = totalSupply - value;
@@ -63,14 +63,22 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         address to,
         uint256 value
     ) external override returns (bool) {
+        require(
+            from == owner(),
+            "GivethUniswapV3Reward:transferFrom:ONLY_OWNER_CAN_ADD_INCENTIVES"
+        );
+
         // Only uniswapV3Staker can do the transferFrom
         require(
             msg.sender == uniswapV3Staker,
-            "GivethUniswapV3Reward:ONLY_STAKER"
+            "GivethUniswapV3Reward:transferFrom:ONLY_STAKER"
         );
 
         // Only to uniswapV3Staker is allowed
-        require(to == uniswapV3Staker, "GivethUniswapV3Reward:ONLY_TO_STAKER");
+        require(
+            to == uniswapV3Staker,
+            "GivethUniswapV3Reward:transferFrom:ONLY_TO_STAKER"
+        );
 
         totalSupply = totalSupply + value;
 
