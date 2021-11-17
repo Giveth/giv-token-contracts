@@ -115,7 +115,7 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
-        return MathUpgradeable.min(block.timestamp, periodFinish);
+        return MathUpgradeable.min(getTimestamp(), periodFinish);
     }
 
     function rewardPerToken() public view returns (uint256) {
@@ -130,6 +130,13 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
                     .mul(1e18)
                     .div(totalSupply())
             );
+    }
+
+    /**
+     * Function to get the current timestamp from the block
+     */
+    function getTimestamp() public view virtual returns (uint256) {
+        return block.timestamp;
     }
 
     function earned(address account) public view returns (uint256) {
@@ -173,15 +180,16 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         onlyRewardDistribution
         updateReward(address(0))
     {
-        if (block.timestamp >= periodFinish) {
+        uint256 _timestamp = getTimestamp();
+        if (_timestamp >= periodFinish) {
             rewardRate = reward.div(duration);
         } else {
-            uint256 remaining = periodFinish.sub(block.timestamp);
+            uint256 remaining = periodFinish.sub(_timestamp);
             uint256 leftover = remaining.mul(rewardRate);
             rewardRate = reward.add(leftover).div(duration);
         }
-        lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp.add(duration);
+        lastUpdateTime = _timestamp;
+        periodFinish = _timestamp.add(duration);
         emit RewardAdded(reward);
     }
 

@@ -14,4 +14,12 @@ contract UnipoolTokenDistributorMock is UnipoolTokenDistributor {
     ) {
         initialize(_tokenDistribution, _uni, _duration);
     }
+
+    function setTimestamp(uint256 timestamp) public {
+        currentTimestamp = timestamp;
+    }
+
+    function getTimestamp() public view override returns (uint256) {
+        return currentTimestamp == 0 ? super.getTimestamp() : currentTimestamp;
+    }
 }
