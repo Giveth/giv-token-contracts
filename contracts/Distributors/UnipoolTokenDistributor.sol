@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-
-pragma solidity =0.8.6;
+pragma solidity ^0.8.6;
 
 import "openzeppelin-contracts-upgradable-v4/access/OwnableUpgradeable.sol";
 import "openzeppelin-contracts-upgradable-v4/utils/math/MathUpgradeable.sol";

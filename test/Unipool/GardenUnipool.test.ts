@@ -10,6 +10,8 @@ import { GardenUnipoolTokenDistributorMock } from "../../typechain-types/GardenU
 let tokenDistroFactory: ContractFactory,
     gardenUnipoolFactory: ContractFactory,
     tokenFactory: ContractFactory,
+    gardenUnipool: GardenUnipoolTokenDistributorMock,
+    tokenDistro: TokenDistroMock,
     givToken: GIV,
     multisig: SignerWithAddress,
     multisig2: SignerWithAddress,
@@ -25,9 +27,15 @@ let multisigAddress: string,
     recipientAddress2: string,
     recipientAddress3: string,
     recipientAddress4: string,
-    addrs: Array<SignerWithAddress>;
+    addrs: SignerWithAddress[];
 
 const amount = ethers.utils.parseEther("20000000");
+
+const offset = 90 * (3600 * 24);
+let startTime;
+let lmDuration;
+const rewardAmount = amount.div(2);
+
 const startToCliff = 180 * (3600 * 24);
 const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
@@ -62,15 +70,11 @@ describe("GardenUnipoolTokenDistributor", () => {
         gardenUnipoolFactory = await ethers.getContractFactory(
             "GardenUnipoolTokenDistributorMock",
         );
-    });
-    it("should be able to transfer the balance", async () => {
-        const offset = 90 * (3600 * 24);
-        const startTime =
-            (await ethers.provider.getBlock("latest")).timestamp + offset;
-        const lmDuration = startToCliff * 4;
-        const rewardAmount = amount.div(2);
 
-        const tokenDistro = (await tokenDistroFactory.deploy(
+        startTime =
+            (await ethers.provider.getBlock("latest")).timestamp + offset;
+        lmDuration = startToCliff * 4;
+        tokenDistro = (await tokenDistroFactory.deploy(
             amount,
             startTime,
             startToCliff,
@@ -82,7 +86,7 @@ describe("GardenUnipoolTokenDistributor", () => {
 
         await givToken.transfer(tokenDistro.address, amount);
 
-        const gardenUnipool = (await gardenUnipoolFactory.deploy(
+        gardenUnipool = (await gardenUnipoolFactory.deploy(
             tokenDistro.address,
             lmDuration,
         )) as GardenUnipoolTokenDistributorMock;
@@ -96,7 +100,8 @@ describe("GardenUnipoolTokenDistributor", () => {
         expect(
             (await tokenDistro.balances(gardenUnipool.address)).allocatedTokens,
         ).to.be.equal(rewardAmount);
-
+    });
+    it("should be able to transfer the balance", async () => {
         const stakeAmountRecipient1 = amount.div(4);
         const stakeAmountRecipient2 = stakeAmountRecipient1.div(2);
         const stakeAmountRecipient3 = stakeAmountRecipient2.div(2);
