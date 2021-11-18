@@ -122,8 +122,8 @@ const config: HardhatUserConfig = {
                 : [],
         },
         xDAI: {
-            url: `https://xdai.poanetwork.dev`,
-            gasPrice: 1000000000,
+            url: `https://rpc.xdaichain.com/`,
+            gasPrice: 2000000000,
             accounts: process.env.PRIVATE_KEY
                 ? [`${process.env.PRIVATE_KEY}`]
                 : [],
