@@ -25,6 +25,7 @@ async function main() {
     const duration = 11_262_857; // (TEST: 2 weeks = 24 hours => 11262857) final -> 5 years * 365 days * 24 hours * 3600 seconds = 157680000
     const initialPercentage = 10_00; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
+    const totalTokens = BigNumber.from(args[2]);
     const cancelable = true;
     const LMDuration = 86_400; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
     // eslint-disable-next-line camelcase
@@ -33,18 +34,18 @@ async function main() {
     const merkleTokens = ethers.utils.formatEther(
         BigNumber.from(data.tokenTotal).toString(),
     );
-    const GIVHNY_XDAI = ethers.utils.getAddress(args[2]); // GIVHNY_XDAI pool address
-    const GIVHNY_XDAI_AMOUNT = args[3]; // GIVHNY_XDAI reward amount
-    const GIVWETH_XDAI = ethers.utils.getAddress(args[4]); // GIVWETH_XDAI pool address
-    const GIVWETH_XDAI_AMOUNT = args[5]; // GIVWETH_XDAI reward amount
-    const UNIGIV_AMOUNT = args[6]; // GIV pool reward
-    const RGIV_AMOUNT = args[7]; // rGIV
-    const totalTokens = ethers.utils
-        .parseEther(merkleTokens)
-        .add(ethers.utils.parseEther(GIVHNY_XDAI_AMOUNT))
-        .add(ethers.utils.parseEther(GIVWETH_XDAI_AMOUNT))
-        .add(ethers.utils.parseEther(UNIGIV_AMOUNT))
-        .add(ethers.utils.parseEther(RGIV_AMOUNT));
+    const GIVHNY_XDAI = ethers.utils.getAddress(args[3]); // GIVHNY_XDAI pool address
+    const GIVHNY_XDAI_AMOUNT = args[4]; // GIVHNY_XDAI reward amount
+    const GIVWETH_XDAI = ethers.utils.getAddress(args[5]); // GIVWETH_XDAI pool address
+    const GIVWETH_XDAI_AMOUNT = args[6]; // GIVWETH_XDAI reward amount
+    const UNIGIV_AMOUNT = args[7]; // GIV pool reward
+    // const RGIV_AMOUNT = args[8]; // rGIV
+    // const totalTokens = ethers.utils
+    //     .parseEther(merkleTokens)
+    //     .add(ethers.utils.parseEther(GIVHNY_XDAI_AMOUNT))
+    //     .add(ethers.utils.parseEther(GIVWETH_XDAI_AMOUNT))
+    //     .add(ethers.utils.parseEther(UNIGIV_AMOUNT))
+    //     .add(ethers.utils.parseEther(RGIV_AMOUNT));
 
     console.log("\n#######################");
     console.log("##### Deployments #####");

@@ -26,21 +26,22 @@ async function main() {
     const duration = 11_262_857; // (TEST: 2 weeks = 24 hours => 11262857) final -> 5 years * 365 days * 24 hours * 3600 seconds = 157680000
     const initialPercentage = 10_00; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
+    const totalTokens = BigNumber.from(args[2]);
     const cancelable = false;
     const LMDuration = 86_400; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
     const endTime = BigNumber.from(startTime)
         .add(LMDuration * 13)
         .toString();
     const GIVETH_UNI_STAKER = "0x1f98407aaB862CdDeF78Ed252D6f557aA5b0f00d"; // GIVETH_UNI staker address
-    const GIVETH_UNI_POOL = ethers.utils.getAddress(args[2]); // GIVETH_UNI Pool Address
-    const GIVETH_UNI_AMOUNT = args[3]; // GIVETH_UNI reward amount
-    const GIVETH_BAL = ethers.utils.getAddress(args[4]); // GIVETH_BAL pool address
-    const GIVETH_BAL_AMOUNT = args[5]; // GIVETH_BAL reward amount
-    const GIV_MAINNET_AMOUNT = args[6]; // GIV pool reward
-    const totalTokens = ethers.utils
-        .parseEther(GIVETH_UNI_AMOUNT)
-        .add(ethers.utils.parseEther(GIVETH_BAL_AMOUNT))
-        .add(ethers.utils.parseEther(GIV_MAINNET_AMOUNT));
+    const GIVETH_UNI_POOL = ethers.utils.getAddress(args[3]); // GIVETH_UNI Pool Address
+    const GIVETH_UNI_AMOUNT = args[4]; // GIVETH_UNI reward amount
+    const GIVETH_BAL = ethers.utils.getAddress(args[5]); // GIVETH_BAL pool address
+    const GIVETH_BAL_AMOUNT = args[6]; // GIVETH_BAL reward amount
+    const GIV_MAINNET_AMOUNT = args[7]; // GIV pool reward
+    // const totalTokens = ethers.utils
+    //     .parseEther(GIVETH_UNI_AMOUNT)
+    //     .add(ethers.utils.parseEther(GIVETH_BAL_AMOUNT))
+    //     .add(ethers.utils.parseEther(GIV_MAINNET_AMOUNT));
 
     console.log("\n#######################");
     console.log("##### Deployments #####");
