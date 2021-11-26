@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { network } from "hardhat";
-import latestBlock, { advanceBlock } from "./block";
+import { advanceBlock, latestBlock } from "./block";
 
 export async function latestBlockNumber(): Promise<BigNumber> {
     return BigNumber.from((await latestBlock()).number);

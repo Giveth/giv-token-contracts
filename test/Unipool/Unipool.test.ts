@@ -18,44 +18,41 @@ import {
 import setAutomine from "../utils/mining";
 import { advanceBlock } from "../utils/block";
 
-let tokenDistroFactory: ContractFactory,
-    unipoolFactory: ContractFactory,
-    tokenFactory: ContractFactory,
-    unipool: UnipoolTokenDistributorMock,
-    tokenDistro: TokenDistroMock,
-    givToken: GIV,
-    multisig: SignerWithAddress,
-    multisig2: SignerWithAddress,
-    multisig3: SignerWithAddress,
-    recipient1: SignerWithAddress,
-    recipient2: SignerWithAddress,
-    recipient3: SignerWithAddress,
+const { parseEther: toWei } = ethers.utils;
+const { WeiPerEther, MaxUint256 } = constants;
+
+let tokenDistroFactory, unipoolFactory, tokenFactory: ContractFactory;
+let unipool: UnipoolTokenDistributorMock;
+let tokenDistro: TokenDistroMock;
+let givToken: GIV;
+let Uni: UniMock;
+
+let multisig,
+    multisig2,
+    multisig3,
+    recipient1,
+    recipient2,
+    recipient3,
     recipient4: SignerWithAddress;
-let multisigAddress: string,
-    multisig2Address: string,
-    multisig3Address: string,
-    recipientAddress1: string,
-    recipientAddress2: string,
-    recipientAddress3: string,
-    recipientAddress4: string,
-    addrs: SignerWithAddress[];
 
-const amount = ethers.utils.parseEther("20000000");
+let multisigAddress,
+    multisig2Address,
+    multisig3Address,
+    recipientAddress1,
+    recipientAddress2,
+    recipientAddress3,
+    recipientAddress4: string;
 
+let addrs: SignerWithAddress[];
+
+const testAmount = toWei("20000000");
 const offset = 90 * (3600 * 24);
-let startTime;
-// let lmDuration;
-const rewardAmount = amount.div(2);
-
+const rewardAmount = testAmount.div(2);
 const startToCliff = 180 * (3600 * 24);
 const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
 
-const { WeiPerEther, MaxUint256 } = constants;
-const { parseEther: toWei } = ethers.utils;
-
-let Uni: UniMock;
-
+let startTime;
 let started = BigNumber.from(0);
 
 function expectAlmostEqual(
@@ -92,7 +89,7 @@ describe("Unipool Legacy", () => {
         tokenFactory = await ethers.getContractFactory("GIV");
         givToken = (await tokenFactory.deploy(multisigAddress)) as GIV;
         await givToken.deployed();
-        await givToken.mint(multisigAddress, amount);
+        await givToken.mint(multisigAddress, testAmount);
 
         tokenDistroFactory = await ethers.getContractFactory("TokenDistroMock");
         unipoolFactory = await ethers.getContractFactory(
@@ -103,7 +100,7 @@ describe("Unipool Legacy", () => {
             (await ethers.provider.getBlock("latest")).timestamp + offset;
         // lmDuration = startToCliff * 4;
         tokenDistro = (await tokenDistroFactory.deploy(
-            amount,
+            testAmount,
             startTime,
             startToCliff,
             startToEnd,
@@ -112,7 +109,7 @@ describe("Unipool Legacy", () => {
             false,
         )) as TokenDistroMock;
 
-        await givToken.transfer(tokenDistro.address, amount);
+        await givToken.transfer(tokenDistro.address, testAmount);
 
         const uniFactory = await ethers.getContractFactory("UniMock");
         Uni = (await uniFactory.deploy()) as UniMock;
@@ -177,7 +174,10 @@ describe("Unipool Legacy", () => {
         expectAlmostEqual(recipientEarned1, toWei("36000"));
         expectAlmostEqual(recipientEarned2, toWei("36000"));
 
-        await unipool.setTimestamp(await latestTimestamp());
+        // To include the 'getReward' transactions, Hardhat will have to mine a block.
+        // This will increase the timestamp and mess up the earnings calculation.
+        // We thus set a fixed block timestamp at the contract level
+        await unipool.setFixedBlockTimestamp(await latestTimestamp());
 
         await expect(unipool.connect(recipient1).getReward())
             .to.emit(tokenDistro, "Allocate")
