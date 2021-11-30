@@ -66,7 +66,10 @@ library UnstructuredStorage {
     }
 }
 
-contract ReentrancyGuard {
+import "../Interfaces/IHookedTokenManager.sol";
+import "openzeppelin-contracts-upgradable-v4/proxy/utils/Initializable.sol";
+
+contract ReentrancyGuard is Initializable {
     using UnstructuredStorage for bytes32;
 
     /* Hardcoded constants to save gas
@@ -95,7 +98,9 @@ contract ReentrancyGuard {
 /**
  * @dev When creating a subcontract, we recommend overriding the _internal_ functions that you want to hook.
  */
-contract TokenManagerHook is ReentrancyGuard {
+contract TokenManagerHook is
+    ReentrancyGuard // noreetrans openzeppelin!
+{
     using UnstructuredStorage for bytes32;
 
     /* Hardcoded constants to save gas
@@ -112,8 +117,15 @@ contract TokenManagerHook is ReentrancyGuard {
         _;
     }
 
-    function getTokenManager() public returns (address) {
+    function getTokenManager() public view returns (address) {
         return TOKEN_MANAGER_POSITION.getStorageAddress();
+    }
+
+    function _initializeTokenManagerHook(address tokenManager)
+        internal
+        initializer
+    {
+        IHookedTokenManager(tokenManager).registerHook(address(this));
     }
 
     /*
@@ -122,6 +134,7 @@ contract TokenManagerHook is ReentrancyGuard {
      * @param _hookId The position in which the hook is going to be called
      * @param _token The token controlled by the Token Manager
      */
+    //should be called by constructor register a hook
     function onRegisterAsHook(uint256 _hookId, address _token)
         external
         nonReentrant
