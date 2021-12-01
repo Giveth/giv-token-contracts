@@ -6,12 +6,13 @@ import "openzeppelin-contracts-upgradable-v4/utils/math/MathUpgradeable.sol";
 
 import "../Interfaces/IDistro.sol";
 
+// import "../LPToken/BaseLPToken.sol";
+
 /// @title BaseUnipoolDistributor
 /// @author Giveth Developers
 /// @notice This contract has the basic unipool functionality
-/// @dev Concrete implementations should implement stake/unstake functionality
-contract BaseUnipoolDistributor is OwnableUpgradeable {
-    IDistro public tokenDistro;
+/// @dev Concrete implementations should inherit an LP Token and implement stake/unstake functionality
+abstract contract BaseUnipoolDistributor is OwnableUpgradeable {
     uint256 public duration;
 
     address public rewardDistribution;
@@ -19,11 +20,9 @@ contract BaseUnipoolDistributor is OwnableUpgradeable {
     uint256 public rewardRate;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
+
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
-
-    uint256 internal _totalSupply;
-    mapping(address => uint256) internal _balances;
 
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
@@ -42,29 +41,20 @@ contract BaseUnipoolDistributor is OwnableUpgradeable {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
         if (account != address(0)) {
-            rewards[account] = _earned(account);
+            rewards[account] = _caculateEarned(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         _;
     }
 
-    function __BaseUnipoolDistributor_initialize(
-        IDistro _tokenDistribution,
-        uint256 _duration
-    ) public initializer {
+    function __BaseUnipoolDistributor_initialize(uint256 _duration)
+        public
+        initializer
+    {
         __Ownable_init();
-        tokenDistro = _tokenDistribution;
         duration = _duration;
         periodFinish = 0;
         rewardRate = 0;
-    }
-
-    function balanceOf(address account) public view returns (uint256) {
-        return _balances[account];
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
@@ -72,25 +62,26 @@ contract BaseUnipoolDistributor is OwnableUpgradeable {
     }
 
     function rewardPerToken() public view returns (uint256) {
-        if (totalSupply() == 0) {
+        if (_totalSupply() == 0) {
             return rewardPerTokenStored;
         }
         return
             rewardPerTokenStored +
-            lastTimeRewardApplicable() -
-            (lastUpdateTime * rewardRate * 1e18) /
-            totalSupply();
+            ((lastTimeRewardApplicable() - lastUpdateTime) *
+                rewardRate *
+                1e18) /
+            _totalSupply();
     }
 
     function earned(address account) public view returns (uint256) {
-        return _earned(account);
+        return _caculateEarned(account);
     }
 
     function getReward() public updateReward(msg.sender) {
         uint256 reward = earned(_msgSender());
         if (reward > 0) {
             rewards[_msgSender()] = 0;
-            tokenDistro.allocate(_msgSender(), reward, true);
+            _distributionHook(_msgSender(), reward);
             emit RewardPaid(_msgSender(), reward);
         }
     }
@@ -113,16 +104,46 @@ contract BaseUnipoolDistributor is OwnableUpgradeable {
         emit RewardAdded(reward);
     }
 
-    function _earned(address account) internal view returns (uint256) {
+    /// @dev Notify the distirbution hook that the user is collecting the reward
+    /// Implementations should override and call the appropiate token distribution reward function
+    /// @param account Account getting the reward tokens
+    /// @param amount Amount of reward tokens claimed
+    function _distributionHook(address account, uint256 amount)
+        internal
+        virtual;
+
+    /// @dev Calculate the current earned reward of the given account
+    /// Implementations that use a different reward calculation (such as a payment stream) should override this method
+    /// @param account The account to check the earned amount for
+    /// @return The earned amount
+    function _caculateEarned(address account) internal view returns (uint256) {
         return
-            balanceOf(account) *
-            rewardPerToken() -
-            userRewardPerTokenPaid[account] /
+            (_balanceOf(account) *
+                (rewardPerToken() - userRewardPerTokenPaid[account])) /
             1e18 +
             rewards[account];
     }
 
-    function _blockTimestamp() internal view returns (uint256) {
+    /// @dev Implementation defined total supply calculation.
+    /// Should return the LP token total supply
+    /// @return Total supply of the LP token
+    function _totalSupply() internal view virtual returns (uint256);
+
+    /// @dev Implementation defined account balance calculation.
+    /// Should return the LP token balance of an account
+    /// @param account Address of the account
+    /// @return Token Balance of the given account
+    function _balanceOf(address account)
+        internal
+        view
+        virtual
+        returns (uint256);
+
+    /// @dev Returns the block timestamp
+    /// Regular implementations should leave this alone.
+    /// Test implementations can override this function to set an arbitrary fixed timestamp
+    /// @return The proper timestamp of the current block
+    function _blockTimestamp() internal view virtual returns (uint256) {
         return block.timestamp;
     }
 }
