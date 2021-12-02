@@ -9,48 +9,50 @@ import { UnipoolTokenDistributorMock } from "../../typechain-types/UnipoolTokenD
 
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { UniMock } from "../../typechain-types";
-import { duration, increaseTimeTo, latestTimestamp } from "../utils/time";
+import {
+    duration,
+    increaseTimeToAndMine,
+    latestTimestamp,
+    increaseTime,
+} from "../utils/time";
 import setAutomine from "../utils/mining";
 import { advanceBlock } from "../utils/block";
 
-let tokenDistroFactory: ContractFactory,
-    unipoolFactory: ContractFactory,
-    tokenFactory: ContractFactory,
-    unipool: UnipoolTokenDistributorMock,
-    tokenDistro: TokenDistroMock,
-    givToken: GIV,
-    multisig: SignerWithAddress,
-    multisig2: SignerWithAddress,
-    multisig3: SignerWithAddress,
-    recipient1: SignerWithAddress,
-    recipient2: SignerWithAddress,
-    recipient3: SignerWithAddress,
+const { parseEther: toWei } = ethers.utils;
+const { WeiPerEther, MaxUint256 } = constants;
+
+let tokenDistroFactory, unipoolFactory, tokenFactory: ContractFactory;
+let unipool: UnipoolTokenDistributorMock;
+let tokenDistro: TokenDistroMock;
+let givToken: GIV;
+let Uni: UniMock;
+
+let multisig,
+    multisig2,
+    multisig3,
+    recipient1,
+    recipient2,
+    recipient3,
     recipient4: SignerWithAddress;
-let multisigAddress: string,
-    multisig2Address: string,
-    multisig3Address: string,
-    recipientAddress1: string,
-    recipientAddress2: string,
-    recipientAddress3: string,
-    recipientAddress4: string,
-    addrs: SignerWithAddress[];
 
-const amount = ethers.utils.parseEther("20000000");
+let multisigAddress,
+    multisig2Address,
+    multisig3Address,
+    recipientAddress1,
+    recipientAddress2,
+    recipientAddress3,
+    recipientAddress4: string;
 
+let addrs: SignerWithAddress[];
+
+const testAmount = toWei("20000000");
 const offset = 90 * (3600 * 24);
-let startTime;
-// let lmDuration;
-const rewardAmount = amount.div(2);
-
+const rewardAmount = testAmount.div(2);
 const startToCliff = 180 * (3600 * 24);
 const startToEnd = 730 * (3600 * 24);
 const initialPercentage = 500;
 
-const { WeiPerEther, MaxUint256 } = constants;
-const { parseEther: toWei } = ethers.utils;
-
-let Uni: UniMock;
-
+let startTime;
 let started = BigNumber.from(0);
 
 function expectAlmostEqual(
@@ -87,7 +89,7 @@ describe("Unipool Legacy", () => {
         tokenFactory = await ethers.getContractFactory("GIV");
         givToken = (await tokenFactory.deploy(multisigAddress)) as GIV;
         await givToken.deployed();
-        await givToken.mint(multisigAddress, amount);
+        await givToken.mint(multisigAddress, testAmount);
 
         tokenDistroFactory = await ethers.getContractFactory("TokenDistroMock");
         unipoolFactory = await ethers.getContractFactory(
@@ -98,7 +100,7 @@ describe("Unipool Legacy", () => {
             (await ethers.provider.getBlock("latest")).timestamp + offset;
         // lmDuration = startToCliff * 4;
         tokenDistro = (await tokenDistroFactory.deploy(
-            amount,
+            testAmount,
             startTime,
             startToCliff,
             startToEnd,
@@ -107,7 +109,7 @@ describe("Unipool Legacy", () => {
             false,
         )) as TokenDistroMock;
 
-        await givToken.transfer(tokenDistro.address, amount);
+        await givToken.transfer(tokenDistro.address, testAmount);
 
         const uniFactory = await ethers.getContractFactory("UniMock");
         Uni = (await uniFactory.deploy()) as UniMock;
@@ -139,7 +141,7 @@ describe("Unipool Legacy", () => {
         await Uni.connect(recipient4).approve(unipool.address, MaxUint256);
 
         started = (await latestTimestamp()).add(BigNumber.from("10"));
-        await increaseTimeTo(started);
+        await increaseTimeToAndMine(started);
     });
 
     it("Two stakers with the same stakes wait 1 w", async () => {
@@ -162,17 +164,28 @@ describe("Unipool Legacy", () => {
         expect(await unipool.earned(recipientAddress1)).to.be.eq("0");
         expect(await unipool.earned(recipientAddress2)).to.be.eq("0");
 
-        await increaseTimeTo(started.add(duration.weeks(1)));
+        await increaseTimeToAndMine(started.add(duration.weeks(1)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("36000"));
-        expectAlmostEqual(
-            await unipool.earned(recipientAddress1),
-            toWei("36000"),
-        );
-        expectAlmostEqual(
-            await unipool.earned(recipientAddress2),
-            toWei("36000"),
-        );
+
+        const recipientEarned1 = await unipool.earned(recipientAddress1);
+        const recipientEarned2 = await unipool.earned(recipientAddress2);
+
+        expectAlmostEqual(recipientEarned1, toWei("36000"));
+        expectAlmostEqual(recipientEarned2, toWei("36000"));
+
+        // To include the 'getReward' transactions, Hardhat will have to mine a block.
+        // This will increase the timestamp and mess up the earnings calculation.
+        // We thus set a fixed block timestamp at the contract level
+        await unipool.setFixedBlockTimestamp(await latestTimestamp());
+
+        await expect(unipool.connect(recipient1).getReward())
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(unipool.address, recipientAddress1, recipientEarned1);
+
+        await expect(unipool.connect(recipient2).getReward())
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(unipool.address, recipientAddress2, recipientEarned2);
     });
 
     it("Two stakers with the different (1:3) stakes wait 1 w", async () => {
@@ -197,7 +210,7 @@ describe("Unipool Legacy", () => {
         expect(await unipool.earned(recipientAddress1)).to.be.eq("0");
         expect(await unipool.earned(recipientAddress2)).to.be.eq("0");
 
-        await increaseTimeTo(started.add(duration.weeks(1)));
+        await increaseTimeToAndMine(started.add(duration.weeks(1)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("18000"));
         expectAlmostEqual(
@@ -221,7 +234,7 @@ describe("Unipool Legacy", () => {
 
         await unipool.connect(recipient1).stake(toWei("1"));
 
-        await increaseTimeTo(started.add(duration.weeks(1)));
+        await increaseTimeToAndMine(started.add(duration.weeks(1)));
 
         await unipool.connect(recipient2).stake(toWei("3"));
 
@@ -233,11 +246,11 @@ describe("Unipool Legacy", () => {
         expectAlmostEqual(await unipool.earned(recipientAddress2), toWei("0"));
 
         // Forward to week 2 and notifyReward
-        await increaseTimeTo(started.add(duration.weeks(2)));
+        await increaseTimeToAndMine(started.add(duration.weeks(2)));
         await unipool.connect(multisig2).notifyRewardAmount(toWei("72000"));
 
         // Forward to week 3 and notifyReward
-        await increaseTimeTo(started.add(duration.weeks(3)));
+        await increaseTimeToAndMine(started.add(duration.weeks(3)));
         await unipool.connect(multisig2).notifyRewardAmount(toWei("72000"));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("90000"));
@@ -267,7 +280,7 @@ describe("Unipool Legacy", () => {
         await advanceBlock();
         await setAutomine(true);
 
-        await increaseTimeTo(started.add(duration.weeks(1)));
+        await increaseTimeToAndMine(started.add(duration.weeks(1)));
 
         await unipool.connect(recipient3).stake(toWei("5"));
 
@@ -282,7 +295,7 @@ describe("Unipool Legacy", () => {
         );
 
         await unipool.connect(multisig2).notifyRewardAmount(toWei("72000"));
-        await increaseTimeTo(started.add(duration.weeks(2)));
+        await increaseTimeToAndMine(started.add(duration.weeks(2)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("26000")); // 18k + 8k
         expectAlmostEqual(
@@ -301,7 +314,7 @@ describe("Unipool Legacy", () => {
         await unipool.connect(recipient2).exit();
 
         await unipool.connect(multisig2).notifyRewardAmount(toWei("72000"));
-        await increaseTimeTo(started.add(duration.weeks(3)));
+        await increaseTimeToAndMine(started.add(duration.weeks(3)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("38000")); // 18k + 8k + 12k
         expectAlmostEqual(
@@ -321,7 +334,7 @@ describe("Unipool Legacy", () => {
 
         await unipool.connect(recipient1).stake(toWei("1"));
 
-        await increaseTimeTo(started.add(duration.weeks(2)));
+        await increaseTimeToAndMine(started.add(duration.weeks(2)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("72000"));
         expectAlmostEqual(
@@ -332,7 +345,7 @@ describe("Unipool Legacy", () => {
         // 72000 SNX per week for 1 week
         await unipool.connect(multisig2).notifyRewardAmount(toWei("72000"));
 
-        await await increaseTimeTo(started.add(duration.weeks(3)));
+        await await increaseTimeToAndMine(started.add(duration.weeks(3)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("144000"));
         expectAlmostEqual(
@@ -361,7 +374,7 @@ describe("Unipool Legacy", () => {
         expect(await unipool.earned(recipientAddress1)).to.be.eq("0");
         expect(await unipool.earned(recipientAddress2)).to.be.eq("0");
 
-        await increaseTimeTo(started.add(duration.weeks(1)));
+        await increaseTimeToAndMine(started.add(duration.weeks(1)));
 
         expectAlmostEqual(await unipool.rewardPerToken(), toWei("2500"));
         expectAlmostEqual(

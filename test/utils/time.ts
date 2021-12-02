@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { network } from "hardhat";
-import latestBlock, { advanceBlock } from "./block";
+import { advanceBlock, latestBlock } from "./block";
 
 export async function latestBlockNumber(): Promise<BigNumber> {
     return BigNumber.from((await latestBlock()).number);
@@ -18,10 +18,14 @@ export async function increaseTime(amount: BigNumberish) {
     }
 
     await network.provider.send("evm_increaseTime", [inc.toNumber()]);
+}
+
+export async function increaseTimeAndMine(amount: BigNumberish) {
+    await increaseTime(amount);
     await advanceBlock();
 }
 
-export async function increaseTimeTo(target: BigNumberish) {
+export async function increaseTimeToAndMine(target: BigNumberish) {
     const newT = BigNumber.from(target);
     const now = await latestTimestamp();
 
@@ -32,7 +36,7 @@ export async function increaseTimeTo(target: BigNumberish) {
     }
 
     const diff = newT.sub(now);
-    return increaseTime(diff);
+    return increaseTimeAndMine(diff);
 }
 
 export const duration = {

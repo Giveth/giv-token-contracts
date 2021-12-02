@@ -115,7 +115,7 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
-        return MathUpgradeable.min(block.timestamp, periodFinish);
+        return MathUpgradeable.min(_getBlockTimestamp(), periodFinish);
     }
 
     function rewardPerToken() public view returns (uint256) {
@@ -173,15 +173,16 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         onlyRewardDistribution
         updateReward(address(0))
     {
-        if (block.timestamp >= periodFinish) {
+        uint256 _timestamp = _getBlockTimestamp();
+        if (_timestamp >= periodFinish) {
             rewardRate = reward.div(duration);
         } else {
-            uint256 remaining = periodFinish.sub(block.timestamp);
+            uint256 remaining = periodFinish.sub(_timestamp);
             uint256 leftover = remaining.mul(rewardRate);
             rewardRate = reward.add(leftover).div(duration);
         }
-        lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp.add(duration);
+        lastUpdateTime = _timestamp;
+        periodFinish = _timestamp.add(duration);
         emit RewardAdded(reward);
     }
 
@@ -325,5 +326,13 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         } else {
             revert("UnipoolTokenDistributor: NOT_VALID_CALL_SIGNATURE");
         }
+    }
+
+    /// @dev Internal method that returns the current block timestamp
+    /// We expect this function call to be optimized away
+    /// Mock implementations can override this to set a fixed block timestamp value
+    /// @return The current block timestamp
+    function _getBlockTimestamp() internal view virtual returns (uint256) {
+        return block.timestamp;
     }
 }
