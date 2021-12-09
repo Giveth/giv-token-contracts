@@ -92,8 +92,11 @@ describe("BaseUnipoolDistributor", () => {
                 // Advance time by one week:
                 await increaseTimeToAndMine(started.add(duration.weeks("1")));
 
-                // Get the reward:
-                await pool.connect(recipient1).getReward();
+                // GetReward should emit RewardPaid event:
+                await expect(pool.connect(recipient1).getReward()).to.emit(
+                    pool,
+                    "RewardPaid",
+                );
 
                 // After the first distribution period
                 //   recipient 1 claimed 10k
@@ -110,6 +113,23 @@ describe("BaseUnipoolDistributor", () => {
                 ).to.be.revertedWith(
                     "BaseUnipoolDistributor::onlyRewardDistribution: NOT_REWARD_DISTRIBUTION",
                 );
+            });
+
+            it("should set the correct rewardRate, lastUpdateTime, periodFinish and emit RewardAdded", async () => {
+                // Since we need to mine a block to confirm the transaction, the
+                // timestamp needs to be increased by 1:
+                const txTime = (await latestTimestamp()).add("1");
+
+                await expect(notifyRewardAmount(toWei("70000")))
+                    .to.emit(pool, "RewardAdded")
+                    .withArgs(toWei("70000"));
+
+                expect(await pool.lastUpdateTime()).to.be.eq(txTime);
+                expect(await pool.periodFinish()).to.be.eq(
+                    txTime.add(duration.weeks("1")),
+                );
+
+                expectAlmostEqual(await pool.rewardRate(), toWei("0"));
             });
         });
     });
