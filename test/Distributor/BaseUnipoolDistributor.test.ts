@@ -76,12 +76,41 @@ describe("BaseUnipoolDistributor", () => {
     });
 
     describe("should pass unit tests", () => {
-        it("should revert if notifyRewardAmount not called by reward distirbution", async () => {
-            await expect(
-                pool.connect(other).notifyRewardAmount(toWei("10000")),
-            ).to.be.revertedWith(
-                "BaseUnipoolDistributor::onlyRewardDistribution: NOT_REWARD_DISTRIBUTION",
-            );
+        describe("when testing getReward", () => {
+            it("should distribute 0 if nothing was staked", async () => {
+                await pool.connect(other).getReward();
+                expect(await pool.distributedTo(otherAddress)).to.be.eq("0");
+            });
+
+            it("should distribute the appropriate earned amount", async () => {
+                // Distribute 10k per week:
+                await notifyRewardAmount(toWei("10000"));
+
+                // Stake 1x amount to recipient 1:
+                await pool.connect(recipient1).stake(toWei("1"));
+
+                // Advance time by one week:
+                await increaseTimeToAndMine(started.add(duration.weeks("1")));
+
+                // Get the reward:
+                await pool.connect(recipient1).getReward();
+
+                // After the first distribution period
+                //   recipient 1 claimed 10k
+                expectAlmostEqual(
+                    await pool.distributedTo(recipientAddress1),
+                    toWei("10000"),
+                );
+            });
+        });
+        describe("when testing notifyRewardAmount", () => {
+            it("should revert if notifyRewardAmount not called by reward distirbution", async () => {
+                await expect(
+                    pool.connect(other).notifyRewardAmount(toWei("10000")),
+                ).to.be.revertedWith(
+                    "BaseUnipoolDistributor::onlyRewardDistribution: NOT_REWARD_DISTRIBUTION",
+                );
+            });
         });
     });
 
@@ -395,6 +424,45 @@ describe("BaseUnipoolDistributor", () => {
             );
             expectAlmostEqual(
                 await pool.earned(recipientAddress2),
+                toWei("60000"),
+            );
+        });
+
+        it("Get the reward from staking after transfer", async () => {
+            // Distribute 70k tokens per week:
+            await notifyRewardAmount(toWei("70000"));
+
+            // Stake 1x amount to recipient 1:
+            await pool.connect(recipient1).stake(toWei("1"));
+
+            // Advance time 1 day:
+            await increaseTimeToAndMine(started.add(duration.days(1)));
+
+            // In order to keep the reward calculation the same, mint the two staking
+            // transactions in the same block:
+            await setAutomine(false);
+
+            // Withdraw 1x amount from recipient 1 and stake 1x to recipient 2.
+            // This is emulates a transfer:
+            await pool.connect(recipient1).withdraw(toWei("1"));
+            await pool.connect(recipient2).stake(toWei("1"));
+            await advanceBlock(); // <= transactions are confirmed in the same block
+
+            // Normal block propagation resumes:
+            await setAutomine(true);
+
+            // Advance time 6 days:
+            await increaseTimeToAndMine(started.add(duration.weeks(1)));
+
+            await pool.connect(recipient1).getReward();
+            await pool.connect(recipient2).getReward();
+
+            expectAlmostEqual(
+                await pool.distributedTo(recipientAddress1),
+                toWei("10000"),
+            );
+            expectAlmostEqual(
+                await pool.distributedTo(recipientAddress2),
                 toWei("60000"),
             );
         });
