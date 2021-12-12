@@ -5,7 +5,7 @@ pragma solidity ^0.8.6;
  * changelog:
  *      * Add Initialize function
  *      * Token manager is set in the initialization function
- *      * `onRegisterAsHook` now has the `onlyTokenManager` and do not update the token manager
+ *      * `onRegisterAsHook` now has the `onlyTokenManager` modifier and do not update the token manager
  */
 
 library UnstructuredStorage {

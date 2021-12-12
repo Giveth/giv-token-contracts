@@ -86,10 +86,15 @@ describe("GardenUnipoolTokenDistributor", () => {
 
         await givToken.transfer(tokenDistro.address, amount);
 
-        gardenUnipool = (await gardenUnipoolFactory.deploy(
+        gardenUnipool =
+            (await gardenUnipoolFactory.deploy()) as GardenUnipoolTokenDistributorMock;
+
+        await gardenUnipool.initialize(
             tokenDistro.address,
             lmDuration,
-        )) as GardenUnipoolTokenDistributorMock;
+            ethers.constants.AddressZero, // does not matter in this test
+        );
+
         await gardenUnipool.setRewardDistribution(multisigAddress);
 
         await tokenDistro.grantRole(
