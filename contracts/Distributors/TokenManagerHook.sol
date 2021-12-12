@@ -1,5 +1,13 @@
 pragma solidity ^0.8.6;
 
+// Based on: https://github.com/1Hive/token-manager-app/blob/master/contracts/TokenManagerHook.sol
+/*
+ * changelog:
+ *      * Add Initialize function
+ *      * Token manager is set in the initialization function
+ *      * `onRegisterAsHook` now has the `onlyTokenManager` modifier and do not update the token manager
+ */
+
 library UnstructuredStorage {
     function getStorageBool(bytes32 position)
         internal
@@ -92,10 +100,12 @@ contract ReentrancyGuard {
     }
 }
 
+import "openzeppelin-contracts-upgradable-v4/proxy/utils/Initializable.sol";
+
 /**
  * @dev When creating a subcontract, we recommend overriding the _internal_ functions that you want to hook.
  */
-contract TokenManagerHook is ReentrancyGuard {
+contract TokenManagerHook is ReentrancyGuard, Initializable {
     using UnstructuredStorage for bytes32;
 
     /* Hardcoded constants to save gas
@@ -112,7 +122,20 @@ contract TokenManagerHook is ReentrancyGuard {
         _;
     }
 
-    function getTokenManager() public returns (address) {
+    /**
+     * @dev Usually this contract is deploy by a factory, and in the same transaction, `onRegisterAsHook` is called.
+     * Since in this case, the `onRegisterAsHook` will be called after the deployment, to avoid unwanted calls to `onRegisterAsHook`,
+     * token manager address is set in the initialization.
+     * @param tokenManager Token manager address
+     */
+    function __TokenManagerHook_initialize(address tokenManager)
+        public
+        initializer
+    {
+        TOKEN_MANAGER_POSITION.setStorageAddress(tokenManager);
+    }
+
+    function getTokenManager() public view returns (address) {
         return TOKEN_MANAGER_POSITION.getStorageAddress();
     }
 
@@ -125,12 +148,8 @@ contract TokenManagerHook is ReentrancyGuard {
     function onRegisterAsHook(uint256 _hookId, address _token)
         external
         nonReentrant
+        onlyTokenManager
     {
-        require(
-            getTokenManager() == address(0),
-            "Hook already registered by Token Manager"
-        );
-        TOKEN_MANAGER_POSITION.setStorageAddress(msg.sender);
         _onRegisterAsHook(msg.sender, _hookId, _token);
     }
 

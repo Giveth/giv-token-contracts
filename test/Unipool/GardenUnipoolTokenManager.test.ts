@@ -6,13 +6,16 @@ import { ContractFactory } from "ethers";
 import { GIV } from "../../typechain-types/GIV";
 import { TokenDistroMock } from "../../typechain-types/TokenDistroMock";
 import { GardenUnipoolTokenDistributorMock } from "../../typechain-types/GardenUnipoolTokenDistributorMock";
+import { HookedTokenManagerMock } from "../../typechain-types/HookedTokenManagerMock";
 
 let tokenDistroFactory: ContractFactory,
     gardenUnipoolFactory: ContractFactory,
     tokenFactory: ContractFactory,
+    hookedTokenManagerFactory: ContractFactory,
     gardenUnipool: GardenUnipoolTokenDistributorMock,
     tokenDistro: TokenDistroMock,
     givToken: GIV,
+    hookedTokenManager: HookedTokenManagerMock,
     multisig: SignerWithAddress,
     multisig2: SignerWithAddress,
     multisig3: SignerWithAddress,
@@ -71,6 +74,10 @@ describe("GardenUnipoolTokenDistributor", () => {
             "GardenUnipoolTokenDistributorMock",
         );
 
+        hookedTokenManagerFactory = await ethers.getContractFactory(
+            "HookedTokenManagerMock",
+        );
+
         startTime =
             (await ethers.provider.getBlock("latest")).timestamp + offset;
         lmDuration = startToCliff * 4;
@@ -86,14 +93,35 @@ describe("GardenUnipoolTokenDistributor", () => {
 
         await givToken.transfer(tokenDistro.address, amount);
 
+        // deploy hookedTokenManager
+        hookedTokenManager = (await hookedTokenManagerFactory.deploy(
+            givToken.address,
+        )) as HookedTokenManagerMock;
+
+        // deploy and initialize gaden unipool
         gardenUnipool =
             (await gardenUnipoolFactory.deploy()) as GardenUnipoolTokenDistributorMock;
 
         await gardenUnipool.initialize(
             tokenDistro.address,
             lmDuration,
-            ethers.constants.AddressZero, // does not matter in this test
+            hookedTokenManager.address,
         );
+
+        // check that the token manager is set
+        expect(await gardenUnipool.getTokenManager()).to.be.equal(
+            hookedTokenManager.address,
+        );
+
+        await expect(
+            gardenUnipool.onRegisterAsHook(
+                gardenUnipool.address,
+                givToken.address,
+            ),
+        ).to.be.revertedWith("Hooks must be called from Token Manager");
+
+        // register hook in token manager
+        await hookedTokenManager.registerHook(gardenUnipool.address);
 
         await gardenUnipool.setRewardDistribution(multisigAddress);
 
@@ -118,7 +146,13 @@ describe("GardenUnipoolTokenDistributor", () => {
             .add(stakeAmountRecipient4);
 
         const doStake = async (_accountAddress, _amount) => {
-            await expect(gardenUnipool._stake(_accountAddress, _amount))
+            await expect(
+                hookedTokenManager.onTransfer(
+                    ethers.constants.AddressZero,
+                    _accountAddress,
+                    _amount,
+                ),
+            )
                 .to.emit(gardenUnipool, "Staked")
                 .withArgs(_accountAddress, _amount);
         };
