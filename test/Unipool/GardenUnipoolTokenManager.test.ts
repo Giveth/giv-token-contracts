@@ -108,12 +108,22 @@ describe("GardenUnipoolTokenDistributor", () => {
             hookedTokenManager.address,
         );
 
-        await gardenUnipool.setRewardDistribution(multisigAddress);
-
-        // check that the registration was alright
+        // check that the token manager is set
         expect(await gardenUnipool.getTokenManager()).to.be.equal(
             hookedTokenManager.address,
         );
+
+        await expect(
+            gardenUnipool.onRegisterAsHook(
+                gardenUnipool.address,
+                givToken.address,
+            ),
+        ).to.be.revertedWith("Hooks must be called from Token Manager");
+
+        // register hook in token manager
+        await hookedTokenManager.registerHook(gardenUnipool.address);
+
+        await gardenUnipool.setRewardDistribution(multisigAddress);
 
         await tokenDistro.grantRole(
             await tokenDistro.DISTRIBUTOR_ROLE(),

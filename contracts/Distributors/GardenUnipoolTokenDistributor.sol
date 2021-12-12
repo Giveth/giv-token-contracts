@@ -104,11 +104,11 @@ contract GardenUnipoolTokenDistributor is
     ) public initializer {
         __Ownable_init();
         __LPTokenWrapper_initialize();
+        __TokenManagerHook_initialize(tokenManager);
         tokenDistro = _tokenDistribution;
         duration = _duration;
         periodFinish = 0;
         rewardRate = 0;
-        _initializeTokenManagerHook(tokenManager);
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
