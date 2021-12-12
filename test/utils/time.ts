@@ -39,23 +39,28 @@ export async function increaseTimeToAndMine(target: BigNumberish) {
     return increaseTimeAndMine(diff);
 }
 
-export const duration = {
-    seconds(val: BigNumberish) {
-        return BigNumber.from(val);
-    },
-    minutes(val: BigNumberish) {
-        return BigNumber.from(val).mul(this.seconds("60"));
-    },
-    hours(val: BigNumberish) {
-        return BigNumber.from(val).mul(this.minutes("60"));
-    },
-    days(val: BigNumberish) {
-        return BigNumber.from(val).mul(this.hours("24"));
-    },
-    weeks(val: BigNumberish) {
-        return BigNumber.from(val).mul(this.days("7"));
-    },
-    years(val: BigNumberish) {
-        return BigNumber.from(val).mul(this.days("365"));
-    },
-};
+function seconds(val: BigNumberish) {
+    return BigNumber.from(val);
+}
+
+function minutes(val: BigNumberish) {
+    return BigNumber.from(val).mul(seconds("60"));
+}
+
+function hours(val: BigNumberish) {
+    return BigNumber.from(val).mul(minutes("60"));
+}
+
+function days(val: BigNumberish) {
+    return BigNumber.from(val).mul(hours("24"));
+}
+
+function weeks(val: BigNumberish) {
+    return BigNumber.from(val).mul(days("7"));
+}
+
+function years(val: BigNumberish) {
+    return BigNumber.from(val).mul(days("365"));
+}
+
+export const duration = { seconds, minutes, hours, days, weeks, years };
