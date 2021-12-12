@@ -2,24 +2,27 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { describe, beforeEach, it } from "mocha";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ContractFactory } from "ethers";
 import { GIV } from "../../typechain-types/GIV";
 import { TokenDistroMock } from "../../typechain-types/TokenDistroMock";
 import { GardenUnipoolTokenDistributorMock } from "../../typechain-types/GardenUnipoolTokenDistributorMock";
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+import { latestTimestamp } from "../utils/time";
 
-let tokenDistroFactory: ContractFactory,
-    gardenUnipoolFactory: ContractFactory,
-    tokenFactory: ContractFactory,
-    gardenUnipool: GardenUnipoolTokenDistributorMock,
-    tokenDistro: TokenDistroMock,
-    givToken: GIV,
-    multisig: SignerWithAddress,
+const { parseEther } = ethers.utils;
+const { AddressZero } = ethers.constants;
+
+let gardenUnipool: GardenUnipoolTokenDistributorMock;
+let tokenDistro: TokenDistroMock;
+let givToken: GIV;
+
+let multisig: SignerWithAddress,
     multisig2: SignerWithAddress,
     multisig3: SignerWithAddress,
     recipient1: SignerWithAddress,
     recipient2: SignerWithAddress,
     recipient3: SignerWithAddress,
     recipient4: SignerWithAddress;
+
 let multisigAddress: string,
     multisig2Address: string,
     multisig3Address: string,
@@ -29,11 +32,11 @@ let multisigAddress: string,
     recipientAddress4: string,
     addrs: SignerWithAddress[];
 
-const amount = ethers.utils.parseEther("20000000");
+const amount = parseEther("20000000");
 
 const offset = 90 * (3600 * 24);
-let startTime;
-let lmDuration;
+let startTime = BigNumber.from(0);
+let lmDuration = BigNumber.from(0);
 const rewardAmount = amount.div(2);
 
 const startToCliff = 180 * (3600 * 24);
@@ -61,19 +64,20 @@ describe("GardenUnipoolTokenDistributor", () => {
         recipientAddress3 = await recipient3.getAddress();
         recipientAddress4 = await recipient4.getAddress();
 
-        tokenFactory = await ethers.getContractFactory("GIV");
+        const tokenFactory = await ethers.getContractFactory("GIV");
         givToken = (await tokenFactory.deploy(multisigAddress)) as GIV;
         await givToken.deployed();
         await givToken.mint(multisigAddress, amount);
 
-        tokenDistroFactory = await ethers.getContractFactory("TokenDistroMock");
-        gardenUnipoolFactory = await ethers.getContractFactory(
+        const tokenDistroFactory = await ethers.getContractFactory(
+            "TokenDistroMock",
+        );
+        const gardenUnipoolFactory = await ethers.getContractFactory(
             "GardenUnipoolTokenDistributorMock",
         );
 
-        startTime =
-            (await ethers.provider.getBlock("latest")).timestamp + offset;
-        lmDuration = startToCliff * 4;
+        startTime = (await latestTimestamp()).add(offset);
+        lmDuration = BigNumber.from(startToCliff).mul(4);
         tokenDistro = (await tokenDistroFactory.deploy(
             amount,
             startTime,
@@ -92,7 +96,7 @@ describe("GardenUnipoolTokenDistributor", () => {
         await gardenUnipool.initialize(
             tokenDistro.address,
             lmDuration,
-            ethers.constants.AddressZero, // does not matter in this test
+            AddressZero, // <= Token Manager address can be set to zero in this test.
         );
 
         await gardenUnipool.setRewardDistribution(multisigAddress);
@@ -106,6 +110,7 @@ describe("GardenUnipoolTokenDistributor", () => {
             (await tokenDistro.balances(gardenUnipool.address)).allocatedTokens,
         ).to.be.equal(rewardAmount);
     });
+
     it("should be able to transfer the balance", async () => {
         const stakeAmountRecipient1 = amount.div(4);
         const stakeAmountRecipient2 = stakeAmountRecipient1.div(2);
@@ -137,7 +142,7 @@ describe("GardenUnipoolTokenDistributor", () => {
             .withArgs(rewardAmount);
 
         expect(await gardenUnipool.periodFinish()).to.be.equal(
-            startTime + lmDuration,
+            startTime.add(lmDuration),
         );
 
         expect(await gardenUnipool.earned(recipientAddress1)).to.be.equal(0);
@@ -145,7 +150,7 @@ describe("GardenUnipoolTokenDistributor", () => {
         expect(await gardenUnipool.earned(recipientAddress3)).to.be.equal(0);
         expect(await gardenUnipool.earned(recipientAddress4)).to.be.equal(0);
 
-        const stepDuration = lmDuration / 8;
+        const stepDuration = lmDuration.div(8);
 
         const checkUserEarnValues = async (_account) => {
             const _accountAddress = await _account.getAddress();
@@ -185,8 +190,12 @@ describe("GardenUnipoolTokenDistributor", () => {
         };
 
         const doStep = async (_step, _accounts) => {
-            await tokenDistro.setTimestamp(startTime + _step * stepDuration);
-            await gardenUnipool.setTimestamp(startTime + _step * stepDuration);
+            await tokenDistro.setTimestamp(
+                startTime.add(_step).mul(stepDuration),
+            );
+            await gardenUnipool.setTimestamp(
+                startTime.add(_step).mul(stepDuration),
+            );
             for (let i = 0; i < _accounts.length; i++) {
                 // eslint-disable-next-line no-await-in-loop
                 await checkUserEarnValues(_accounts[i]);
