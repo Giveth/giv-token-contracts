@@ -13,3 +13,8 @@ yarn-error.log
 coverage.json
 artifacts/
 .openzeppelin
+
+dist
+.idea
+.DS_Store
+*_flat.sol

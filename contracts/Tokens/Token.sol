@@ -29,9 +29,9 @@ contract GIV is IERC20 {
     bytes32 public constant EIP712DOMAIN_HASH =
         0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f;
     // bytes32 public constant NAME_HASH =
-    //      keccak256("Giveth Test GIV Token")
+    //      keccak256("Giveth GIV Token")
     bytes32 public constant NAME_HASH =
-        0xd9aee7049524a931e8e28ae33a2ef2d3ae67604dfab6e0a2caab3aeb84f2bfb9;
+        0x6b9cd9b2609d843ad8b20e45ba66e6592dffa41a15eef674fa97fd2519578ec7;
     // bytes32 public constant VERSION_HASH =
     //      keccak256("1")
     bytes32 public constant VERSION_HASH =
