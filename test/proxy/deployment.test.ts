@@ -13,60 +13,45 @@ const upgradeText = "OK";
 const testAddress = "0x000000000000000000000000000000000000dEaD";
 const testVal = toBytes32("0xdead");
 
+// Values for TokenDistro state after initialization:
 const totalAmount = toWei("200000");
-const startTime = BigNumber.from(0);
-const startToCliff = days(180);
-const startToEnd = years(5);
 const initialPercentage = 500;
-
 const initialAmount = totalAmount.mul(initialPercentage).div(10000);
 const lockedAmount = totalAmount.sub(initialAmount);
-const token = testAddress;
-const cancellable = false;
-
-const tokenDistro = testAddress;
-const merkleRoot = testVal;
-
-const tokenName = "Giveth Uniswap V3 Reward Token";
-const tokenSymbol = "GUR";
-const decimals = 18;
-const uniswapV3Staker = testAddress;
-const totalSupply = BigNumber.from(0);
-
-const tokenManager = testAddress;
-const rewardDistribution = testAddress;
-const lastUpdateTime = BigNumber.from(0);
-const periodFinish = startToEnd;
-const rewardRate = BigNumber.from(0);
-const rewardPerTokenStored = BigNumber.from(0);
 
 const contractsToTest = [
     {
         name: "TokenDistro",
         initParams: [
-            totalAmount,
-            startTime,
-            startToCliff,
-            startToEnd,
+            toWei("200000"), // totalAmount
+            BigNumber.from(0), // startTime
+            days(180), // startToCliff
+            years(5), // duration
             initialPercentage,
-            token,
-            cancellable,
+            testAddress, // token
+            false, // cancellable
         ],
         upgradeCheckParams: [
-            totalAmount,
-            startTime,
-            startToCliff,
-            startToEnd,
+            toWei("200000"), // totalAmount
+            BigNumber.from(0), // startTime
+            days(180), // startToCliff
+            years(5), // duration
             initialAmount,
             lockedAmount,
-            token,
-            cancellable,
+            testAddress, // token
+            false, // cancellable
         ],
     },
     {
         name: "MerkleDistro",
-        initParams: [tokenDistro, merkleRoot],
-        upgradeCheckParams: [tokenDistro, merkleRoot],
+        initParams: [
+            testAddress, // tokenDistro
+            testVal, // merkleRoot
+        ],
+        upgradeCheckParams: [
+            testAddress, // tokenDistro
+            testVal, // merkleRoot
+        ],
     },
     {
         name: "UniswapV3RewardToken",
@@ -75,12 +60,12 @@ const contractsToTest = [
             testAddress, // uniswapV3Staker
         ],
         upgradeCheckParams: [
-            tokenName,
-            tokenSymbol,
-            decimals,
-            tokenDistro,
-            uniswapV3Staker,
-            totalSupply,
+            "Giveth Uniswap V3 Reward Token", // name
+            "GUR", // symbol
+            18, // decimals
+            testAddress, // tokenDistro
+            testAddress, // uniswapV3Staker
+            BigNumber.from("0"), // totalSupply
         ],
     },
     {
