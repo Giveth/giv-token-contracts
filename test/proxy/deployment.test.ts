@@ -71,14 +71,36 @@ const contractsToTest = [
     {
         name: "GardenUnipoolTokenDistributor",
         initParams: [
-            testAddress, // tokenDistro
-            years(5), // startToEnd
+            testAddress, // tokenDistribution
+            years(5), // duration
             testAddress, // tokenManager
         ],
         upgradeCheckParams: [
             BigNumber.from(0), // totalSupply
             testAddress, // tokenDistro
             years(5), // startToEnd
+            testAddress, // rewardDistribution
+            BigNumber.from(0), // periodFinish
+            BigNumber.from(0), // rewardRate
+            BigNumber.from(0), // lastUpdateTime,
+            BigNumber.from(0), // rewardPerTokenStored,
+        ],
+        beforeUpgrade: async (contractInstance: Contract) => {
+            await contractInstance.setRewardDistribution(testAddress);
+        },
+    },
+    {
+        name: "UnipoolTokenDistributor",
+        initParams: [
+            testAddress, // tokenDistribution
+            testAddress, // uni
+            years(5), // duration
+        ],
+        upgradeCheckParams: [
+            testAddress, // uni
+            BigNumber.from(0), // totalSupply
+            testAddress, // tokenDistro
+            years(5), // duraion
             testAddress, // rewardDistribution
             BigNumber.from(0), // periodFinish
             BigNumber.from(0), // rewardRate
