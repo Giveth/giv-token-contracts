@@ -33,6 +33,13 @@ const decimals = 18;
 const uniswapV3Staker = testAddress;
 const totalSupply = BigNumber.from(0);
 
+const tokenManager = testAddress;
+const rewardDistribution = testAddress;
+const lastUpdateTime = BigNumber.from(0);
+const periodFinish = startToEnd;
+const rewardRate = BigNumber.from(0);
+const rewardPerTokenStored = BigNumber.from(0);
+
 const contractsToTest = [
     {
         name: "TokenDistro",
@@ -63,7 +70,10 @@ const contractsToTest = [
     },
     {
         name: "UniswapV3RewardToken",
-        initParams: [tokenDistro, uniswapV3Staker],
+        initParams: [
+            testAddress, // tokenDistro
+            testAddress, // uniswapV3Staker
+        ],
         upgradeCheckParams: [
             tokenName,
             tokenSymbol,
@@ -73,11 +83,33 @@ const contractsToTest = [
             totalSupply,
         ],
     },
+    {
+        name: "GardenUnipoolTokenDistributor",
+        initParams: [
+            testAddress, // tokenDistro
+            years(5), // startToEnd
+            testAddress, // tokenManager
+        ],
+        upgradeCheckParams: [
+            BigNumber.from(0), // totalSupply
+            testAddress, // tokenDistro
+            years(5), // startToEnd
+            testAddress, // rewardDistribution
+            BigNumber.from(0), // periodFinish
+            BigNumber.from(0), // rewardRate
+            BigNumber.from(0), // lastUpdateTime,
+            BigNumber.from(0), // rewardPerTokenStored,
+        ],
+        beforeUpgrade: async (contractInstance: Contract) => {
+            await contractInstance.setRewardDistribution(testAddress);
+        },
+    },
 ];
 
 describe("Proxy upgradeability tests", () => {
     contractsToTest.map((contract) => {
-        const { name, initParams, upgradeCheckParams } = contract;
+        const { name, initParams, upgradeCheckParams, beforeUpgrade } =
+            contract;
         return describe(name, () => {
             let instance: Contract;
             let factory: ContractFactory;
@@ -94,6 +126,10 @@ describe("Proxy upgradeability tests", () => {
 
             it("should be upgradeable", async () => {
                 instance = instance || (await deployProxy(factory, initParams));
+
+                if (beforeUpgrade) {
+                    await beforeUpgrade(instance);
+                }
 
                 const upgradedInstance = await upgradeProxy(
                     instance.address,
