@@ -6,11 +6,12 @@ import { beforeEach, describe, it } from "mocha";
 import { duration } from "../utils/time";
 
 const { deployProxy, upgradeProxy } = upgrades;
-const { AddressZero } = ethers.constants;
-const { parseEther: toWei } = ethers.utils;
+const { parseEther: toWei, formatBytes32String: toBytes32 } = ethers.utils;
 const { days, years } = duration;
 
 const upgradeText = "OK";
+const testAddress = "0x000000000000000000000000000000000000dEaD";
+const testVal = toBytes32("0xdead");
 
 const totalAmount = toWei("200000");
 const startTime = BigNumber.from(0);
@@ -20,8 +21,11 @@ const initialPercentage = 500;
 
 const initialAmount = totalAmount.mul(initialPercentage).div(10000);
 const lockedAmount = totalAmount.sub(initialAmount);
-const token = AddressZero;
+const token = testAddress;
 const cancellable = false;
+
+const tokenDistro = testAddress;
+const merkleRoot = testVal;
 
 const contractsToTest = [
     {
@@ -45,6 +49,11 @@ const contractsToTest = [
             token,
             cancellable,
         ],
+    },
+    {
+        name: "MerkleDistro",
+        initParams: [tokenDistro, merkleRoot],
+        upgradeCheckParams: [tokenDistro, merkleRoot],
     },
 ];
 
