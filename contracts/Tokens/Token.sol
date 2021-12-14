@@ -37,8 +37,8 @@ contract GIV is IERC20 {
     bytes32 public constant VERSION_HASH =
         0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
 
-    string public constant name = "Giveth Test GIV Token";
-    string public constant symbol = "TestGIV";
+    string public constant name = "Giveth GIV Token";
+    string public constant symbol = "GIV";
     uint8 public constant decimals = 18;
 
     address public minter;
