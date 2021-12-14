@@ -12,4 +12,4 @@ yarn-error.log
 
 coverage.json
 artifacts/
-.openzeppelin
+.openzeppelin/
