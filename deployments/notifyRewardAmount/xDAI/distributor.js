@@ -4,15 +4,15 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0x7B4b9BdC1fC87f9aff08bE428e797beA642C3bAc",
+        address: "0x94cce6B7448e69526Da8d9c9d125fBdf94F77D97",
         amount: "10000000",
     }, // UNI (HNY/GIV)
     {
-        address: "0x579869ADcB3a3203D7876be889D58C5cbe089F05",
+        address: "0x6EB0bF719FE7ce41AcF82434B226F9d94704A1bA",
         amount: "2500000",
     }, // UNI (ETH/GIV)
     {
-        address: "0x860C72092b7FBca277F94ba1Df11e33043724eAF",
+        address: "0x0Aec14Fb84f1bE403E77232E8462106136179f98",
         amount: "7500000",
     }, // $GIV
 ];
@@ -22,7 +22,7 @@ const distro = [
     1550, 1200, 950, 750, 650, 600, 600, 650, 700, 750, 650, 550, 400,
 ];
 
-const initTime = 1638444600;
+const initTime = 1639683000;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
