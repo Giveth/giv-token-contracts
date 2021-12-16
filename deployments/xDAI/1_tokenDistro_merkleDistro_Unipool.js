@@ -22,12 +22,12 @@ async function main() {
     */
     const startTime = args[0]; // first parameter timestamp -> 1628935200 //Saturday, 14 August 2021 10:00:00
     const cliffPeriod = 0;
-    const duration = 11_262_857; // (TEST: 2 weeks = 24 hours => 11262857) final -> 5 years * 365 days * 24 hours * 3600 seconds = 157680000
+    const duration = 157_680_000; // (TEST: 2 weeks = 24 hours => 11262857) final -> 5 years * 365 days * 24 hours * 3600 seconds = 157680000
     const initialPercentage = 10_00; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
     const totalTokens = ethers.utils.parseEther(args[2]);
     const cancelable = true;
-    const LMDuration = 86_400; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
+    const LMDuration = 1_209_600; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
     // eslint-disable-next-line camelcase
     const merkletree_file = "./files/merkle_distributor_xdai_result.json";
     const data = JSON.parse(fs.readFileSync(merkletree_file));
