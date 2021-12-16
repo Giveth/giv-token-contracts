@@ -34,7 +34,7 @@ let multisigAddress: string,
     addrs: Array<SignerWithAddress>;
 const initialAmount = ethers.utils.parseEther("80000000");
 
-describe("UniswapV3RewardToken", () => {
+describe("Giv token permit test", () => {
     beforeEach(async () => {
         [
             multisig,
