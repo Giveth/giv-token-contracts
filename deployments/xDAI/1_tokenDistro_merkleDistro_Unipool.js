@@ -38,7 +38,8 @@ async function main() {
     const GIVHNY_XDAI_AMOUNT = args[4]; // GIVHNY_XDAI reward amount
     const GIVWETH_XDAI = ethers.utils.getAddress(args[5]); // GIVWETH_XDAI pool address
     const GIVWETH_XDAI_AMOUNT = args[6]; // GIVWETH_XDAI reward amount
-    const UNIGIV_AMOUNT = args[7]; // GIV pool reward
+    const GARDEN_TOKEN_MANAGER_APP = ethers.utils.getAddress(args[7]); // Garden Token Manager App
+    const UNIGIV_AMOUNT = args[8]; // GIV pool reward
     // const RGIV_AMOUNT = args[8]; // rGIV
     // const totalTokens = ethers.utils
     //     .parseEther(merkleTokens)
@@ -292,6 +293,7 @@ async function main() {
     const unigiv = await upgrades.deployProxy(GardenUnipoolTokenDistributor, [
         tokenDistro.address,
         LMDuration,
+        GARDEN_TOKEN_MANAGER_APP,
     ]);
     await unigiv.deployed();
     console.log("##############################################\n");
