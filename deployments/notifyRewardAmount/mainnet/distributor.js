@@ -5,11 +5,11 @@ const { ethers } = hre;
 const pools = [
     // { address: "0x51F3E5C39a11fe189585FA2FD61A6b60E4Bc723a", amount: "1100000" }, // Uniswap V3 is exception, get all at the beginning
     {
-        address: "0xd5CA205eBa8a1438e9C625F6FfDDEAF5e126F526",
+        address: "0x9aF8e5FF803D64f1e10688413e75C656d883Ca70",
         amount: "2500000",
     }, // BAL
     {
-        address: "0xE1039af141101CB4A3C6D7B88FD0dFaB246Bab97",
+        address: "0xbDD6F1865E882a412D88d903cDB2817d919B0d36",
         amount: "2500000",
     }, // $GIV
 ];
@@ -19,7 +19,7 @@ const distro = [
     1550, 1200, 950, 750, 650, 600, 600, 650, 700, 750, 650, 550, 400,
 ];
 
-const initTime = 1638444600;
+const initTime = 1639683000;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
