@@ -27,7 +27,7 @@ async function main() {
     const initialPercentage = 10_00; // two decimals of precision
     const tokenAddress = ethers.utils.getAddress(args[1]); // Token Address second parameter
     const totalTokens = ethers.utils.parseEther(args[2]);
-    const cancelable = false;
+    const cancelable = true;
     const LMDuration = 1_209_600; //  (TEST: 2 weeks = 24 hours => 86_400) final -> 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
     const endTime = BigNumber.from(startTime)
         .add(LMDuration * 13)
