@@ -42,6 +42,7 @@ async function notifyRewardAmount(pool) {
     // 1 hour of precision
     if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
+        console.log("pos:", pos);
         if (pos < 0) return;
         const amount = ethers.utils
             .parseEther(pool.amount)
