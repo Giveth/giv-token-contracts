@@ -15,6 +15,7 @@
     "deploy:mainnet": "HARDHAT_NETWORK=mainnet ts-node deployments/mainnet/2_tokenDistro_Unipools.js 1640361600 0x900db999074d9277c5da2a43f252d74366230da0 2000000000 0xc763b6b3d0f75167db95daa6a0a0d75dd467c4e1 10000000 0x7819f1532c49388106f7762328c51ee70edd134c 2500000 2500000",
     "distributor:rinkeby": "HARDHAT_NETWORK=rinkeby ts-node deployments/notifyRewardAmount/xDAI/distributor.js",
     "distributor:xDAI": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/distributor.js",
+    "distributor:mainnet": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
     "distributor:kovan": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
     "deploy:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/deployGardenUnipool.js",
     "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeGardenUnipool.js",
