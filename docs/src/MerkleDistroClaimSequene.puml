@@ -1,0 +1,47 @@
+@startuml "Merkle Distro claim"
+
+actor Recipient as caller
+participant MerkleDistro as merkle
+participant TokenDistro as distro
+participant GIVToken as token
+
+caller -> merkle : isClaimed(index)
+activate merkle
+
+merkle --> caller : bool
+deactivate merkle
+
+caller -> merkle : claim(index, amount, proof)
+activate merkle
+
+alt proof is invalid
+    merkle --> caller : revert
+destroy merkle
+else
+    merkle -> distro: allocate()
+    
+    activate distro
+    note right: set allocation
+
+    alt claim
+        distro -> distro : claim()
+        activate distro
+
+        distro -> token: safeTransfer()
+        activate token
+
+        token --> caller: transfer tokens
+
+        token --> distro: OK
+        deactivate token
+        deactivate distro
+    end
+
+    distro --> merkle: OK
+    deactivate distro
+
+    merkle -->caller : OK
+    deactivate merkle
+end
+
+@enduml
