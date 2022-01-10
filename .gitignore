@@ -17,4 +17,3 @@ artifacts/
 dist
 .idea
 .DS_Store
-*_flat.sol
