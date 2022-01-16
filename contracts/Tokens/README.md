@@ -8,15 +8,15 @@ This token is used as a bridge between `UniswapV3Staker` contract which handles 
 
 We must use this bridging token because the UniV3 incentive has no way to call `TokenDistro.allocate` when rewards are claimed. If the rewards in GIV are claimed directly from UniV3, there would be no way to enforce that the correct proportion of the claim is placed in the GIVStream. 
 
-To accomplish this, the reward token contract maintains a fake balance that represent GIV that should be assigned and claimed from the TokenDistro. When a recipient withdraws rewards from the UniV3 incentive contract, the appropriate amount of reward tokens is "burned" and real GIV is allocated to the recipient via `TokenDistro.allocate`.
+To accomplish this, the reward token contract maintains a fake balance that represents GIV that should be assigned and claimed from the TokenDistro. When a recipient withdraws rewards from the UniV3 incentive contract, the exact amount of reward tokens is "burned" and real GIV is allocated to the recipient via `TokenDistro.allocate`.
 
-The token implements the ERC-20 standard in such a way to **only** allow interactions between the TokenDistro, GIV token and the UniV3 staker contract.
+The token implements the ERC-20 standard in such a way to **only** allow interactions between the TokenDistro and the UniV3 staker contract.
 
 The contract implements `ownable` and is owned by the deployer address.
 
 ### The `approve` and `allowance` functions
 
-The UniV3 incentive contract is the only account that is allowed to call transfer from, and it has `MAX_UINT256` allowance.
+The UniV3 incentive contract is the only account that is allowed to call transfer from, and it has a constant `MAX_UINT256` allowance.
 Approve is unused, but for interface compatibility always returns `true`.
 
 ### The `transferFrom` function
@@ -44,7 +44,7 @@ The `transferFrom` call will only succeed if:
 
 For the `createIncentive` to succeed, the caller **must** be the `owner` of the contract.
 
-The transferFrom will "mint" the tokens that can later be allocated in the TokenDistro by calling transfer.
+The `transferFrom` will "mint" the reward tokens that can later be burned and instead real GIV allocated in the TokenDistro by calling `transfer`.
 
 ### The `transfer` function
 
@@ -64,7 +64,7 @@ function claimReward(
 ```
 To succeed, `transfer` **must** be called by the UniV3 staker contract.
 
-When called, this function will "burn" the claimed amount of reward tokens and then call `TokenDistro.allocate`. The `allocate` call will allocate actual GIV tokens and perform a claim.
+When called, this function will "burn" the claimed amount of reward tokens and then call `TokenDistro.allocate` with the same amount. The `allocate` call will allocate actual GIV tokens as stream and perform a claim to transfer the released part of the stream.
 
 This function emits a `RewardPaid(uint256 amount, address to)` event.
 

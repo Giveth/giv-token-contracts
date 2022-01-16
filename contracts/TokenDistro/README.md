@@ -25,14 +25,16 @@ The Token Distro contract utilizes Openzeppelin `AccessControl` roles. Two roles
 
 TokenDistro assumes that there exist distributors (contracts or EOAs) that will later be used to distribute tokens. There are for example:
 - The UniV3 staking incentive program
-- The `UnipoolDistributor` used for liquidity mining on Honeyswap an Balancer
+- The `UnipoolDistributor` used for liquidity mining
 - The `GardenUnipoolDistirbutor` used for GIVGarden staking
 
-The `assign(address account, uint256 amount)` function will assign the given amount of tokens to an address. It must be caled by the `DEFAULT_ADMIN_ROLE`. The `DEFAULT_ADMIN_ROLE` may assign any address to be a Distributor if it has claimed a `DISTRIBUTOR` ROLE.
+The `assign(address account, uint256 amount)` function will assign the given amount of tokens to an address with the `DISTRIBUTOR` role to distribute the tokens later. It must be called by the `DEFAULT_ADMIN_ROLE`.
+
+NOTE: Distributors are granted to `DISTRIBUTOR` role by the admin (`DEFAULT_ADMIN_ROLE`) using `grantRole` function.
 
 ## Allocating/claiming GIV
 
-When a recipient wants to claim her tokens, she is expected to interact with a deployed distributor contract. The logic of the distributor governshe how much the recipient is owed and at what time.
+When a recipient wants to claim her tokens, she is expected to interact with a deployed distributor contract. The logic of the distributor governs how much the recipient is owed and at what time.
 
 In an example, a deployed `MerkleDistributor` checks if an address has a GIV merkle drop available.
 
@@ -79,19 +81,19 @@ uint256 unlockedAmount = (globallyClaimableAt(timestamp) *
 return unlockedAmount - balances[recipient].claimed;
 ```
 
-Only a registered distributor can assign tokens to be claimed to an address.
+Only a registered distributor can allocate tokens to be claimed to an address.
 
 NOTE: If the claim flag is set to `true` the distributor will also perform a claim (as seen in the *Claiming GIV* section).
 
 ### SendGIVbacks wrapper
 
-The `sendGIVbacks(address[] memory recipients, uint256[] memory amounts)` is a wrapper function that will allocate an amount of GIV tokens to a given number of recipients. It uses the underlying `_allocateMany` call. It will emit a `GivBacksPaid(address)` event that logs the function caller.
+The `sendGIVbacks(address[] memory recipients, uint256[] memory amounts)` is a wrapper function that will allocate amounts of GIV tokens to corresponding recipients. It uses the underlying `_allocateMany` call. It will emit a `GivBacksPaid(address)` event that logs the function caller.
 
 This is useful for tracking GIVBack payouts that are tracked off-chain and triggered on a regular basis. 
 
 ### Claiming GIV
 
-Anyone can initialte a claim by calling `claim` or `claimTo` functions. This will transfer any tokens that are available to be claimed to the recipient. 
+Anyone can initiate a claim by calling `claim` or `claimTo` functions. This will transfer any liberated amount of tokens that are available to be claimed to the recipient. 
 
 This way the recipient can access her GIVStream tokens regardless of the distributor.
 
