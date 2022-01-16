@@ -1,3 +1,6 @@
+#remix files
+*_flat.sol
+
 .env
 node_modules
 coverage
