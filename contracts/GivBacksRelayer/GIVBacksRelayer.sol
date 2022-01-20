@@ -72,7 +72,7 @@ contract GIVBacksRelayer is
     }
 
     /// @inheritdoc IGIVBacksRelayer
-    function createBatches(bytes32[] calldata batches)
+    function addBatches(bytes32[] calldata batches)
         external
         override
         onlyBatcher
@@ -81,7 +81,7 @@ contract GIVBacksRelayer is
             pendingBatches[batches[i]] = true;
         }
 
-        emit CreatedBatches(msg.sender);
+        emit AddedBatches(msg.sender, batches);
     }
 
     /// @inheritdoc IGIVBacksRelayer

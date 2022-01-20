@@ -4,7 +4,7 @@ import { BytesLike } from "ethers";
 import { describe, beforeEach, it } from "mocha";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { GIV } from "../../typechain-types/GIV";
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 import { GIVBacksRelayer, TokenDistroMock } from "../../typechain-types";
 import { duration, latestTimestamp } from "../utils/time";
 
@@ -125,27 +125,26 @@ describe("GIVBacksRelayer", () => {
             });
         });
 
-        describe("when testing `createBatches`", () => {
+        describe("when testing `addBatches`", () => {
             it("should revert if not called by a batcher", async () => {
                 const b = hashedTestBatches[0];
-                await expect(relayer.createBatches([b])).to.be.revertedWith(
+                await expect(relayer.addBatches([b])).to.be.revertedWith(
                     "GIVBacksRelayer::onlyBatcher: MUST_BATCHER",
                 );
             });
-            it("should emit a `CreatedBatches` event", async () => {
-                const b = hashedTestBatches[0];
-                expect(await relayer.connect(batcher).createBatches([b]))
-                    .to.emit(relayer, "CreatedBatches")
-                    .withArgs(batcherAddress);
+            it("should emit a `AddedBatches` event", async () => {
+                const b1 = hashedTestBatches[0];
+                const b2 = hashedTestBatches[1];
+                expect(await relayer.connect(batcher).addBatches([b1, b2]))
+                    .to.emit(relayer, "AddedBatches")
+                    .withArgs(batcherAddress, [b1, b2]);
             });
-            it("should set the created batches as pending", async () => {
+            it("should set the added batches as pending", async () => {
                 const pending1 = hashedTestBatches[0];
                 const pending2 = hashedTestBatches[1];
                 const notPending = hashedTestBatches[2];
 
-                await relayer
-                    .connect(batcher)
-                    .createBatches([pending1, pending2]);
+                await relayer.connect(batcher).addBatches([pending1, pending2]);
 
                 expect(await relayer.isPending(pending1)).to.be.eq(true);
                 expect(await relayer.isPending(pending2)).to.be.eq(true);
@@ -169,7 +168,7 @@ describe("GIVBacksRelayer", () => {
             it("should revert if relayer does not have the distributor role", async () => {
                 const b = testBatches[0];
                 const hb = hashedTestBatches[0];
-                await relayer.connect(batcher).createBatches([hb]);
+                await relayer.connect(batcher).addBatches([hb]);
                 await expect(
                     relayer.executeBatch(b.nonce, b.recipients, b.amounts),
                 ).to.be.revertedWith(

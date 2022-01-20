@@ -27,10 +27,11 @@ pragma solidity 0.8.6;
  */
 interface IGIVBacksRelayer {
     /**
-     * @dev Emit when batches are created.
+     * @dev Emit when batches are added to the Relayer.
      * @param batcher - The address of the `BATCHER_ROLE` that created the batch
+     * @param hashes - Hash of each batch added, in order
      */
-    event CreatedBatches(address indexed batcher);
+    event AddedBatches(address indexed batcher, bytes32[] hashes);
 
     /**
      * @dev Emit when a batch is sucessfully executed.
@@ -40,15 +41,16 @@ interface IGIVBacksRelayer {
     event Executed(address indexed executor, bytes32 batch);
 
     /**
-     * @dev This function will create a list of batches that can later be
-     * executed calling `executeBatch`.
+     * @dev This function will add a list of batch hashes to the Relayer and
+     * set them as pending. Pending batches can later be executed by calling
+     * `executeBatch`.
      *
      * NOTE: This does not take into account possible collisions, a valid nonce
      * MUST be passed during batch creation.
      *
      * @param batches - A list of batches that can be executed
      */
-    function createBatches(bytes32[] calldata batches) external;
+    function addBatches(bytes32[] calldata batches) external;
 
     /**
      * @dev This funciton will try and execute a batch.
