@@ -125,30 +125,57 @@ describe("GIVBacksRelayer", () => {
             });
         });
 
-        describe("when testing `addBatches`", () => {
+        describe("when testing `addBatch`", () => {
+            const b = hashedTestBatches[0];
+
             it("should revert if not called by a batcher", async () => {
-                const b = hashedTestBatches[0];
-                await expect(relayer.addBatches([b])).to.be.revertedWith(
+                await expect(relayer.addBatch(b)).to.be.revertedWith(
                     "GIVBacksRelayer::onlyBatcher: MUST_BATCHER",
                 );
             });
-            it("should emit a `AddedBatches` event", async () => {
-                const b1 = hashedTestBatches[0];
-                const b2 = hashedTestBatches[1];
-                expect(await relayer.connect(batcher).addBatches([b1, b2]))
-                    .to.emit(relayer, "AddedBatches")
-                    .withArgs(batcherAddress, [b1, b2]);
+
+            it("should emit an `AddedBatch` event", async () => {
+                expect(await relayer.connect(batcher).addBatch(b))
+                    .to.emit(relayer, "AddedBatch")
+                    .withArgs(batcherAddress, "0", b);
             });
+
+            it("should add a batch, set it as pending and increment the nonce", async () => {
+                await relayer.connect(batcher).addBatch(b);
+                expect(await relayer.nonce()).to.be.eq("1");
+                expect(await relayer.isPending(b)).to.be.eq(true);
+            });
+        });
+
+        describe("when testing `addBatches`", () => {
+            const b1 = hashedTestBatches[0];
+            const b2 = hashedTestBatches[1];
+            const b3 = hashedTestBatches[2];
+
+            it("should revert if not called by a batcher", async () => {
+                await expect(
+                    relayer.addBatches([b1, b2, b3]),
+                ).to.be.revertedWith(
+                    "GIVBacksRelayer::onlyBatcher: MUST_BATCHER",
+                );
+            });
+
+            it("should emit a `AddedBatches` event", async () => {
+                expect(await relayer.connect(batcher).addBatches([b1, b2, b3]))
+                    .to.emit(relayer, "AddedBatch")
+                    .withArgs(batcherAddress, "0", b1)
+                    .to.emit(relayer, "AddedBatch")
+                    .withArgs(batcherAddress, "1", b2)
+                    .to.emit(relayer, "AddedBatch")
+                    .withArgs(batcherAddress, "2", b3);
+            });
+
             it("should set the added batches as pending", async () => {
-                const pending1 = hashedTestBatches[0];
-                const pending2 = hashedTestBatches[1];
-                const notPending = hashedTestBatches[2];
+                await relayer.connect(batcher).addBatches([b1, b2]);
 
-                await relayer.connect(batcher).addBatches([pending1, pending2]);
-
-                expect(await relayer.isPending(pending1)).to.be.eq(true);
-                expect(await relayer.isPending(pending2)).to.be.eq(true);
-                expect(await relayer.isPending(notPending)).to.be.eq(false);
+                expect(await relayer.isPending(b1)).to.be.eq(true);
+                expect(await relayer.isPending(b2)).to.be.eq(true);
+                expect(await relayer.isPending(b3)).to.be.eq(false);
             });
         });
 

@@ -27,11 +27,12 @@ pragma solidity 0.8.6;
  */
 interface IGIVBacksRelayer {
     /**
-     * @dev Emit when batches are added to the Relayer.
+     * @dev Emit when a batch is added to the Relayer.
      * @param batcher - The address of the `BATCHER_ROLE` that created the batch
-     * @param hashes - Hash of each batch added, in order
+     * @param nonce - The nonce attached to this batch
+     * @param batch - Hash of the added batch
      */
-    event AddedBatches(address indexed batcher, bytes32[] hashes);
+    event AddedBatch(address indexed batcher, uint256 nonce, bytes32 batch);
 
     /**
      * @dev Emit when a batch is sucessfully executed.
@@ -41,12 +42,20 @@ interface IGIVBacksRelayer {
     event Executed(address indexed executor, bytes32 batch);
 
     /**
-     * @dev This function will add a list of batch hashes to the Relayer and
-     * set them as pending. Pending batches can later be executed by calling
-     * `executeBatch`.
+     * @dev This function will add a batch hash to the Relayer and set it as
+     * pending. Pending batches can later be executed by calling `executeBatch`.
      *
      * NOTE: This does not take into account possible collisions, a valid nonce
      * MUST be passed during batch creation.
+     *
+     * Emits the `AddedBatch` event.
+     *
+     * @param batch - A list of batches that can be executed
+     */
+    function addBatch(bytes32 batch) external;
+
+    /**
+     * @dev This function will add each batch from the list to the Relayer.
      *
      * @param batches - A list of batches that can be executed
      */
@@ -58,12 +67,12 @@ interface IGIVBacksRelayer {
      * passed to `TokenDistro.sendGIVbacks`.
      *
      * The function will revert if the batch is not pending to be executed.
-     * @param nonce - Nonce to prevent batch collisons
+     * @param _nonce - Nonce to prevent batch collisons
      * @param recipients - Parameter passed
      * @param amounts  - Parameter passed
      */
     function executeBatch(
-        uint256 nonce,
+        uint256 _nonce,
         address[] calldata recipients,
         uint256[] calldata amounts
     ) external;
@@ -76,13 +85,13 @@ interface IGIVBacksRelayer {
      *
      * NOTE: a valid nonce must be passed to prevent batch collisions.
      *
-     * @param nonce - Nonce to prevent batch collisons
+     * @param _nonce - Nonce to prevent batch collisons
      * @param recipients - Parameter passed
      * @param amounts  - Parameter passed
      * @return The batch hash
      */
     function hashBatch(
-        uint256 nonce,
+        uint256 _nonce,
         address[] calldata recipients,
         uint256[] calldata amounts
     ) external pure returns (bytes32);
