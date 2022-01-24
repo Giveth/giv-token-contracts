@@ -6,7 +6,7 @@ export type Batch = {
 
 export const testBatches: Batch[] = [
     {
-        nonce: "1",
+        nonce: "0",
         recipients: [
             "0xB52bA5E14510364e98d3fBc7920c332741D60244",
             "0x4278b2139D5d742258E6fDe53cb1c3a907EA066b",
@@ -15,7 +15,7 @@ export const testBatches: Batch[] = [
         amounts: ["1000", "2000", "3000"],
     },
     {
-        nonce: "2",
+        nonce: "1",
         recipients: [
             "0xcd59ED69c07673F21EfAfFa5C0bE9E193Ea77761",
             "0xDC1680165ED9d0e91241Bb4DeB21378cc0ae48d4",
@@ -24,7 +24,7 @@ export const testBatches: Batch[] = [
         amounts: ["1000", "2000", "3000"],
     },
     {
-        nonce: "3",
+        nonce: "2",
         recipients: [
             "0x1faC580D8EFD3368a036779742f418961dAE9ebf",
             "0x1a2175940507B05cA28d359aB6E928841D423DEf",

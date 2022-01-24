@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BytesLike } from "ethers";
+import { BytesLike, ContractTransaction } from "ethers";
 import { describe, beforeEach, it } from "mocha";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { GIV } from "../../typechain-types/GIV";
@@ -18,13 +18,13 @@ let givToken: GIV;
 let tokenDistro: TokenDistroMock;
 let relayer: GIVBacksRelayer;
 
-let multisig: SignerWithAddress;
+let deployer: SignerWithAddress;
 let batcher: SignerWithAddress;
+let other: SignerWithAddress;
 
-let multisigAddress: string;
+let deployerAddress: string;
 let batcherAddress: string;
-
-let accs: SignerWithAddress[];
+let otherAddress: string;
 
 describe("GIVBacksRelayer", () => {
     function roleOf(name: string): BytesLike {
@@ -44,22 +44,25 @@ describe("GIVBacksRelayer", () => {
         return relayer.hashBatch(batch.nonce, batch.recipients, batch.amounts);
     }
 
-    const BATCHER_ROLE = roleOf("BATCHER_ROLE");
     const testAmount = toWei("20000000");
+
+    const BATCHER_ROLE = roleOf("BATCHER_ROLE");
+    const DISTRIBUTOR_ROLE = roleOf("DISTRIBUTOR_ROLE");
 
     const hashedTestBatches: string[] = testBatches.map(hashBatchEthers);
 
     beforeEach(async () => {
         // Populate test accounts:
-        [multisig, batcher, ...accs] = await ethers.getSigners();
-        multisigAddress = await multisig.getAddress();
+        [deployer, batcher, other] = await ethers.getSigners();
+        deployerAddress = await deployer.getAddress();
         batcherAddress = await batcher.getAddress();
+        otherAddress = await other.getAddress();
 
         // Deploy GIV token and mint some tokens:
         const tokenFactory = await ethers.getContractFactory("GIV");
-        givToken = (await tokenFactory.deploy(multisigAddress)) as GIV;
+        givToken = (await tokenFactory.deploy(deployerAddress)) as GIV;
         await givToken.deployed();
-        await givToken.mint(multisigAddress, testAmount);
+        await givToken.mint(deployerAddress, testAmount);
 
         // Deploy TokenDistro mock and transfer all GIV to it:
         // NOTE: we use production parameters, but it should not have any effect
@@ -201,6 +204,55 @@ describe("GIVBacksRelayer", () => {
                 ).to.be.revertedWith(
                     "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
                 );
+            });
+
+            it("should allow anyone to execute a pending batch", async () => {
+                function expectEmitAllocate(
+                    tx: ContractTransaction,
+                    batch: Batch,
+                ) {
+                    for (let i = 0; i < batch.recipients.length; i++) {
+                        const rec = batch.recipients[i];
+                        const amt = batch.amounts[i];
+
+                        expect(tx)
+                            .to.emit(tokenDistro, "Allocate")
+                            .withArgs(relayer.address, rec, amt);
+                    }
+                }
+
+                const b1 = testBatches[0];
+                const hb1 = hashBatchEthers(b1);
+                const b2 = testBatches[1];
+                const hb2 = hashBatchEthers(b2);
+
+                // Assign DISTRIBUTOR_ROLE to relayer, assign some tokens:
+                await tokenDistro.grantRole(DISTRIBUTOR_ROLE, relayer.address);
+                await tokenDistro.assign(relayer.address, testAmount);
+
+                await relayer.connect(batcher).addBatches([hb1, hb2]);
+                expect(await relayer.nonce()).to.be.eq("2");
+
+                const ex1 = await relayer
+                    .connect(other)
+                    .executeBatch(b1.nonce, b1.recipients, b1.amounts);
+                const ex2 = await relayer
+                    .connect(other)
+                    .executeBatch(b2.nonce, b2.recipients, b2.amounts);
+
+                // Expect to emit `Executed` from relayer with caller address:
+                expect(ex1)
+                    .to.emit(relayer, "Executed")
+                    .withArgs(otherAddress, hb1);
+
+                // Expect to emit `GivBacksPaid` with relayer as sender:
+                expect(ex2)
+                    .to.emit(tokenDistro, "GivBackPaid")
+                    .withArgs(relayer.address);
+
+                // Expect to emit `Allocate` from relayer for each recipient:
+                expectEmitAllocate(ex1, b1);
+                expectEmitAllocate(ex2, b2);
             });
         });
     });
