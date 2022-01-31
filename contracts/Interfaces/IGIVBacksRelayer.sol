@@ -23,7 +23,7 @@ pragma solidity 0.8.6;
  * `sendGIVBacks` call.
  *
  * The contract is upgradeable using the cannonical OpenZeppelin transparent
- * transparent proxy.
+ * proxy.
  */
 interface IGIVBacksRelayer {
     /**
@@ -50,7 +50,7 @@ interface IGIVBacksRelayer {
      *
      * Emits the `AddedBatch` event.
      *
-     * @param batch - A list of batches that can be executed
+     * @param batch - A batch that can be executed
      */
     function addBatch(bytes32 batch) external;
 
@@ -62,12 +62,12 @@ interface IGIVBacksRelayer {
     function addBatches(bytes32[] calldata batches) external;
 
     /**
-     * @dev This funciton will try and execute a batch.
+     * @dev This function will try and execute a batch.
      * The batch is formed from a nonce and parameters that are expected to be
      * passed to `TokenDistro.sendGIVbacks`.
      *
      * The function will revert if the batch is not pending to be executed.
-     * @param _nonce - Nonce to prevent batch collisons
+     * @param _nonce - Nonce to prevent batch collisions
      * @param recipients - Parameter passed
      * @param amounts  - Parameter passed
      */
@@ -85,7 +85,7 @@ interface IGIVBacksRelayer {
      *
      * NOTE: a valid nonce must be passed to prevent batch collisions.
      *
-     * @param _nonce - Nonce to prevent batch collisons
+     * @param _nonce - Nonce to prevent batch collisions
      * @param recipients - Parameter passed
      * @param amounts  - Parameter passed
      * @return The batch hash

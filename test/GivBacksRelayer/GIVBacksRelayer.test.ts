@@ -91,14 +91,14 @@ describe("GIVBacksRelayer", () => {
     describe("when deploying", () => {
         it("should revert if initializing with token distro address zero", async () => {
             await expect(
-                relayer.intialize(AddressZero, batcherAddress),
+                relayer.initialize(AddressZero, batcherAddress),
             ).to.be.revertedWith(
                 "GIVBacksRelayer::initialize: NO_TOKENDISTRO_ZERO_ADDRESS",
             );
         });
         it("should revert if initializing with initial batcher address zero", async () => {
             await expect(
-                relayer.intialize(tokenDistro.address, AddressZero),
+                relayer.initialize(tokenDistro.address, AddressZero),
             ).to.be.revertedWith(
                 "GIVBacksRelayer::initialize: NO_BATCHER_ZERO_ADDRESS",
             );
@@ -107,7 +107,7 @@ describe("GIVBacksRelayer", () => {
 
     describe("after deployment", () => {
         beforeEach(async () => {
-            relayer.intialize(tokenDistro.address, batcherAddress);
+            relayer.initialize(tokenDistro.address, batcherAddress);
         });
 
         describe("should set the correct parameters", () => {

@@ -47,14 +47,14 @@ contract GIVBacksRelayer is
     }
 
     /**
-     * @dev Intialize the relayer.
+     * @dev Initialize the relayer.
      * The deployer address is set as the `DEFAULT_ADMIN_ROLE`. It can add new
      * batchers if it's required.
      *
      * @param _tokenDistroContract - The address of the TokenDistro
      * @param batcher - Initial batcher address
      */
-    function intialize(address _tokenDistroContract, address batcher)
+    function initialize(address _tokenDistroContract, address batcher)
         public
         initializer
     {
