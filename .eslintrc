@@ -17,6 +17,7 @@
         "no-await-in-loop": "off",
         "no-return-await": "off",
         "import/no-extraneous-dependencies": "off",
+        "camelcase": "warn",
         "no-unused-vars": "off",
         "import/newline-after-import": "off",
         "no-empty-function": "off",
