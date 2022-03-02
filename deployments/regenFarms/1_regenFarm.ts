@@ -88,8 +88,8 @@ const main = async () => {
         );
     }
 
-    console.log("########################\n");
-    console.log("Unipools", tokenDistro.address);
+    console.log("\n########################\n");
+    console.log("Unipools");
     console.log("\n#######################\n");
     const unipoolTokenDistributorFactory = (await ethers.getContractFactory(
         "UnipoolTokenDistributor",
@@ -118,7 +118,7 @@ const main = async () => {
 
         console.log("##############################################\n");
         console.log(
-            `${unipoolName} deployed to:${unipoolTokenDistributor.address}`,
+            `${unipoolName} deployed to: ${unipoolTokenDistributor.address}`,
         );
         console.log("\n##############################################\n");
 
