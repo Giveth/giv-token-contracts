@@ -2,19 +2,19 @@
 import { IRegenConfig } from "../types";
 
 const config: IRegenConfig = {
-    tokenDistro: {
-        address: "", // Empty to deploy a new one, otherwise the already deployed on will be reused and rest of parameters will be unused
-        startTime: 1645351200, // Sunday, 20 February 2022 10:00:00
+    alreadyDeployedTokenDistroAddress: "",
+    newTokenDistroParams: {
+        startTime: 1648857600, // Sunday, 20 February 2022 10:00:00
         cliffPeriod: 0,
         duration: 157_680_000, // 5 years * 365 days * 24 hours * 3600 seconds = 157680000
         initialPercentage: 10_00, // two decimals of precision
-        tokenAddress: "0x18cE354571ba71bC7b3d633b254954C5A9cfC195", // TestFOX
+        tokenAddress: "0x6c16216484069C19530a57762AD6630fB678D00E", // TestFOX
         totalTokens: "1000000000", // 1 Billion
         cancelable: true,
     },
     unipools: {
         TestFOX_TestHNY: {
-            uniTokenAddress: "0xD28C07F802212F04AF41834ec0CC81d2d283124B", // HoneySwap TestFox/TestHNY
+            uniTokenAddress: "0x6a5689435Fb27f235f4cfe05ADDabf8fF173f0Ea", // HoneySwap DRGIV3/TestELK
             lmDuration: 1_209_600, // 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
             rewardAmount: "100000", // The value to assign on tokendistro
         },

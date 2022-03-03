@@ -5,6 +5,7 @@ import {
     TokenDistro__factory,
     UnipoolTokenDistributor__factory,
 } from "../../typechain-types";
+
 const { ethers, upgrades } = require("hardhat");
 
 const main = async () => {
@@ -24,13 +25,21 @@ const main = async () => {
     console.log("##### TokenDistro #####");
     console.log("#######################\n");
     // Load already deployed contract
-    if (config.tokenDistro.address) {
+    const {
+        alreadyDeployedTokenDistroAddress,
+        unipools,
+        newTokenDistroParams,
+    } = config;
+
+    if (alreadyDeployedTokenDistroAddress) {
         console.log(
             "Attach to already deployed token distro at ",
-            config.tokenDistro.address,
+            alreadyDeployedTokenDistroAddress,
         );
-        tokenDistro = tokenDistroFactory.attach(config.tokenDistro.address);
-    } else {
+        tokenDistro = tokenDistroFactory.attach(
+            alreadyDeployedTokenDistroAddress,
+        );
+    } else if (newTokenDistroParams) {
         const {
             totalTokens,
             startTime,
@@ -39,7 +48,7 @@ const main = async () => {
             initialPercentage,
             tokenAddress,
             cancelable,
-        } = config.tokenDistro!;
+        } = newTokenDistroParams!;
         console.log("totalTokens:", totalTokens);
         console.log("startTime:", startTime);
         console.log("cliffPeriod:", cliffPeriod);
@@ -86,6 +95,11 @@ const main = async () => {
                 tokenDistro.address
             }","${await tokenDistro.totalTokens()}")`,
         );
+    } else {
+        console.log(
+            "Either alreadyDeployedTokenDistroAddress or newTokenDistroParams should be defined in config",
+        );
+        return;
     }
 
     console.log("\n########################\n");
@@ -95,10 +109,10 @@ const main = async () => {
         "UnipoolTokenDistributor",
     )) as UnipoolTokenDistributor__factory;
 
-    const unipoolNames = Object.keys(config.unipools);
+    const unipoolNames = Object.keys(unipools);
     for (let i = 0; i < unipoolNames.length; i++) {
         const unipoolName = unipoolNames[i];
-        const unipoolConfig = config.unipools[unipoolName];
+        const unipoolConfig = unipools[unipoolName];
         const { uniTokenAddress, lmDuration, rewardAmount } = unipoolConfig;
 
         console.log("\n######################################################");
