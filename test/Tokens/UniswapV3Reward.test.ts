@@ -11,6 +11,8 @@ import {
     UniswapV3StakerMock,
 } from "../../typechain-types/UniswapV3StakerMock";
 
+const { AddressZero } = ethers.constants;
+
 let tokenDistroFactory: ContractFactory,
     tokenDistro: TokenDistro,
     givTokenFactory: ContractFactory,
@@ -202,7 +204,7 @@ describe("UniswapV3RewardToken", () => {
 
     // Copied from TokenDistro.test.js and refactored to use Transfer instead
     // of Allocate
-    it("should Staker be able to transfer the balance", async () => {
+    it("should allow Staker transfer the balance", async () => {
         const uniV3StakerContract =
             (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
         const uniV3StakerAddress = uniV3StakerContract.address;
@@ -335,5 +337,95 @@ describe("UniswapV3RewardToken", () => {
                 .connect(recipient1)
                 .claimRewardMock(gurToken.address, amount),
         ).to.be.reverted;
+    });
+
+    it("should allow owner to disable rewards", async () => {
+        const gurToken = (await gurTokenFactory.deploy(
+            tokenDistro.address,
+            AddressZero,
+        )) as UniswapV3RewardToken;
+
+        expect(await gurToken.disabled()).to.be.eq(false);
+
+        await expect(gurToken.connect(recipient1).disable()).to.be.revertedWith(
+            "Ownable: caller is not the owner",
+        );
+
+        await expect(gurToken.connect(recipient1).enable()).to.be.revertedWith(
+            "Ownable: caller is not the owner",
+        );
+
+        await expect(gurToken.disable())
+            .to.emit(gurToken, "Disabled")
+            .withArgs(multisigAddress);
+
+        expect(await gurToken.disabled()).to.be.eq(true);
+
+        await expect(gurToken.enable())
+            .to.emit(gurToken, "Enabled")
+            .withArgs(multisigAddress);
+
+        expect(await gurToken.disabled()).to.be.eq(false);
+    });
+
+    it("should not pay rewards after the token is disabled", async () => {
+        const uniV3StakerContract =
+            (await uniV3StakerFactory.deploy()) as UniswapV3StakerMock;
+        const uniV3StakerAddress = uniV3StakerContract.address;
+
+        const gurToken = (await gurTokenFactory.deploy(
+            tokenDistro.address,
+            uniV3StakerAddress,
+        )) as UniswapV3RewardToken;
+
+        const incentiveKey: IncentiveKeyStruct = {
+            rewardToken: gurToken.address,
+            pool: recipientAddress4, // does not matter because it's mock
+            startTime: 0, // does not matter because it's mock
+            endTime: 0, // does not matter because it's mock
+            refundee: recipientAddress4, // does not matter because it's mock
+        };
+
+        await uniV3StakerContract.createIncentive(incentiveKey, amount);
+
+        const amountRecipient1 = amount.div(2);
+        const amountRecipient2 = amountRecipient1.div(2);
+
+        const gurTokenAddress = gurToken.address;
+
+        await tokenDistro.grantRole(
+            await tokenDistro.DISTRIBUTOR_ROLE(),
+            gurTokenAddress,
+        );
+        await tokenDistro.assign(gurTokenAddress, amount);
+
+        await expect(
+            uniV3StakerContract
+                .connect(recipient1)
+                .claimRewardMock(gurToken.address, amountRecipient1),
+        )
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(gurTokenAddress, recipient1.address, amountRecipient1)
+            .to.emit(gurToken, "RewardPaid")
+            .withArgs(recipient1.address, amountRecipient1);
+
+        expect(
+            (await tokenDistro.balances(recipient1.address)).allocatedTokens,
+        ).to.be.equal(amountRecipient1);
+
+        // Disable contract
+        await gurToken.disable();
+
+        await expect(
+            uniV3StakerContract
+                .connect(recipient2)
+                .claimRewardMock(gurToken.address, amountRecipient2),
+        )
+            .to.emit(gurToken, "InvalidRewardPaid")
+            .withArgs(recipient2.address, amountRecipient2);
+
+        expect(
+            (await tokenDistro.balances(recipient2.address)).allocatedTokens,
+        ).to.be.equal(0);
     });
 });
