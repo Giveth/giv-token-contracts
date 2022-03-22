@@ -312,8 +312,11 @@ contract TokenDistro is
         if (timestamp < cliffTime) return initialAmount;
         if (timestamp > startTime + duration) return totalTokens;
 
-        uint256 deltaTime = timestamp - startTime;
-        return initialAmount + (deltaTime * lockedAmount) / duration;
+        uint256 deltaTime = timestamp - cliffTime;
+        return
+            initialAmount +
+            (deltaTime * lockedAmount) /
+            (duration - (cliffTime - startTime));
     }
 
     /**
