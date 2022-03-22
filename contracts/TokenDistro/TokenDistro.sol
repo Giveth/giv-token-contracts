@@ -280,16 +280,9 @@ contract TokenDistro is
             "TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
         );
 
-        // balances[newAddress].allocatedTokens = balances[msg.sender]
-        //     .allocatedTokens;
-        // balances[msg.sender].allocatedTokens = 0;
-
         uint256 prevAllocated = balances[msg.sender].allocatedTokens;
         balances[msg.sender].allocatedTokens = 0;
         balances[newAddress].allocatedTokens += prevAllocated;
-
-        // balances[newAddress].claimed = balances[msg.sender].claimed;
-        // balances[msg.sender].claimed = 0;
 
         uint256 prevClaimed = balances[msg.sender].claimed;
         balances[msg.sender].claimed = 0;
