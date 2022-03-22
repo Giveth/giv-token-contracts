@@ -268,11 +268,11 @@ contract TokenDistro is
      *
      */
     function changeAddress(address newAddress) external override {
-        require(
-            balances[newAddress].allocatedTokens == 0 &&
-                balances[newAddress].claimed == 0,
-            "TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE"
-        );
+        // require(
+        //     balances[newAddress].allocatedTokens == 0 &&
+        //         balances[newAddress].claimed == 0,
+        //     "TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE"
+        // );
 
         require(
             !hasRole(DISTRIBUTOR_ROLE, msg.sender) &&
@@ -280,12 +280,20 @@ contract TokenDistro is
             "TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
         );
 
-        balances[newAddress].allocatedTokens = balances[msg.sender]
-            .allocatedTokens;
-        balances[msg.sender].allocatedTokens = 0;
+        // balances[newAddress].allocatedTokens = balances[msg.sender]
+        //     .allocatedTokens;
+        // balances[msg.sender].allocatedTokens = 0;
 
-        balances[newAddress].claimed = balances[msg.sender].claimed;
+        uint256 prevAllocated = balances[msg.sender].allocatedTokens;
+        balances[msg.sender].allocatedTokens = 0;
+        balances[newAddress].allocatedTokens += prevAllocated;
+
+        // balances[newAddress].claimed = balances[msg.sender].claimed;
+        // balances[msg.sender].claimed = 0;
+
+        uint256 prevClaimed = balances[msg.sender].claimed;
         balances[msg.sender].claimed = 0;
+        balances[newAddress].claimed += prevClaimed;
 
         emit ChangeAddress(msg.sender, newAddress);
     }
