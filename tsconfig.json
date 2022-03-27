@@ -10,6 +10,6 @@
     "types": ["node", "chai", "mocha","@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"],
     "noImplicitAny": false
   },
-  "include": ["./scripts", "./test"],
+  "include": ["./scripts", "./test", "./deployments/regenFarms"],
   "files": ["./hardhat.config.ts"]
 }
