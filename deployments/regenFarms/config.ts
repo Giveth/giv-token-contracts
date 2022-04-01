@@ -14,7 +14,7 @@ const config: IRegenConfig = {
     },
     unipools: {
         FOX_HNY: {
-            uniTokenAddress: "0x8a0bee989c591142414ad67fb604539d917889df", // HoneySwap DRGIV3/TestELK
+            uniTokenAddress: "0x8a0bee989c591142414ad67fb604539d917889df", // HoneySwap FOX/HNY
             lmDuration: 1_209_600, // 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
             rewardAmount: "327387.1731240768", // The value to assign on tokendistro
         },
