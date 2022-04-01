@@ -14,7 +14,7 @@ const distro = [
     769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769,
 ];
 
-const initTime = 1640361600;
+const initTime = 1649001600;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
