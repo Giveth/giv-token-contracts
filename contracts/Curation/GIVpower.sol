@@ -13,6 +13,10 @@ contract GIVpower is GardenTokenLock, IERC20 {
     mapping(address => Power) public powerTokens;
     uint256 private _totalSupply;
 
+    string public name = "GIVpower";
+    string public symbol = "GIVPOW";
+    uint8 public decimals = 18;
+
     error TokenNonTransferable();
 
     constructor(uint256 _initialDate, uint256 _roundDuration, address _token) GardenTokenLock(_initialDate, _roundDuration, _token) {
