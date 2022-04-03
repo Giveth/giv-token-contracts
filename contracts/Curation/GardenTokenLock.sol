@@ -21,6 +21,9 @@ contract GardenTokenLock is
     }
 
     mapping(address => Lock) public lockedTokens;
+
+    error TokensAreLocked();
+    error CannotUnlockUntilRoundIsFinished();
     
     constructor(uint256 _initialDate, uint256 _roundDuration, address _token) {
         initialDate = _initialDate;
@@ -28,15 +31,17 @@ contract GardenTokenLock is
         token = IERC20(_token);
     }
 
-    function lock(uint256 _amount, uint256 _rounds) external {
+    function lock(uint256 _amount, uint256 _rounds) public virtual {
         Lock storage lock = lockedTokens[msg.sender];
         uint256 lockUntilRound = currentRound().add(_rounds);
         lock.amountLockedUntilRound[lockUntilRound] = lock.amountLockedUntilRound[lockUntilRound].add(_amount);
         lock.totalAmountLocked = lock.totalAmountLocked.add(_amount);
     }
 
-    function unlock(address[] calldata _locks, uint256 _round) external {
-        require (_round < currentRound(), "Can not unlock until round is finished.");
+    function unlock(address[] calldata _locks, uint256 _round) public virtual {
+        if (_round >= currentRound()) {
+            revert CannotUnlockUntilRoundIsFinished();
+        }
         for (uint i = 0; i < _locks.length; i++) {
             Lock storage lock = lockedTokens[_locks[i]];
             lock.totalAmountLocked = lock.totalAmountLocked.sub(lock.amountLockedUntilRound[_round]);
@@ -53,6 +58,8 @@ contract GardenTokenLock is
         address _to,
         uint256 _amount
     ) internal override returns (bool) {
-        require(token.balanceOf(_from).sub(_amount) >= lockedTokens[_from].totalAmountLocked, "Tokens locked");
+        if (token.balanceOf(_from).sub(_amount) < lockedTokens[_from].totalAmountLocked) {
+            revert TokensAreLocked();
+        }
     }
 }
