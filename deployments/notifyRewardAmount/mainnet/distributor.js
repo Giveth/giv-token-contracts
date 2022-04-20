@@ -3,7 +3,13 @@ const hre = require("hardhat");
 const { ethers } = hre;
 
 const pools = [
-    // { address: "0x51F3E5C39a11fe189585FA2FD61A6b60E4Bc723a", amount: "1100000" }, // Uniswap V3 is exception, get all at the beginning
+    {
+        address: "0xa4523D703F663615Bd41606B46B58dEb2F926D98",
+        // Total reward to pay 750K, but this farm has started later
+        // when other farms have rewarded 76.5% of their capacities
+        // So amount * 23.5% == 750K
+        amount: "3191489",
+    }, // UniswapV2 GIV/DAI
     {
         address: "0xc0dbDcA66a0636236fAbe1B3C16B1bD4C84bB1E1",
         amount: "2500000",
