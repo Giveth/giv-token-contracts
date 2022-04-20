@@ -75,18 +75,18 @@ contract GIVBacksRelayer is
     }
 
     /// @inheritdoc IGIVBacksRelayer
-    function addBatch(bytes32 batch) external override onlyBatcher {
-        _addBatch(batch);
+    function addBatch(bytes32 batch, bytes calldata ipfsData) external override onlyBatcher {
+        _addBatch(batch, ipfsData);
     }
 
     /// @inheritdoc IGIVBacksRelayer
-    function addBatches(bytes32[] calldata batches)
+    function addBatches(bytes32[] calldata batches, bytes calldata ipfsData)
         external
         override
         onlyBatcher
     {
         for (uint256 i = 0; i < batches.length; i++) {
-            _addBatch(batches[i]);
+            _addBatch(batches[i], ipfsData);
         }
     }
 
@@ -131,10 +131,10 @@ contract GIVBacksRelayer is
     /// INTERNAL FUNCTIONS:
     ///
 
-    function _addBatch(bytes32 batch) internal {
+    function _addBatch(bytes32 batch, bytes calldata ipfsData) internal {
         pendingBatches[batch] = true;
 
-        emit AddedBatch(msg.sender, nonce++, batch);
+        emit AddedBatch(msg.sender, nonce++, batch, ipfsData);
     }
 
     function _hashBatch(

@@ -12,7 +12,11 @@ import { Batch, testBatches } from "./batches";
 
 const { days, years } = duration;
 const { AddressZero } = ethers.constants;
-const { hexlify, parseEther: toWei, solidityKeccak256 } = ethers.utils;
+const { hexlify, toUtf8Bytes, parseEther: toWei, solidityKeccak256 } = ethers.utils;
+
+const ipfsExample = hexlify(
+    toUtf8Bytes("QmbLS2yKJJGQcwccN8o6x4pMAU1URP6inotvePT6gsvcQ4"),
+);
 
 let givToken: GIV;
 let tokenDistro: TokenDistroMock;
@@ -132,19 +136,21 @@ describe("GIVBacksRelayer", () => {
             const b = hashedTestBatches[0];
 
             it("should revert if not called by a batcher", async () => {
-                await expect(relayer.addBatch(b)).to.be.revertedWith(
+                await expect(
+                    relayer.addBatch(b, ipfsExample),
+                ).to.be.revertedWith(
                     "GIVBacksRelayer::onlyBatcher: MUST_BATCHER",
                 );
             });
 
             it("should emit an `AddedBatch` event", async () => {
-                expect(await relayer.connect(batcher).addBatch(b))
+                expect(await relayer.connect(batcher).addBatch(b, ipfsExample))
                     .to.emit(relayer, "AddedBatch")
-                    .withArgs(batcherAddress, "0", b);
+                    .withArgs(batcherAddress, "0", b, ipfsExample);
             });
 
             it("should add a batch, set it as pending and increment the nonce", async () => {
-                await relayer.connect(batcher).addBatch(b);
+                await relayer.connect(batcher).addBatch(b, ipfsExample);
                 expect(await relayer.nonce()).to.be.eq("1");
                 expect(await relayer.isPending(b)).to.be.eq(true);
             });
@@ -157,24 +163,30 @@ describe("GIVBacksRelayer", () => {
 
             it("should revert if not called by a batcher", async () => {
                 await expect(
-                    relayer.addBatches([b1, b2, b3]),
+                    relayer.addBatches([b1, b2, b3], ipfsExample),
                 ).to.be.revertedWith(
                     "GIVBacksRelayer::onlyBatcher: MUST_BATCHER",
                 );
             });
 
             it("should emit a `AddedBatches` event", async () => {
-                expect(await relayer.connect(batcher).addBatches([b1, b2, b3]))
+                expect(
+                    await relayer
+                        .connect(batcher)
+                        .addBatches([b1, b2, b3], ipfsExample),
+                )
                     .to.emit(relayer, "AddedBatch")
-                    .withArgs(batcherAddress, "0", b1)
+                    .withArgs(batcherAddress, "0", b1, ipfsExample)
                     .to.emit(relayer, "AddedBatch")
-                    .withArgs(batcherAddress, "1", b2)
+                    .withArgs(batcherAddress, "1", b2, ipfsExample)
                     .to.emit(relayer, "AddedBatch")
-                    .withArgs(batcherAddress, "2", b3);
+                    .withArgs(batcherAddress, "2", b3, ipfsExample);
             });
 
             it("should set the added batches as pending", async () => {
-                await relayer.connect(batcher).addBatches([b1, b2]);
+                await relayer
+                    .connect(batcher)
+                    .addBatches([b1, b2], ipfsExample);
 
                 expect(await relayer.isPending(b1)).to.be.eq(true);
                 expect(await relayer.isPending(b2)).to.be.eq(true);
@@ -198,7 +210,7 @@ describe("GIVBacksRelayer", () => {
             it("should revert if relayer does not have the distributor role", async () => {
                 const b = testBatches[0];
                 const hb = hashedTestBatches[0];
-                await relayer.connect(batcher).addBatches([hb]);
+                await relayer.connect(batcher).addBatches([hb], ipfsExample);
                 await expect(
                     relayer.executeBatch(b.nonce, b.recipients, b.amounts),
                 ).to.be.revertedWith(
@@ -230,7 +242,9 @@ describe("GIVBacksRelayer", () => {
                 await tokenDistro.grantRole(DISTRIBUTOR_ROLE, relayer.address);
                 await tokenDistro.assign(relayer.address, testAmount);
 
-                await relayer.connect(batcher).addBatches([hb1, hb2]);
+                await relayer
+                    .connect(batcher)
+                    .addBatches([hb1, hb2], ipfsExample);
                 expect(await relayer.nonce()).to.be.eq("2");
 
                 const ex1 = await relayer

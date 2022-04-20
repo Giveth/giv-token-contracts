@@ -32,7 +32,7 @@ interface IGIVBacksRelayer {
      * @param nonce - The nonce attached to this batch
      * @param batch - Hash of the added batch
      */
-    event AddedBatch(address indexed batcher, uint256 nonce, bytes32 batch);
+    event AddedBatch(address indexed batcher, uint256 nonce, bytes32 batch, bytes ipfsData);
 
     /**
      * @dev Emit when a batch is sucessfully executed.
@@ -52,14 +52,14 @@ interface IGIVBacksRelayer {
      *
      * @param batch - A batch that can be executed
      */
-    function addBatch(bytes32 batch) external;
+    function addBatch(bytes32 batch, bytes calldata ipfsData) external;
 
     /**
      * @dev This function will add each batch from the list to the Relayer.
      *
      * @param batches - A list of batches that can be executed
      */
-    function addBatches(bytes32[] calldata batches) external;
+    function addBatches(bytes32[] calldata batches, bytes calldata ipfsData) external;
 
     /**
      * @dev This function will try and execute a batch.
