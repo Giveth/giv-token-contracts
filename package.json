@@ -21,7 +21,8 @@
     "distributor:kovan": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
     "deploy:GardenUnipool:xDAI": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=xDAI ts-node scripts/deployGardenUnipool.js",
     "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeGardenUnipool.js",
-    "upgrade:TokenDistro:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeTokenDistro.js"
+    "upgrade:TokenDistro:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeTokenDistro.js",
+    "distributor:xDAI:regen_fox": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_regen_distribute.js"
   },
   "pre-commit": [
     "prettier:sol"
