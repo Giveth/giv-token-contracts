@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identitifer:    GPL-3.0-or-later
- */
+// SPDX-License-Identifier: GPL-3.0
 
 /* solium-disable function-order */
 
@@ -63,7 +61,7 @@ contract HookedTokenManagerMock {
         address _to,
         uint256 _amount
     ) external returns (bool) {
-        _triggerOnTransferHook(_from, _to, _amount);
+        return _triggerOnTransferHook(_from, _to, _amount);
     }
 
     /**
