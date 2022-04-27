@@ -23,6 +23,7 @@ contract GardenTokenLock is TokenManagerHook {
 
     error TokensAreLocked();
     error CannotUnlockUntilRoundIsFinished();
+    error NotEnoughBalanceToLock();
     
     function __GardenTokenLock_init(uint256 _initialDate, uint256 _roundDuration, address _tokenManager) public initializer {
         __TokenManagerHook_initialize(_tokenManager);
@@ -33,6 +34,9 @@ contract GardenTokenLock is TokenManagerHook {
 
     function lock(uint256 _amount, uint256 _rounds) public virtual {
         Lock storage _lock = lockedTokens[msg.sender];
+        if (token.balanceOf(msg.sender).sub(_lock.totalAmountLocked) < _amount) {
+            revert NotEnoughBalanceToLock();
+        }
         uint256 lockUntilRound = currentRound().add(_rounds);
         _lock.amountLockedUntilRound[lockUntilRound] = _lock.amountLockedUntilRound[lockUntilRound].add(_amount);
         _lock.totalAmountLocked = _lock.totalAmountLocked.add(_amount);
