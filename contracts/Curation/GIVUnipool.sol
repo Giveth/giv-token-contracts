@@ -151,9 +151,7 @@ contract GIVUnipool is
     {
         require(amount > 0, "Cannot withdraw 0");
         _burn(user, amount);
-        if (balanceOf(user) == 0) {
-            _getReward(user);
-        }
+        _getReward(user);
         emit Withdrawn(user, amount);
     }
 
