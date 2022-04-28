@@ -54,10 +54,11 @@ contract GIVBacksRelayer is
      * @param _tokenDistroContract - The address of the TokenDistro
      * @param batcher - Initial batcher address
      */
-    function initialize(address _tokenDistroContract, address batcher)
-        public
-        initializer
-    {
+    function initialize(
+        address _tokenDistroContract,
+        address batcher,
+        address batcherRoleAdmin
+    ) public initializer {
         require(
             _tokenDistroContract != address(0),
             "GIVBacksRelayer::initialize: NO_TOKENDISTRO_ZERO_ADDRESS"
@@ -70,7 +71,7 @@ contract GIVBacksRelayer is
         tokenDistroContract = _tokenDistroContract;
 
         __AccessControlEnumerable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, batcherRoleAdmin);
         _setupRole(BATCHER_ROLE, batcher);
     }
 

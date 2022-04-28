@@ -18,7 +18,7 @@
         "distributor:mainnet": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
         "distributor:kovan": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
         "deploy:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/deployGardenUnipool.js",
-        "deploy:relayer:local": "TS_NODE_TRANSPILE_ONLY=1 ts-node deployments/xDAI/2_GIVBacksRelayer.ts",
+        "deploy:relayer:hardhat": "TS_NODE_TRANSPILE_ONLY=1 ts-node deployments/xDAI/2_GIVBacksRelayer.ts",
         "deploy:relayer:goerli": "TS_NODE_TRANSPILE_ONLY=1 HARDHAT_NETWORK=goerli ts-node deployments/xDAI/2_GIVBacksRelayer.ts",
         "deploy:relayer:xDAI": "TS_NODE_TRANSPILE_ONLY=1 HARDHAT_NETWORK=xDAI ts-node deployments/xDAI/2_GIVBacksRelayer.ts",
         "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeGardenUnipool.js",
