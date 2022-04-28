@@ -11,10 +11,10 @@ async function main() {
         "0xeccb356c360bf90186ea17a138ef77420582d0f2a31f7c029d6ae4c3a7c2e186";
 
     const TOKEN_DISTRO_ADDRESS = toAddr(
-        "0x6f45aff8c1e50db099dab43292c28240be2b7485",
+        "0xc0dbDcA66a0636236fAbe1B3C16B1bD4C84bB1E1",
     );
     const BATCHER_ADDRESS = toAddr(
-        "0xaC0984DfD8fd559C832756684E978C58eD26c366",
+        "0x2fa20fa7fc404d35748497c0f28f8fb2f8731336",
     );
 
     const MULTISIG_ADDRESS = toAddr(
