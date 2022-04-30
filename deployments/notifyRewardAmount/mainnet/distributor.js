@@ -3,7 +3,10 @@ const hre = require("hardhat");
 const { ethers } = hre;
 
 const pools = [
-    // { address: "0x51F3E5C39a11fe189585FA2FD61A6b60E4Bc723a", amount: "1100000" }, // Uniswap V3 is exception, get all at the beginning
+    {
+        address: "0xa4523D703F663615Bd41606B46B58dEb2F926D98",
+        amount: "2500000",
+    }, // UniswapV2 GIV/DAI
     {
         address: "0xc0dbDcA66a0636236fAbe1B3C16B1bD4C84bB1E1",
         amount: "2500000",
@@ -31,6 +34,7 @@ async function main() {
     );
     await notifyRewardAmount(pools[0]);
     await notifyRewardAmount(pools[1]);
+    await notifyRewardAmount(pools[2]);
 }
 
 async function notifyRewardAmount(pool) {
