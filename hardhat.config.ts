@@ -124,8 +124,8 @@ const config: HardhatUserConfig = {
         xDAI: {
             url: `https://rpc.xdaichain.com/`,
             gasPrice: 2000000000,
-            accounts: process.env.PRIVATE_KEY
-                ? [`${process.env.PRIVATE_KEY}`]
+            accounts: process.env.PRIVATE_KEY_XDAI
+                ? [`${process.env.PRIVATE_KEY_XDAI}`]
                 : [],
         },
     },
