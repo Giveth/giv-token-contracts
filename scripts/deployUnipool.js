@@ -50,6 +50,9 @@ async function main() {
     console.log("Unipool deployed to:", unipool.address);
     console.log("\n##############################################\n");
 
+    // Set reward distributor
+    await (await unipool.setRewardDistribution(deployer)).wait();
+
     // We grant permisions to the MerkleDistro and assign tokens
     await (
         await tokenDistro.grantRole(
@@ -67,9 +70,6 @@ async function main() {
             ethers.utils.parseEther(TOTAL_REWARD_AMOUNT.toString()),
         )
     ).wait();
-
-    // Set reward distributor
-    await (await unipool.setRewardDistribution(deployer)).wait();
 
     console.log("\n#######################");
     console.log("#####    Check    #####");
