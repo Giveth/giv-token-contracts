@@ -136,6 +136,11 @@ const main = async () => {
         );
         console.log("\n##############################################\n");
 
+        // Set reward distributor
+        await (
+            await unipoolTokenDistributor.setRewardDistribution(deployer)
+        ).wait();
+
         // We grant permisions to the unipool and assign tokens
         await (
             await tokenDistro.grantRole(
@@ -152,11 +157,6 @@ const main = async () => {
                 unipoolTokenDistributor.address,
                 ethers.utils.parseEther(rewardAmount.toString()),
             )
-        ).wait();
-
-        // Set reward distributor
-        await (
-            await unipoolTokenDistributor.setRewardDistribution(deployer)
         ).wait();
 
         console.log("\n#######################");
