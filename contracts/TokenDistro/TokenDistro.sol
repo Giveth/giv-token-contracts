@@ -119,11 +119,11 @@ contract TokenDistro is
     function setStartTime(uint256 newStartTime) external override {
         require(
             hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
-            "TokenDistro::assign: ONLY_ADMIN_ROLE"
+            "TokenDistro::setStartTime: ONLY_ADMIN_ROLE"
         );
         require(
             startTime > getTimestamp() && newStartTime > getTimestamp(),
-            "TokenDistro::assign: IF_HAS_NOT_STARTED_YET"
+            "TokenDistro::setStartTime: IF_HAS_NOT_STARTED_YET"
         );
 
         uint256 _cliffPeriod = cliffTime - startTime;
@@ -433,8 +433,8 @@ contract TokenDistro is
         );
 
         require(
-            duration >= newDuration,
-            "TokenDistro::setDuration:ONLY_LOWER_DURATION"
+            startTime > getTimestamp(),
+            "TokenDistro::setDuration: IF_HAS_NOT_STARTED_YET"
         );
 
         duration = newDuration;
