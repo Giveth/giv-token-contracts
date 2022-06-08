@@ -46,6 +46,11 @@ contract TokenDistro is
      */
     event GivBackPaid(address distributor);
 
+    /**
+     * @dev Emitted when the duration is changed
+     */
+    event DurationChanged(uint256 newDuration);
+
     modifier onlyDistributor() {
         require(
             hasRole(DISTRIBUTOR_ROLE, msg.sender),
@@ -416,5 +421,24 @@ contract TokenDistro is
         token.safeTransfer(recipient, remainingToClaim);
 
         emit Claim(recipient, remainingToClaim);
+    }
+
+    /**
+     * Function to change the duration
+     */
+    function setDuration(uint256 newDuration) public {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::setDuration: ONLY_ADMIN_ROLE"
+        );
+
+        require(
+            duration >= newDuration,
+            "TokenDistro::setDuration:ONLY_LOWER_DURATION"
+        );
+
+        duration = newDuration;
+
+        emit DurationChanged(newDuration);
     }
 }
