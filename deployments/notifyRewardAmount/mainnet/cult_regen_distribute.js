@@ -4,25 +4,15 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xa4523D703F663615Bd41606B46B58dEb2F926D98",
-        amount: "2500000",
-    }, // UniswapV2 GIV/DAI
-    {
-        address: "0xc0dbDcA66a0636236fAbe1B3C16B1bD4C84bB1E1",
-        amount: "2500000",
-    }, // BAL
-    {
-        address: "0x4B9EfAE862a1755F7CEcb021856D467E86976755",
-        amount: "2500000",
-    }, // $GIV
+        address: "0xa479103c2618aD514653B53F064Bc6c9dC35a30b",
+        amount: "3342894344.47",
+    }, // UNI (CULT_ETH)
 ];
 
-// Two decimals of precision -> 760 = 7.60
-const distro = [
-    1550, 1200, 950, 750, 650, 600, 600, 650, 700, 750, 650, 550, 400,
-];
+// Two decimals of precision -> 909 = 9.09
+const distro = [910, 909, 909, 909, 909, 909, 909, 909, 909, 909, 909];
 
-const initTime = 1640361600;
+const initTime = 1655218800;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
@@ -33,8 +23,6 @@ async function main() {
         "UnipoolTokenDistributor",
     );
     await notifyRewardAmount(pools[0]);
-    await notifyRewardAmount(pools[1]);
-    await notifyRewardAmount(pools[2]);
 }
 
 async function notifyRewardAmount(pool) {
@@ -43,6 +31,7 @@ async function notifyRewardAmount(pool) {
     );
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
+
     // 1 hour of precision
     if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
