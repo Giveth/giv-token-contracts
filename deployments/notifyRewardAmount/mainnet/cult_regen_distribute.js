@@ -5,7 +5,7 @@ const { ethers } = hre;
 const pools = [
     {
         address: "0xa479103c2618aD514653B53F064Bc6c9dC35a30b",
-        amount: "3342894344.47",
+        amount: "3089445095.57",
     }, // UNI (CULT_ETH)
 ];
 
