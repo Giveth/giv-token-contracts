@@ -5,24 +5,26 @@ const { ethers } = hre;
 const pools = [
     {
         address: "0x9e4EcF5fE5F58C888C84338525422A1D0915f6ff",
-        amount: "2500000",
+        amount: "920000", // 115000 * 8 week
     }, // UniswapV2 GIV/DAI
     {
         address: "0x4B319c068685aF260c91407B651918307df30061",
-        amount: "2500000",
+        amount: "600000", // 75000 * 8 week
     }, // BAL
     {
         address: "0x17207684344B206A06BF8651d6e5e1833660418b",
-        amount: "2500000",
+        amount: "200000", // 25000 * 8
     }, // $GIV
 ];
 
 // Two decimals of precision -> 760 = 7.60
-const distro = [
-    1550, 1200, 950, 750, 650, 600, 600, 650, 700, 750, 650, 550, 400,
-];
+const distro = [2500, 2500, 2500, 2500];
 
-const initTime = 1640272200;
+/* START TIME
+ * Test deployment 7 start time + last reward round (13 * 2 weeks)
+ * 1640272200 + 13 * 2 * 7 * 24 * 3600 = 1655997000
+ */
+const initTime = 1655997000;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
