@@ -406,7 +406,7 @@ contract TokenDistro is
 
         require(
             remainingToClaim > 0,
-            "TokenDistro::claim: NOT_ENOUGTH_TOKENS_TO_CLAIM"
+            "TokenDistro::claim: NOT_ENOUGH_TOKENS_TO_CLAIM"
         );
 
         balances[recipient].claimed =

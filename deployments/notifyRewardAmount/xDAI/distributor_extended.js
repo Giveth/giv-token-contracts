@@ -4,25 +4,27 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0x9e4EcF5fE5F58C888C84338525422A1D0915f6ff",
-        amount: "2500000",
-    }, // UniswapV2 GIV/DAI
+        address: "0xe2c436E177C39A5D18AF6923Fc2Fc673f4729C05",
+        amount: "1000000", // 125000 * 8 week
+    }, // UNI (GIV/DAI) Honeyswap
     {
-        address: "0x4B319c068685aF260c91407B651918307df30061",
-        amount: "2500000",
-    }, // BAL
+        address: "0x83535D6DeF8E881E647C00462315bae9A6E7BD09",
+        amount: "680000", // 85000 * 8 week
+    }, // UNI (ETH/GIV)
     {
-        address: "0x17207684344B206A06BF8651d6e5e1833660418b",
-        amount: "2500000",
+        address: "0xDAEa66Adc97833781139373DF5B3bcEd3fdda5b1",
+        amount: "600000", // 75000 * 8 week
     }, // $GIV
 ];
 
 // Two decimals of precision -> 760 = 7.60
-const distro = [
-    1550, 1200, 950, 750, 650, 600, 600, 650, 700, 750, 650, 550, 400,
-];
+const distro = [2500, 2500, 2500, 2500];
 
-const initTime = 1640272200;
+/* START TIME
+ * Test deployment 7 start time + last reward round (13 * 2 weeks)
+ * 1640272200 + 13 * 2 * 7 * 24 * 3600 = 1655997000
+ */
+const initTime = 1655997000;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
@@ -43,6 +45,7 @@ async function notifyRewardAmount(pool) {
     );
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
+
     // 1 hour of precision
     if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
