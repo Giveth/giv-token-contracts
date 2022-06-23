@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0
+
 pragma solidity ^0.8.6;
 
 // Based on: https://github.com/1Hive/token-manager-app/blob/master/contracts/TokenManagerHook.sol
@@ -201,33 +203,33 @@ contract TokenManagerHook is ReentrancyGuard, Initializable {
     // Function to override if necessary:
 
     function _onRegisterAsHook(
-        address _tokenManager,
-        uint256 _hookId,
-        address _token
+        address/* _tokenManager*/,
+        uint256/* _hookId*/,
+        address/* _token*/
     ) internal virtual {
         return;
     }
 
     function _onRevokeAsHook(
-        address _tokenManager,
-        uint256 _hookId,
-        address _token
+        address/* _tokenManager*/,
+        uint256/* _hookId*/,
+        address/* _token*/
     ) internal virtual {
         return;
     }
 
     function _onTransfer(
-        address _from,
-        address _to,
-        uint256 _amount
+        address/* _from*/,
+        address/* _to*/,
+        uint256/* _amount*/
     ) internal virtual returns (bool) {
         return true;
     }
 
     function _onApprove(
-        address _holder,
-        address _spender,
-        uint256 _amount
+        address/* _holder*/,
+        address/* _spender*/,
+        uint256/* _amount*/
     ) internal virtual returns (bool) {
         return true;
     }
