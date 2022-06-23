@@ -235,6 +235,7 @@ contract GardenUnipoolTokenDistributor is
         address _to,
         uint256 _amount
     ) internal override returns (bool) {
+        revert("Temporarily untransferable");
         if (_from == address(0)) {
             // Token mintings (wrapping tokens)
             stake(_to, _amount);
