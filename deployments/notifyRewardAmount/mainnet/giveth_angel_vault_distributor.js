@@ -4,7 +4,7 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xA4b727DF6fD608d1835e3440288c73fB28c4eF16\n",
+        address: "0xA4b727DF6fD608d1835e3440288c73fB28c4eF16",
         amount: "6000000",
     }, // UNI (oneGIV LP)
 ];
