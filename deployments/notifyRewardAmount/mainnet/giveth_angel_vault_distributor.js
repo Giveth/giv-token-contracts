@@ -4,7 +4,7 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0x76e98f3Db6681E7de4804F97C085bEe0205164f3",
+        address: "0x7CD371D230338C74563A9A23AF72dd009a7D1b1C",
         amount: "6000000",
     }, // UNI (oneGIV LP)
 ];
@@ -14,7 +14,7 @@ const distro = [
     809, 949, 233, 1089, 233, 1229, 233, 1369, 233, 1509, 233, 1649, 232,
 ];
 
-const initTime = 1658746800;
+const initTime = 1659348000;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
