@@ -24,6 +24,8 @@
     "distributor:xDAI:extended": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/distributor_extended.js",
     "distributor:mainnet:extended": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor_extended.js",
     "distributor:kovan:extended": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor_extended.js",
+    "distributor:kovan:angelVault": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/giveth_angel_vault_distributor.js",
+    "distributor:mainnet:angelVault": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/giveth_angel_vault_distributor.js",
     "deploy:GardenUnipool:xDAI": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=xDAI ts-node scripts/deployGardenUnipool.js",
     "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeGardenUnipool.js",
     "deploy:unipool:kovan": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=kovan ts-node scripts/deployUnipool.js 0x2C84Ab41b53C52959a794830fe296Fd717c33337 0x6D5481911052a42c109F1f56354BEB07Ec430b85 750000",
