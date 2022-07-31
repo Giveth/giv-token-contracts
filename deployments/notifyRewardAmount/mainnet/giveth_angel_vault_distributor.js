@@ -14,7 +14,7 @@ const distro = [
     809, 949, 233, 1089, 233, 1229, 233, 1369, 233, 1509, 233, 1649, 232,
 ];
 
-const initTime = 1659607200;
+const initTime = 1659607200 - 180; // Allow making the transaction 3 minutes sooner
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
