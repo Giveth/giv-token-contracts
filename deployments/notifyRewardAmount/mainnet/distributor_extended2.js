@@ -32,10 +32,7 @@ async function main() {
 }
 
 async function notifyRewardAmount(pool) {
-    console.log(
-        "notifyReward has been called for",
-        JSON.stringify(pool, null, 4),
-    );
+    console.log("notifyReward has been called for", pool.address);
     const unipoolTokenDistributor = await UnipoolTokenDistributor.attach(
         pool.address,
     );
