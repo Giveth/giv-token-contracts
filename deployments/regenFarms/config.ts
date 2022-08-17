@@ -4,7 +4,7 @@ import { IRegenConfig } from "../types";
 // CULT/ETH
 const config: IRegenConfig = {
     alreadyDeployedTokenDistroAddress:
-        "0x2C84Ab41b53C52959a794830fe296Fd717c33337",
+        "0x4358c99abFe7A9983B6c96785b8870b5412C5B4B",
     // newTokenDistroParams: {
     //     startTime: 1655218800, // (GMT): Tuesday, June 14, 2022 15:00:00
     //     cliffPeriod: 0,
@@ -15,10 +15,20 @@ const config: IRegenConfig = {
     //     cancelable: true,
     // },
     unipools: {
-        ANGEL_VAULT: {
-            uniTokenAddress: "0xA0D500fd3479CBCb64a2238082b7a1Df9f87d98D", // HoneySwap FOX/HNY
+        UNI_ETH_GIV: {
+            uniTokenAddress: "0xDADe0F0f5759FB1F041217BD9cC680950796339F", // HoneySwap FOX/HNY
             lmDuration: 1_209_600, // 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
-            rewardAmount: "6000000", // The value to assign on tokendistro 3,342,894,344.47
+            rewardAmount: "100000", // The value to assign on tokendistro 3,342,894,344.47
+        },
+        UNI_DAI_GIV: {
+            uniTokenAddress: "0x0551f038a84cb0d42584a8E3eaf5a409D22F4211", // HoneySwap FOX/HNY
+            lmDuration: 1_209_600, // 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
+            rewardAmount: "100000", // The value to assign on tokendistro 3,342,894,344.47
+        },
+        BALANCER: {
+            uniTokenAddress: "0xFaEb6A8B5F15Af77673666E51A44f6B9B6CA5Da2", // HoneySwap FOX/HNY
+            lmDuration: 1_209_600, // 2 weeks * 7 days * 24 hours * 3600 seconds = 1_209_600
+            rewardAmount: "100000", // The value to assign on tokendistro 3,342,894,344.47
         },
     },
 };
