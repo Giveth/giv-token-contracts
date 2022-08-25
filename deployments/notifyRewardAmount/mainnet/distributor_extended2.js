@@ -7,7 +7,7 @@ const { ethers } = hre;
 const pools = [
     {
         address: "0xc0dbDcA66a0636236fAbe1B3C16B1bD4C84bB1E1",
-        amount: " 900000", // 75000 * 6 (rounds) * 2 (weeks) = 900,000,
+        amount: "900000", // 75000 * 6 (rounds) * 2 (weeks) = 900,000,
     }, // BAL GIV/ETH
 ];
 
