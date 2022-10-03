@@ -13,7 +13,7 @@ const pools = [
 // Frist round had extra reward from previous round, so 5.46 - 2.16 = 3.30
 // https://github.com/giveth/giv-token-contracts/issues/75#issuecomment-1264632807
 const distro = [
-    330, 571, 597, 623, 65, 676, 701, 727, 753, 779, 806, 831, 857, 883,
+    330, 571, 597, 623, 650, 676, 701, 727, 753, 779, 806, 831, 857, 883,
 ];
 
 const initTime = 1664899200;
