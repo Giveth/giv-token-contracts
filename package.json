@@ -23,6 +23,7 @@
     "distributor:kovan": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
     "distributor:xDAI:extended": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/distributor_extended.js",
     "distributor:xDAI:extended2": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/distributor_extended2.js",
+    "distributor:xDAI:givPower": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/givpower_distribute.js",
     "distributor:mainnet:extended": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor_extended.js",
     "distributor:mainnet:extended2": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor_extended2.js",
     "distributor:kovan:extended": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor_extended.js",
