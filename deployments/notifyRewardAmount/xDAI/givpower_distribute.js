@@ -5,7 +5,7 @@ const { ethers } = hre;
 const pools = [
     {
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
-        amount: "700000",
+        amount: "7000000",
     }, // Garden Unipool
 ];
 
