@@ -3,7 +3,6 @@ const moment = require("moment");
 const { dappMailerUrl, givethDevMailList, dappMailerSecret } = process.env;
 
 const sendReportEmail = async ({
-    payload,
     pool,
     farm,
     position,

@@ -1,5 +1,6 @@
 /* eslint-disable no-use-before-define */
 const hre = require("hardhat");
+const { sendReportEmail } = require("../../mailService/mailService");
 const { ethers } = hre;
 
 const pools = [
@@ -52,6 +53,13 @@ async function notifyRewardAmount(pool) {
         ).wait();
         nonce += 1;
         console.log(tx);
+        await sendReportEmail({
+            farm: "Cult regen farm",
+            network: "Mainnet",
+            pool: pool.address,
+            position: pos,
+            amount,
+        });
     } else {
         console.log(
             "UnipoolTokenDistributor - notifyRewardAmount:",
