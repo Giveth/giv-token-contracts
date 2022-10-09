@@ -6,7 +6,7 @@ const { ethers } = hre;
 const pools = [
     {
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
-        amount: "700000",
+        amount: "7000000",
     }, // Garden Unipool
 ];
 
@@ -37,8 +37,8 @@ async function notifyRewardAmount(pool) {
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
 
-    // 1 hour of precision
-    if (periodFinish < currentTime + 3600) {
+    // 10 minutes of precision
+    if (periodFinish < currentTime + 60 * 10) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
         if (pos < 0) return;
