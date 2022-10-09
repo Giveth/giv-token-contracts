@@ -13,7 +13,9 @@ const pools = [
 ];
 
 // Two decimals of precision -> 2500 = 25.00
-const distro = [2500, 2500, 2500, 2500];
+// const distro = [2500, 2500, 2500, 2500];
+
+const distro = [2500, 2500, 2500, 0]; // Replaced last round with GIVpower
 
 /* START TIME
  * GIVeconomy start time + last reward round (17 * 2 weeks)
