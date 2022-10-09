@@ -9,6 +9,7 @@ const sendReportEmail = async ({
     amount,
     message,
     network = "gnosis",
+    transactionHash = "",
 }) => {
     try {
         const tableStyle =
@@ -41,6 +42,10 @@ const sendReportEmail = async ({
                 <tr>
                   <td style='${tableCellStyle}'>Amount</td>
                   <td style='${tableCellStyle}'>${amount}</td>
+                </tr>
+                <tr>
+                  <td style='${tableCellStyle}'>Transaction Hash</td>
+                  <td style='${tableCellStyle}'>${transactionHash}</td>
                 </tr>
                 <tr>
                   <td style='${tableCellStyle}'>Position</td>

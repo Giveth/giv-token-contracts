@@ -52,12 +52,13 @@ async function notifyRewardAmount(pool) {
             await unipoolTokenDistributor.notifyRewardAmount(amount, { nonce })
         ).wait();
         nonce += 1;
-        console.log(tx);
+        console.log("tx:", tx);
         await sendReportEmail({
             farm: "Cult regen farm",
             network: "Mainnet",
             pool: pool.address,
             position: pos,
+            transactionHash: tx.transactionHash,
             amount,
         });
     } else {
