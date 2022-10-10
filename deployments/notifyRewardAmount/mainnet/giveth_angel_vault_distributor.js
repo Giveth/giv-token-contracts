@@ -59,7 +59,8 @@ async function notifyRewardAmount(pool) {
             farm: "Angle Vault",
             network: "Mainnet",
             pool: pool.address,
-            position: pos,
+            round: pos + 1,
+            script: "giveth_angel_vault_distributor.js",
             transactionHash: tx.transactionHash,
             amount,
         });

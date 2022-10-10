@@ -59,7 +59,8 @@ async function notifyRewardAmount(pool) {
             farm: "Fox regen farm",
             network: "Gnosis",
             pool: pool.address,
-            position: pos,
+            round: pos + 1,
+            script: "fox_regen_distribute.js",
             transactionHash: tx.transactionHash,
             amount,
         });

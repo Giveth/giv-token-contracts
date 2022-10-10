@@ -57,7 +57,8 @@ async function notifyRewardAmount(pool) {
             farm: "Cult regen farm",
             network: "Mainnet",
             pool: pool.address,
-            position: pos,
+            round: pos + 1,
+            script: "cult_regen_distribute.js",
             transactionHash: tx.transactionHash,
             amount,
         });

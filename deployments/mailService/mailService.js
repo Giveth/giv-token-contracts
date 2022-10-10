@@ -5,8 +5,9 @@ const { dappMailerUrl, givethDevMailList, dappMailerSecret } = process.env;
 const sendReportEmail = async ({
     pool,
     farm,
-    position,
+    round,
     amount,
+    script,
     message,
     network = "gnosis",
     transactionHash = "",
@@ -48,8 +49,12 @@ const sendReportEmail = async ({
                   <td style='${tableCellStyle}'>${transactionHash}</td>
                 </tr>
                 <tr>
-                  <td style='${tableCellStyle}'>Position</td>
-                  <td style='${tableCellStyle}'>${position}</td>
+                  <td style='${tableCellStyle}'>Round</td>
+                  <td style='${tableCellStyle}'>${round}</td>
+                </tr>
+                <tr>
+                  <td style='${tableCellStyle}'>Script</td>
+                  <td style='${tableCellStyle}'>${script}</td>
                 </tr>
                 <tr>
                   <td style='${tableCellStyle}'>Date</td>

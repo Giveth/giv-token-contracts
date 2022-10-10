@@ -61,7 +61,8 @@ async function notifyRewardAmount(pool) {
             farm: "Giv power",
             network: "Gnosis",
             pool: pool.address,
-            position: pos,
+            round: pos + 1,
+            script: "givpower_distribute.js",
             transactionHash: tx.transactionHash,
             amount,
         });

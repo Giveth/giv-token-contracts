@@ -7,7 +7,8 @@ sendReportEmail({
     farm: "givPower",
     amount: "330000",
     message: "",
-    position: 1,
+    round: 1,
+    script: "mailService.test.js",
 })
     .then((res) => console.log("send email response", res))
     .catch((e) => console.log("sendReportEmail error", e));
