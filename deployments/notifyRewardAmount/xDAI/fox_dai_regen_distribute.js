@@ -16,7 +16,7 @@ const distro = [
     385, 385, 385, 385, 385, 385, 385, 385, 385, 385, 375,
 ];
 
-const initTime = 1649001600;
+const initTime = 1666026600; // Date and time (GMT): Monday, October 17, 2022 17:10:00
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
