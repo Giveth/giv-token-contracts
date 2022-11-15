@@ -35,6 +35,7 @@
     "deploy:unipool:mainnet": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=mainnet ts-node scripts/deployUnipool.js 0x87dE995F6744B75bBe0255A973081142aDb61f4d 0xbeba1666c62c65e58770376de332891b09461eeb 750000",
     "upgrade:TokenDistro:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeTokenDistro.js",
     "distributor:xDAI:regen_fox": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_regen_distribute.js",
+    "distributor:xDAI:regen_fox_dai": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_dai_regen_distribute.js",
     "distributor:mainnet:regen_cult": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/cult_regen_distribute.js"
   },
   "pre-commit": [
