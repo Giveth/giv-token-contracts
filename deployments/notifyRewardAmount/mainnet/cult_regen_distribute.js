@@ -7,7 +7,9 @@ const pools = [
     {
         // https://www.notion.so/giveth/Update-TokenDistro-b80d8c268bff4967891e27f73f4b7994
         address: "0xcA128517053e8c459E12E3aCB615bb421d768219",
-        amount: "335687651.593337"
+
+        // Lauren gave this to me
+        amount: "335687651.593337",
     }, // UNI (CULT_ETH)
 ];
 
