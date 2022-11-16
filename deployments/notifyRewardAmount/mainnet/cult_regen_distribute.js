@@ -5,15 +5,18 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xa479103c2618aD514653B53F064Bc6c9dC35a30b",
-        amount: "3089445095.57",
+        // https://www.notion.so/giveth/Update-TokenDistro-b80d8c268bff4967891e27f73f4b7994
+        address: "0xcA128517053e8c459E12E3aCB615bb421d768219",
+
+        // Lauren gave this to me
+        amount: "335687651.593337",
     }, // UNI (CULT_ETH)
 ];
 
-// Two decimals of precision -> 909 = 9.09
-const distro = [910, 909, 909, 909, 909, 909, 909, 909, 909, 909, 909];
+// Two decimals of precision -> 10000 = 100
+const distro = [10000];
 
-const initTime = 1655218800;
+const initTime = 1668691800 - 180;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
