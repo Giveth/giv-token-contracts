@@ -16,7 +16,7 @@ const pools = [
 // Two decimals of precision -> 10000 = 100
 const distro = [10000];
 
-const initTime = 1668691800;
+const initTime = 1668691800 - 180;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
