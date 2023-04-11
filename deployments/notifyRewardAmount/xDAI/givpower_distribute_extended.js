@@ -6,18 +6,16 @@ const { ethers } = hre;
 const pools = [
     {
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
-        amount: "7000000",
+        amount: "13000000",
     }, // Garden Unipool
 ];
 
 // Two decimals of precision -> 760 = 7.60
-// Frist round had extra reward from previous round, so 5.46 - 2.16 = 3.30
-// https://github.com/giveth/giv-token-contracts/issues/75#issuecomment-1264632807
 const distro = [
-    330, 571, 597, 623, 650, 676, 701, 727, 753, 779, 806, 831, 857, 883,
+    579, 600, 621, 642, 662, 683, 704, 725, 745, 766, 787, 808, 828, 850,
 ];
 
-const initTime = 1664899200; // Timestamp of first round in seconds (2022-06-01 00:00:00)
+const initTime = 1681840800; // Timestamp of first round in seconds: Tuesday, April 18, 2023 18:00:00 GMT
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
