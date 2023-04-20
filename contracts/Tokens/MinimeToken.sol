@@ -214,10 +214,10 @@ contract MiniMeToken is Controlled {
     /// @param _to The address of the recipient
     /// @param _amount The amount of tokens to be transferred
     /// @return Whether the transfer was successful or not
-    function transfer(address _to, uint256 _amount)
-        public
-        returns (bool success)
-    {
+    function transfer(
+        address _to,
+        uint256 _amount
+    ) public returns (bool success) {
         require(transfersEnabled);
         return doTransfer(msg.sender, _to, _amount);
     }
@@ -293,11 +293,9 @@ contract MiniMeToken is Controlled {
 
     /// @param _owner The address that's balance is being requested
     /// @return The balance of `_owner` at the current block
-    function balanceOf(address _owner)
-        public
-        constant
-        returns (uint256 balance)
-    {
+    function balanceOf(
+        address _owner
+    ) public constant returns (uint256 balance) {
         return balanceOfAt(_owner, block.number);
     }
 
@@ -306,10 +304,10 @@ contract MiniMeToken is Controlled {
     /// @param _spender The address of the account able to transfer the tokens
     /// @param _amount The amount of tokens to be approved for transfer
     /// @return True if the approval was successful
-    function approve(address _spender, uint256 _amount)
-        public
-        returns (bool success)
-    {
+    function approve(
+        address _spender,
+        uint256 _amount
+    ) public returns (bool success) {
         _approve(msg.sender, _spender, _amount);
         return true;
     }
@@ -354,11 +352,10 @@ contract MiniMeToken is Controlled {
     /// @param _spender The address of the account able to transfer the tokens
     /// @return Amount of remaining tokens of _owner that _spender is allowed
     ///  to spend
-    function allowance(address _owner, address _spender)
-        public
-        constant
-        returns (uint256 remaining)
-    {
+    function allowance(
+        address _owner,
+        address _spender
+    ) public constant returns (uint256 remaining) {
         return allowed[_owner][_spender];
     }
 
@@ -497,11 +494,10 @@ contract MiniMeToken is Controlled {
     /// @param _owner The address from which the balance will be retrieved
     /// @param _blockNumber The block number when the balance is queried
     /// @return The balance at `_blockNumber`
-    function balanceOfAt(address _owner, uint256 _blockNumber)
-        public
-        constant
-        returns (uint256)
-    {
+    function balanceOfAt(
+        address _owner,
+        uint256 _blockNumber
+    ) public constant returns (uint256) {
         // These next few lines are used when the balance of the token is
         //  requested before a check point was ever created for this token, it
         //  requires that the `parentToken.balanceOfAt` be queried at the
@@ -531,11 +527,9 @@ contract MiniMeToken is Controlled {
     /// @notice Total amount of tokens at a specific `_blockNumber`.
     /// @param _blockNumber The block number when the totalSupply is queried
     /// @return The total amount of tokens at `_blockNumber`
-    function totalSupplyAt(uint256 _blockNumber)
-        public
-        constant
-        returns (uint256)
-    {
+    function totalSupplyAt(
+        uint256 _blockNumber
+    ) public constant returns (uint256) {
         // These next few lines are used when the totalSupply of the token is
         //  requested before a check point was ever created for this token, it
         //  requires that the `parentToken.totalSupplyAt` be queried at the
@@ -609,11 +603,10 @@ contract MiniMeToken is Controlled {
     /// @param _owner The address that will be assigned the new tokens
     /// @param _amount The quantity of tokens generated
     /// @return True if the tokens are generated correctly
-    function generateTokens(address _owner, uint256 _amount)
-        public
-        onlyController
-        returns (bool)
-    {
+    function generateTokens(
+        address _owner,
+        uint256 _amount
+    ) public onlyController returns (bool) {
         uint256 curTotalSupply = totalSupply();
         require(curTotalSupply + _amount >= curTotalSupply); // Check for overflow
         uint256 previousBalanceTo = balanceOf(_owner);
@@ -628,11 +621,10 @@ contract MiniMeToken is Controlled {
     /// @param _owner The address that will lose the tokens
     /// @param _amount The quantity of tokens to burn
     /// @return True if the tokens are burned correctly
-    function destroyTokens(address _owner, uint256 _amount)
-        public
-        onlyController
-        returns (bool)
-    {
+    function destroyTokens(
+        address _owner,
+        uint256 _amount
+    ) public onlyController returns (bool) {
         uint256 curTotalSupply = totalSupply();
         require(curTotalSupply >= _amount);
         uint256 previousBalanceFrom = balanceOf(_owner);
@@ -661,11 +653,10 @@ contract MiniMeToken is Controlled {
     /// @param checkpoints The history of values being queried
     /// @param _block The block number to retrieve the value at
     /// @return The number of tokens being queried
-    function getValueAt(Checkpoint[] storage checkpoints, uint256 _block)
-        internal
-        constant
-        returns (uint256)
-    {
+    function getValueAt(
+        Checkpoint[] storage checkpoints,
+        uint256 _block
+    ) internal constant returns (uint256) {
         if (checkpoints.length == 0) return 0;
 
         // Shortcut for the actual value
@@ -691,9 +682,10 @@ contract MiniMeToken is Controlled {
     ///  `totalSupplyHistory`
     /// @param checkpoints The history of data being updated
     /// @param _value The new number of tokens
-    function updateValueAtNow(Checkpoint[] storage checkpoints, uint256 _value)
-        internal
-    {
+    function updateValueAtNow(
+        Checkpoint[] storage checkpoints,
+        uint256 _value
+    ) internal {
         require(_value <= uint128(-1));
 
         if (

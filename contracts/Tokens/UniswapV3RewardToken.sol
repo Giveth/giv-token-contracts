@@ -35,10 +35,10 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     /// @param account The account that enabled the contract
     event Enabled(address account);
 
-    function initialize(IDistro _tokenDistribution, address _uniswapV3Staker)
-        public
-        initializer
-    {
+    function initialize(
+        IDistro _tokenDistribution,
+        address _uniswapV3Staker
+    ) public initializer {
         __Ownable_init();
         tokenDistro = _tokenDistribution;
         uniswapV3Staker = _uniswapV3Staker;
@@ -53,11 +53,10 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         return true;
     }
 
-    function transfer(address to, uint256 value)
-        external
-        override
-        returns (bool)
-    {
+    function transfer(
+        address to,
+        uint256 value
+    ) external override returns (bool) {
         require(
             msg.sender == uniswapV3Staker,
             "GivethUniswapV3Reward:transfer:ONLY_STAKER"
@@ -102,12 +101,10 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         return true;
     }
 
-    function allowance(address, address spender)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function allowance(
+        address,
+        address spender
+    ) external view override returns (uint256) {
         if (spender == uniswapV3Staker) return type(uint256).max;
         return 0;
     }
