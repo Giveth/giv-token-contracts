@@ -5,17 +5,19 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xA4b727DF6fD608d1835e3440288c73fB28c4eF16",
-        amount: "6000000",
-    }, // UNI (oneGIV LP)
+        address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
+        amount: "7000000",
+    }, // Garden Unipool
 ];
 
-// Two decimals of precision -> 909 = 9.09
+// Two decimals of precision -> 760 = 7.60
+// Frist round had extra reward from previous round, so 5.46 - 2.16 = 3.30
+// https://github.com/giveth/giv-token-contracts/issues/75#issuecomment-1264632807
 const distro = [
-    809, 949, 233, 1089, 233, 1229, 233, 1369, 233, 1509, 233, 1649, 232,
+    330, 571, 597, 623, 650, 676, 701, 727, 753, 779, 806, 831, 857, 883,
 ];
 
-const initTime = 1659625200 - 180; // Allow making the transaction 3 minutes sooner
+const initTime = 1664899200; // Timestamp of first round in seconds (2022-06-01 00:00:00)
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
@@ -56,11 +58,11 @@ async function notifyRewardAmount(pool) {
         nonce += 1;
         console.log("tx:", tx);
         await sendReportEmail({
-            farm: "Angle Vault",
-            network: "Mainnet",
+            farm: "Giv power",
+            network: "Gnosis",
             pool: pool.address,
             round: pos + 1,
-            script: "giveth_angel_vault_distributor.js",
+            script: "givpower_distribute.js",
             transactionHash: tx.transactionHash,
             amount,
         });

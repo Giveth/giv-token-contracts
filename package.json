@@ -23,15 +23,21 @@
     "distributor:mainnet": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
     "distributor:kovan": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor.js",
     "distributor:xDAI:extended": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/distributor_extended.js",
+    "distributor:xDAI:extended2": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/distributor_extended2.js",
+    "distributor:xDAI:givPower": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/givpower_distribute.js",
+    "distributor:xDAI:givPower:extended": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/givpower_distribute_extended.js",
     "distributor:mainnet:extended": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor_extended.js",
+    "distributor:mainnet:extended2": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/distributor_extended2.js",
     "distributor:kovan:extended": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/distributor_extended.js",
     "distributor:kovan:angelVault": "HARDHAT_NETWORK=kovan ts-node deployments/notifyRewardAmount/mainnet/giveth_angel_vault_distributor.js",
+    "distributor:mainnet:angelVault": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/giveth_angel_vault_distributor.js",
     "deploy:GardenUnipool:xDAI": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=xDAI ts-node scripts/deployGardenUnipool.js",
     "upgrade:GardenUnipool:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeGardenUnipool.js",
     "deploy:unipool:kovan": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=kovan ts-node scripts/deployUnipool.js 0x2C84Ab41b53C52959a794830fe296Fd717c33337 0x6D5481911052a42c109F1f56354BEB07Ec430b85 750000",
     "deploy:unipool:mainnet": "yarn clear-proxy-contract-cache && HARDHAT_NETWORK=mainnet ts-node scripts/deployUnipool.js 0x87dE995F6744B75bBe0255A973081142aDb61f4d 0xbeba1666c62c65e58770376de332891b09461eeb 750000",
     "upgrade:TokenDistro:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeTokenDistro.js",
     "distributor:xDAI:regen_fox": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_regen_distribute.js",
+    "distributor:xDAI:regen_fox_dai": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_dai_regen_distribute.js",
     "distributor:mainnet:regen_cult": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/cult_regen_distribute.js"
   },
   "pre-commit": [
@@ -77,5 +83,9 @@
     "typechain": "^6.0.2",
     "typescript": "^4.4.4"
   },
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "dependencies": {
+    "axios": "^1.0.0",
+    "moment": "^2.29.4"
+  }
 }

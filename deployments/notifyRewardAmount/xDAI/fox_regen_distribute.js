@@ -1,5 +1,6 @@
 /* eslint-disable no-use-before-define */
 const hre = require("hardhat");
+const { sendReportEmail } = require("../../mailService/mailService");
 const { ethers } = hre;
 
 const pools = [
@@ -34,8 +35,8 @@ async function notifyRewardAmount(pool) {
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
 
-    // 1 hour of precision
-    if (periodFinish < currentTime + 3600) {
+    // 10 minutes of precision
+    if (periodFinish < currentTime + 60 * 10) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
         if (pos < 0) return;
@@ -53,7 +54,16 @@ async function notifyRewardAmount(pool) {
             await unipoolTokenDistributor.notifyRewardAmount(amount, { nonce })
         ).wait();
         nonce += 1;
-        console.log(tx);
+        console.log("tx:", tx);
+        await sendReportEmail({
+            farm: "Fox regen farm",
+            network: "Gnosis",
+            pool: pool.address,
+            round: pos + 1,
+            script: "fox_regen_distribute.js",
+            transactionHash: tx.transactionHash,
+            amount,
+        });
     } else {
         console.log(
             "UnipoolTokenDistributor - notifyRewardAmount:",

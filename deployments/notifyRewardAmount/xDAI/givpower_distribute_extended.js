@@ -5,17 +5,17 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xA4b727DF6fD608d1835e3440288c73fB28c4eF16",
-        amount: "6000000",
-    }, // UNI (oneGIV LP)
+        address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
+        amount: "13000000",
+    }, // Garden Unipool
 ];
 
-// Two decimals of precision -> 909 = 9.09
+// Two decimals of precision -> 760 = 7.60
 const distro = [
-    809, 949, 233, 1089, 233, 1229, 233, 1369, 233, 1509, 233, 1649, 232,
+    579, 600, 621, 642, 662, 683, 704, 725, 745, 766, 787, 808, 828, 850,
 ];
 
-const initTime = 1659625200 - 180; // Allow making the transaction 3 minutes sooner
+const initTime = 1681840800; // Timestamp of first round in seconds: Tuesday, April 18, 2023 18:00:00 GMT
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
@@ -56,11 +56,11 @@ async function notifyRewardAmount(pool) {
         nonce += 1;
         console.log("tx:", tx);
         await sendReportEmail({
-            farm: "Angle Vault",
-            network: "Mainnet",
+            farm: "Giv power",
+            network: "Gnosis",
             pool: pool.address,
             round: pos + 1,
-            script: "giveth_angel_vault_distributor.js",
+            script: "givpower_distribute.js",
             transactionHash: tx.transactionHash,
             amount,
         });

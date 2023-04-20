@@ -1,21 +1,24 @@
 /* eslint-disable no-use-before-define */
 const hre = require("hardhat");
-const { sendReportEmail } = require("../../mailService/mailService");
 const { ethers } = hre;
+
+// https://github.com/Giveth/giveth-dapps-v2/issues/1353
 
 const pools = [
     {
-        address: "0xA4b727DF6fD608d1835e3440288c73fB28c4eF16",
-        amount: "6000000",
-    }, // UNI (oneGIV LP)
+        address: "0xc0dbDcA66a0636236fAbe1B3C16B1bD4C84bB1E1",
+        amount: "900000", // 75000 * 6 (rounds) * 2 (weeks) = 900,000,
+    }, // BAL GIV/ETH
 ];
 
-// Two decimals of precision -> 909 = 9.09
-const distro = [
-    809, 949, 233, 1089, 233, 1229, 233, 1369, 233, 1509, 233, 1649, 232,
-];
+// Two decimals of precision -> 1666 = 16.66
+const distro = [1666, 1666, 1666, 1666, 1666, 1666];
 
-const initTime = 1659625200 - 180; // Allow making the transaction 3 minutes sooner
+/* START TIME
+ * GIVeconomy start time + last reward round (17 * 2 weeks)
+ * 1640361600 + 17 * 2 * 7 * 24 * 3600 = 1660924800
+ */
+const initTime = 1660924800;
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
@@ -29,17 +32,30 @@ async function main() {
 }
 
 async function notifyRewardAmount(pool) {
+    console.log("notifyReward has been called for", pool.address);
     const unipoolTokenDistributor = await UnipoolTokenDistributor.attach(
         pool.address,
     );
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
-
-    // 10 minutes of precision
-    if (periodFinish < currentTime + 60 * 10) {
+    // 1 hour of precision
+    if (periodFinish < currentTime + 3600) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
-        if (pos < 0) return;
+        if (pos < 0) {
+            console.log("The currentTime is lower than initTime ", {
+                currentTime,
+                initTime,
+            });
+            return;
+        }
+        if (pos >= distro.length) {
+            console.log("There is no distro for this pool", {
+                pos,
+                poolAddress: pool.address,
+            });
+            return;
+        }
         const amount = ethers.utils
             .parseEther(pool.amount)
             .mul(distro[pos])
@@ -54,16 +70,7 @@ async function notifyRewardAmount(pool) {
             await unipoolTokenDistributor.notifyRewardAmount(amount, { nonce })
         ).wait();
         nonce += 1;
-        console.log("tx:", tx);
-        await sendReportEmail({
-            farm: "Angle Vault",
-            network: "Mainnet",
-            pool: pool.address,
-            round: pos + 1,
-            script: "giveth_angel_vault_distributor.js",
-            transactionHash: tx.transactionHash,
-            amount,
-        });
+        console.log(tx);
     } else {
         console.log(
             "UnipoolTokenDistributor - notifyRewardAmount:",
