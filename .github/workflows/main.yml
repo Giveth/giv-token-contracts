@@ -19,12 +19,15 @@ jobs:
 
     steps:
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
       - name: Checkout code
         uses: actions/checkout@v2
       - name: setup
-        run: npm install -g npm@latest && npm i
+        run: yarn
+      - name: compile
+        run: yarn compile
       - name: test
-        run: npm run compile && npm run test
+        run: yarn test
