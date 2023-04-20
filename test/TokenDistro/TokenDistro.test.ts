@@ -387,6 +387,95 @@ describe("TokenDistro", () => {
         ).to.be.equal(amountRecipient4);
     });
 
+    it("should be able to transfer the balance - sendPraiseRewards", async () => {
+        const startTime = (await ethers.provider.getBlock("latest")).timestamp;
+
+        const tokenDistro = await tokenDistroFactory.deploy(
+            amount,
+            startTime,
+            startToCliff,
+            startToEnd,
+            initialPercentage,
+            token.address,
+            false,
+        );
+
+        await token.transfer(tokenDistro.address, amount);
+
+        const amountRecipient1 = amount.div(2);
+        const amountRecipient2 = amountRecipient1.div(2);
+        const amountRecipient3 = amountRecipient2.div(2);
+        const amountRecipient4 = amountRecipient3.div(2);
+
+        await tokenDistro.grantRole(
+            await tokenDistro.DISTRIBUTOR_ROLE(),
+            multisigAddress,
+        );
+        await tokenDistro.connect(multisig).assign(multisigAddress, amount);
+
+        await expect(
+            tokenDistro
+                .connect(multisig2)
+                .sendPraiseRewards([recipientAddress1], [amount]),
+        ).to.be.revertedWith(
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE",
+        );
+
+        await expect(
+            tokenDistro.sendPraiseRewards([multisigAddress], [amount]),
+        ).to.be.revertedWith(
+            "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT",
+        );
+
+        await expect(
+            tokenDistro.sendPraiseRewards(
+                [recipientAddress1],
+                [amountRecipient1, amountRecipient2],
+            ),
+        ).to.be.revertedWith(
+            "TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH",
+        );
+
+        await expect(
+            tokenDistro.sendPraiseRewards(
+                [
+                    recipientAddress1,
+                    recipientAddress2,
+                    recipientAddress3,
+                    recipientAddress4,
+                ],
+                [
+                    amountRecipient1,
+                    amountRecipient2,
+                    amountRecipient3,
+                    amountRecipient4,
+                ],
+            ),
+        )
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(multisigAddress, recipientAddress1, amountRecipient1)
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(multisigAddress, recipientAddress2, amountRecipient2)
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(multisigAddress, recipientAddress3, amountRecipient3)
+            .to.emit(tokenDistro, "Allocate")
+            .withArgs(multisigAddress, recipientAddress4, amountRecipient4)
+            .to.emit(tokenDistro, "PraiseReward")
+            .withArgs(multisigAddress);
+        expect(
+            (await tokenDistro.balances(recipientAddress1)).allocatedTokens,
+        ).to.be.equal(amountRecipient1);
+        expect(
+            (await tokenDistro.balances(recipientAddress2)).allocatedTokens,
+        ).to.be.equal(amountRecipient2);
+        expect(
+            (await tokenDistro.balances(recipientAddress3)).allocatedTokens,
+        ).to.be.equal(amountRecipient3);
+        expect(
+            (await tokenDistro.balances(recipientAddress4)).allocatedTokens,
+        ).to.be.equal(amountRecipient4);
+    });
+
     it("should be able to transfer the balance", async () => {
         const startTime = (await ethers.provider.getBlock("latest")).timestamp;
 
