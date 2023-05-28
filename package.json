@@ -37,6 +37,7 @@
     "upgrade:TokenDistro:xDAI": "HARDHAT_NETWORK=xDAI ts-node scripts/upgradeTokenDistro.js",
     "distributor:xDAI:regen_fox": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_regen_distribute.js",
     "distributor:xDAI:regen_fox_dai": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_dai_regen_distribute.js",
+    "distributor:xDAI:regen_fox_dai:extended": "HARDHAT_NETWORK=xDAI ts-node deployments/notifyRewardAmount/xDAI/fox_dai_regen_distribute_extended.js",
     "distributor:mainnet:regen_cult": "HARDHAT_NETWORK=mainnet ts-node deployments/notifyRewardAmount/mainnet/cult_regen_distribute.js"
   },
   "pre-commit": [
