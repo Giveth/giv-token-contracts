@@ -15,7 +15,7 @@ const distro = [
     770, 770, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 770,
 ];
 
-const initTime = 1685460000; // Date and time (GMT): Tuesday, May 30, 2023 15:20:00
+const initTime = 1685460000 - 60; // Date and time (GMT): Tuesday, May 30, 2023 15:20:00 minus 1 minute
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
