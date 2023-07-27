@@ -1,10 +1,10 @@
 const { ethers, upgrades } = require("hardhat");
 
-const TOKEN_DISTRO_ADDRESS = "0xf11aC05c97F8845f6b974e9e327129d36683cC90";
+const TOKEN_DISTRO_ADDRESS = "0x73f2D115C2cBAa3b5F477A78F7A7CD348D8b70a2";
 
 async function main() {
-    const GardenUnipool = await ethers.getContractFactory("TokenDistro");
-    await upgrades.upgradeProxy(TOKEN_DISTRO_ADDRESS, GardenUnipool);
+    const TokenDistro = await ethers.getContractFactory("TokenDistro");
+    await upgrades.upgradeProxy(TOKEN_DISTRO_ADDRESS, TokenDistro);
 }
 
 main();

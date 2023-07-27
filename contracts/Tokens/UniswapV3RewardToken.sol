@@ -17,7 +17,23 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     address public uniswapV3Staker;
     uint256 public override totalSupply;
 
+    bool public disabled;
+
     event RewardPaid(address indexed user, uint256 reward);
+
+    /// @dev Event emitted when an account tried to claim a reward (via calling `trasnfer) while the contract
+    // is disabled.
+    /// @param user The account that called `transfer`
+    /// @param reward The amount that was tried to claim
+    event InvalidRewardPaid(address indexed user, uint256 reward);
+
+    /// @dev Event emitted when the contract is disabled
+    /// @param account The account that disabled the contract
+    event Disabled(address account);
+
+    /// @dev Event emittd when the contract is enabled
+    /// @param account The account that enabled the contract
+    event Enabled(address account);
 
     function initialize(IDistro _tokenDistribution, address _uniswapV3Staker)
         public
@@ -33,11 +49,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         return 0;
     }
 
-    function approve(address spender, uint256 value)
-        external
-        override
-        returns (bool)
-    {
+    function approve(address, uint256) external pure override returns (bool) {
         return true;
     }
 
@@ -52,9 +64,13 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         );
 
         totalSupply = totalSupply - value;
-        tokenDistro.allocate(to, value, true);
+        if (!disabled) {
+            tokenDistro.allocate(to, value, true);
+            emit RewardPaid(to, value);
+        } else {
+            emit InvalidRewardPaid(to, value);
+        }
 
-        emit RewardPaid(to, value);
         return true;
     }
 
@@ -86,7 +102,7 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
         return true;
     }
 
-    function allowance(address owner, address spender)
+    function allowance(address, address spender)
         external
         view
         override
@@ -94,5 +110,19 @@ contract UniswapV3RewardToken is IERC20, OwnableUpgradeable {
     {
         if (spender == uniswapV3Staker) return type(uint256).max;
         return 0;
+    }
+
+    /// @notice Disable the token. If disabled, rewards are not payable.
+    /// @dev Can only be called by the Owner.
+    function disable() external onlyOwner {
+        disabled = true;
+        emit Disabled(msg.sender);
+    }
+
+    /// @notice Enable the token. If enabled, rewards are payable.
+    /// @dev Can only be called by the Owner.
+    function enable() external onlyOwner {
+        disabled = false;
+        emit Enabled(msg.sender);
     }
 }

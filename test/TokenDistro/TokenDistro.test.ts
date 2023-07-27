@@ -670,7 +670,7 @@ describe("TokenDistro", () => {
         );
         await expect(
             tokenDistro.connect(recipient1).claim(),
-        ).to.be.revertedWith("TokenDistro::claim: NOT_ENOUGTH_TOKENS_TO_CLAIM");
+        ).to.be.revertedWith("TokenDistro::claim: NOT_ENOUGH_TOKENS_TO_CLAIM");
     });
 
     it("should be able to change the address", async () => {
