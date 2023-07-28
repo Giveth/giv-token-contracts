@@ -128,6 +128,13 @@ const config: HardhatUserConfig = {
                 ? [`${process.env.PRIVATE_KEY_XDAI}`]
                 : [],
         },
+        optimismGoerli: {
+            url: "https://goerli.optimism.io",
+            gasPrice: "auto",
+            accounts: process.env.PRIVATE_KEY_OPTIMISM_GOERLI
+                ? [`${process.env.PRIVATE_KEY_OPTIMISM_GOERLI}`]
+                : [],
+        },
     },
     gasReporter: {
         currency: "USD",
@@ -135,7 +142,20 @@ const config: HardhatUserConfig = {
         enabled: !!process.env.REPORT_GAS,
     },
     etherscan: {
-        apiKey: `${process.env.ETHERSCAN_API_KEY}`,
+        apiKey: {
+            mainnet: process.env.ETHERSCAN_API_KEY as string,
+            optimismGoerli: "X6BZF2Y2JQKN5YFT3XZ9W1DB8TGFSCX6E2",
+        },
+        customChains: [
+            {
+                network: "optimismGoerli",
+                chainId: 420,
+                urls: {
+                    apiURL: "https://api-goerli-optimism.etherscan.io/api",
+                    browserURL: "https://goerli-optimism.etherscan.io",
+                },
+            },
+        ],
     },
 };
 
