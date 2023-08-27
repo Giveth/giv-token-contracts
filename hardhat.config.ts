@@ -138,8 +138,8 @@ const config: HardhatUserConfig = {
         optimismMainnet: {
             url: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             gasPrice: "auto",
-            accounts: process.env.PRIVATE_KEY
-                ? [`${process.env.PRIVATE_KEY}`]
+            accounts: process.env.PRIVATE_KEY_OPTIMISM_MAINNET
+                ? [`${process.env.PRIVATE_KEY_OPTIMISM_MAINNET}`]
                 : [],
         },
     },
