@@ -142,10 +142,11 @@ const config: HardhatUserConfig = {
         enabled: !!process.env.REPORT_GAS,
     },
     etherscan: {
-        apiKey: {
-            mainnet: process.env.ETHERSCAN_API_KEY as string,
-            optimismGoerli: "X6BZF2Y2JQKN5YFT3XZ9W1DB8TGFSCX6E2",
-        },
+        // apiKey: {
+        //     mainnet: process.env.ETHERSCAN_API_KEY as string,
+        //     optimismGoerli: "X6BZF2Y2JQKN5YFT3XZ9W1DB8TGFSCX6E2",
+        // },
+        apiKey: `${process.env.ETHERSCAN_API_KEY}`,
         customChains: [
             {
                 network: "optimismGoerli",
