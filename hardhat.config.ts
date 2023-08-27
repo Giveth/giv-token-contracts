@@ -147,16 +147,16 @@ const config: HardhatUserConfig = {
         //     optimismGoerli: "X6BZF2Y2JQKN5YFT3XZ9W1DB8TGFSCX6E2",
         // },
         apiKey: `${process.env.ETHERSCAN_API_KEY}`,
-        customChains: [
-            {
-                network: "optimismGoerli",
-                chainId: 420,
-                urls: {
-                    apiURL: "https://api-goerli-optimism.etherscan.io/api",
-                    browserURL: "https://goerli-optimism.etherscan.io",
-                },
-            },
-        ],
+        // customChains: [
+        //     {
+        //         network: "optimismGoerli",
+        //         chainId: 420,
+        //         urls: {
+        //             apiURL: "https://api-goerli-optimism.etherscan.io/api",
+        //             browserURL: "https://goerli-optimism.etherscan.io",
+        //         },
+        //     },
+        // ],
     },
 };
 
