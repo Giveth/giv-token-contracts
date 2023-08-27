@@ -8,14 +8,16 @@ const pools = [
         address: "0x632AC305ed88817480d12155A7F1244cC182C298",
 
         // https://docs.google.com/spreadsheets/d/14kj7eIJg_hTf8BwVoGvPEWAo2Z6O18lA2bd1jOGZaNc/edit#gid=1038166692
-        amount: "622000",
-    },
+        // Total amount of reward is 13_000_000, 10% of that is 1_300_000 for Optimism
+        amount: "1300000",
+    }, // Garden Unipool
 ];
 
 // Two decimals of precision -> 1558 = 15.58
-const distro = [0, 0, 0, 0, 0, 0, 0, 0, 1558, 1601, 1645, 1688, 1732, 17.77];
+const distro = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 787, 808, 828, 850];
 
-const initTime = 1681840800; // Timestamp of first round in seconds: Tuesday, April 18, 2023 18:00:00 GMT
+// One week before production initTime
+const initTime = 1681840800 - 7 * 24 * 3600; // Timestamp of first round in seconds: Tuesday, April 11, 2023 18:00:00 GMT
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
