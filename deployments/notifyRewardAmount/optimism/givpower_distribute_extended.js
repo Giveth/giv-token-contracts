@@ -8,12 +8,13 @@ const pools = [
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
 
         // https://docs.google.com/spreadsheets/d/14kj7eIJg_hTf8BwVoGvPEWAo2Z6O18lA2bd1jOGZaNc/edit#gid=1038166692
-        amount: "425500",
+        // Total amount of reward is 13_000_000, 10% of that is 1_300_000 for Optimism
+        amount: "1300000",
     }, // Garden Unipool
 ];
 
 // Two decimals of precision -> 1558 = 15.58
-const distro = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2404, 2468, 2531, 2597];
+const distro = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 787, 808, 828, 850];
 
 const initTime = 1681840800; // Timestamp of first round in seconds: Tuesday, April 18, 2023 18:00:00 GMT
 
