@@ -8,12 +8,12 @@ const pools = [
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
 
         // https://docs.google.com/spreadsheets/d/14kj7eIJg_hTf8BwVoGvPEWAo2Z6O18lA2bd1jOGZaNc/edit#gid=1038166692
-        amount: "622000",
+        amount: "425500",
     }, // Garden Unipool
 ];
 
 // Two decimals of precision -> 1558 = 15.58
-const distro = [0, 0, 0, 0, 0, 0, 0, 0, 1558, 1601, 1645, 1688, 1732, 17.77];
+const distro = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2404, 2468, 2531, 2597];
 
 const initTime = 1681840800; // Timestamp of first round in seconds: Tuesday, April 18, 2023 18:00:00 GMT
 
