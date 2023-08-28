@@ -125,6 +125,13 @@ const config: HardhatUserConfig = {
                 ? [`${process.env.PRIVATE_KEY_XDAI}`]
                 : [],
         },
+        optimismGoerli: {
+            url: "https://goerli.optimism.io",
+            gasPrice: "auto",
+            accounts: process.env.PRIVATE_KEY_OPTIMISM_GOERLI
+                ? [`${process.env.PRIVATE_KEY_OPTIMISM_GOERLI}`]
+                : [],
+        },
     },
     gasReporter: {
         currency: "USD",
