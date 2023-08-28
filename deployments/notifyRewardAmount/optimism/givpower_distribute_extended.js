@@ -5,7 +5,7 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
+        address: "0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7",
 
         // https://docs.google.com/spreadsheets/d/14kj7eIJg_hTf8BwVoGvPEWAo2Z6O18lA2bd1jOGZaNc/edit#gid=1038166692
         // Total amount of reward is 13_000_000, 10% of that is 1_300_000 for Optimism
