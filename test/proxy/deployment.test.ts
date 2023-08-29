@@ -13,6 +13,10 @@ const upgradeText = "OK";
 const testAddress = "0x000000000000000000000000000000000000dEaD";
 const testVal = toBytes32("0xdead");
 
+// Constants:
+const BATCHER_ROLE =
+    "0xeccb356c360bf90186ea17a138ef77420582d0f2a31f7c029d6ae4c3a7c2e186";
+
 // Values for TokenDistro state after initialization:
 const totalAmount = toWei("200000");
 const initialPercentage = 500;
@@ -110,6 +114,18 @@ const contractsToTest = [
         beforeUpgrade: async (contractInstance: Contract) => {
             await contractInstance.setRewardDistribution(testAddress);
         },
+    },
+    {
+        name: "GIVBacksRelayer",
+        initParams: [
+            testAddress, // tokenDistroContract
+            testAddress, // batcher
+        ],
+        upgradeCheckParams: [
+            BATCHER_ROLE, // BATCHER_ROLE
+            testAddress, // tokenDistroContract
+            BigNumber.from(0), // nonce
+        ],
     },
 ];
 
