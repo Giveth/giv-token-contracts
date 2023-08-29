@@ -126,7 +126,7 @@ const config: HardhatUserConfig = {
                 : [],
         },
         optimismGoerli: {
-            url: "https://goerli.optimism.io",
+            url: `https://optimism-goerli.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             gasPrice: "auto",
             accounts: process.env.PRIVATE_KEY_OPTIMISM_GOERLI
                 ? [`${process.env.PRIVATE_KEY_OPTIMISM_GOERLI}`]
