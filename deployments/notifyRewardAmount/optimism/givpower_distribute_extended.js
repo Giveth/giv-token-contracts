@@ -5,17 +5,16 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
+        address: "0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7",
 
-        // 1,300,000 * 90% (we send other 10 percent in OP) = 1,170,000 https://github.com/Giveth/giveth-dapps-v2/issues/2988
-        amount: "11700000",
+        // https://docs.google.com/spreadsheets/d/14kj7eIJg_hTf8BwVoGvPEWAo2Z6O18lA2bd1jOGZaNc/edit#gid=1038166692
+        // Total amount of reward is 13_000_000, 10% of that is 1_300_000 for Optimism
+        amount: "1300000",
     }, // Garden Unipool
 ];
 
-// Two decimals of precision -> 760 = 7.60
-const distro = [
-    579, 600, 621, 642, 662, 683, 704, 725, 745, 766, 787, 808, 828, 850,
-];
+// Two decimals of precision -> 1558 = 15.58
+const distro = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 787, 808, 828, 850];
 
 const initTime = 1681840800; // Timestamp of first round in seconds: Tuesday, April 18, 2023 18:00:00 GMT
 
@@ -42,6 +41,7 @@ async function notifyRewardAmount(pool) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
         if (pos < 0) return;
+        if (distro[pos] === 0) return;
         const amount = ethers.utils
             .parseEther(pool.amount)
             .mul(distro[pos])
@@ -59,10 +59,10 @@ async function notifyRewardAmount(pool) {
         console.log("tx:", tx);
         await sendReportEmail({
             farm: "Giv power",
-            network: "Gnosis",
+            network: "Optimisim mainnet",
             pool: pool.address,
             round: pos + 1,
-            script: "givpower_distribute.js",
+            script: "givpower_distribute_extended.js",
             transactionHash: tx.transactionHash,
             amount,
         });

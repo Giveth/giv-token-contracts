@@ -135,6 +135,13 @@ const config: HardhatUserConfig = {
                 ? [`${process.env.PRIVATE_KEY_OPTIMISM_GOERLI}`]
                 : [],
         },
+        optimismMainnet: {
+            url: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+            gasPrice: "auto",
+            accounts: process.env.PRIVATE_KEY_OPTIMISM_MAINNET
+                ? [`${process.env.PRIVATE_KEY_OPTIMISM_MAINNET}`]
+                : [],
+        },
     },
     gasReporter: {
         currency: "USD",
