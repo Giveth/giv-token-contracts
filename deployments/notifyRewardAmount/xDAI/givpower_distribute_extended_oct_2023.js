@@ -22,6 +22,9 @@ const initTime = 1698775200; // Timestamp of first round in seconds: Tuesday, OC
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
     try {
+        console.log("Trying to call notifyRewardAmount...", {
+            date: new Date().toString(),
+        });
         currentTime = Math.floor(Date.now() / 1000);
         const [signer, ...addrs] = await ethers.getSigners();
         nonce = await signer.getTransactionCount();
