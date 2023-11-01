@@ -8,7 +8,7 @@ const pools = [
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
 
         // https://github.com/Giveth/giveth-dapps-v2/issues/3402
-        amount: " 9375000",
+        amount: "9375000",
     }, // Garden Unipool
 ];
 
@@ -21,13 +21,18 @@ const initTime = 1698775200; // Timestamp of first round in seconds: Tuesday, OC
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
-    currentTime = Math.floor(Date.now() / 1000);
-    const [signer, ...addrs] = await ethers.getSigners();
-    nonce = await signer.getTransactionCount();
-    UnipoolTokenDistributor = await ethers.getContractFactory(
-        "UnipoolTokenDistributor",
-    );
-    await notifyRewardAmount(pools[0]);
+    try {
+        currentTime = Math.floor(Date.now() / 1000);
+        const [signer, ...addrs] = await ethers.getSigners();
+        nonce = await signer.getTransactionCount();
+        UnipoolTokenDistributor = await ethers.getContractFactory(
+            "UnipoolTokenDistributor",
+        );
+        await notifyRewardAmount(pools[0]);
+    } catch (e) {
+        console.log("error when calling notifyRewardAmount:", e);
+        throw e;
+    }
 }
 
 async function notifyRewardAmount(pool) {
