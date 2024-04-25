@@ -14,7 +14,7 @@ const pools = [
 
 // Two decimals of precision -> 615 = 6.15
 const distro = [
-    665, 673, 680, 688, 695, 702, 711, 718, 726, 733, 741, 748, 756, 764
+    665, 673, 680, 688, 695, 702, 711, 718, 726, 733, 741, 748, 756, 764,
 ];
 
 const initTime = 1714500000; // Timestamp of first round in seconds: Tuesday, APR 30, 2024 18:00:00 GMT

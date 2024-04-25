@@ -12,11 +12,16 @@ import "../Interfaces/IDistroModified.sol";
  * The distributor is in charge of releasing the corresponding amounts to its recipients.
  * This distributor is expected to be another smart contract, such as a merkledrop or the liquidity mining smart contract
  */
-contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgradeable {
+contract TokenDistroV1 is
+    Initializable,
+    IDistro,
+    AccessControlEnumerableUpgradeable
+{
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
-    bytes32 public constant DISTRIBUTOR_ROLE = 0xfbd454f36a7e1a388bd6fc3ab10d434aa4578f811acbbcf33afb1c697486313c;
+    bytes32 public constant DISTRIBUTOR_ROLE =
+        0xfbd454f36a7e1a388bd6fc3ab10d434aa4578f811acbbcf33afb1c697486313c;
 
     // Structure to of the accounting for each account
     struct accountStatus {
@@ -52,9 +57,15 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
     event DurationChanged(uint256 newDuration);
 
     modifier onlyDistributor() {
-        require(hasRole(DISTRIBUTOR_ROLE, msg.sender), 'TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE');
+        require(
+            hasRole(DISTRIBUTOR_ROLE, msg.sender),
+            "TokenDistro::onlyDistributor: ONLY_DISTRIBUTOR_ROLE"
+        );
 
-        require(balances[msg.sender].claimed == 0, 'TokenDistro::onlyDistributor: DISTRIBUTOR_CANNOT_CLAIM');
+        require(
+            balances[msg.sender].claimed == 0,
+            "TokenDistro::onlyDistributor: DISTRIBUTOR_CANNOT_CLAIM"
+        );
         _;
     }
 
@@ -79,8 +90,14 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
         IERC20Upgradeable _token,
         bool _cancelable
     ) public initializer {
-        require(_duration >= _cliffPeriod, 'TokenDistro::constructor: DURATION_LESS_THAN_CLIFF');
-        require(_initialPercentage <= 10000, 'TokenDistro::constructor: INITIALPERCENTAGE_GREATER_THAN_100');
+        require(
+            _duration >= _cliffPeriod,
+            "TokenDistro::constructor: DURATION_LESS_THAN_CLIFF"
+        );
+        require(
+            _initialPercentage <= 10000,
+            "TokenDistro::constructor: INITIALPERCENTAGE_GREATER_THAN_100"
+        );
         __AccessControlEnumerable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
@@ -105,10 +122,13 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      *
      */
     function setStartTime(uint256 newStartTime) external override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), 'TokenDistro::setStartTime: ONLY_ADMIN_ROLE');
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::setStartTime: ONLY_ADMIN_ROLE"
+        );
         require(
             startTime > getTimestamp() && newStartTime > getTimestamp(),
-            'TokenDistro::setStartTime: IF_HAS_NOT_STARTED_YET'
+            "TokenDistro::setStartTime: IF_HAS_NOT_STARTED_YET"
         );
 
         uint256 _cliffPeriod = cliffTime - startTime;
@@ -128,11 +148,21 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      *
      */
     function assign(address distributor, uint256 amount) external override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), 'TokenDistro::assign: ONLY_ADMIN_ROLE');
-        require(hasRole(DISTRIBUTOR_ROLE, distributor), 'TokenDistro::assign: ONLY_TO_DISTRIBUTOR_ROLE');
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::assign: ONLY_ADMIN_ROLE"
+        );
+        require(
+            hasRole(DISTRIBUTOR_ROLE, distributor),
+            "TokenDistro::assign: ONLY_TO_DISTRIBUTOR_ROLE"
+        );
 
-        balances[address(this)].allocatedTokens = balances[address(this)].allocatedTokens - amount;
-        balances[distributor].allocatedTokens = balances[distributor].allocatedTokens + amount;
+        balances[address(this)].allocatedTokens =
+            balances[address(this)].allocatedTokens -
+            amount;
+        balances[distributor].allocatedTokens =
+            balances[distributor].allocatedTokens +
+            amount;
 
         emit Assign(msg.sender, distributor, amount);
     }
@@ -169,11 +199,22 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      * Emits a {Allocate} event.
      *
      */
-    function _allocate(address recipient, uint256 amount, bool claim) internal {
-        require(!hasRole(DISTRIBUTOR_ROLE, recipient), 'TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT');
-        balances[msg.sender].allocatedTokens = balances[msg.sender].allocatedTokens - amount;
+    function _allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) internal {
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, recipient),
+            "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT"
+        );
+        balances[msg.sender].allocatedTokens =
+            balances[msg.sender].allocatedTokens -
+            amount;
 
-        balances[recipient].allocatedTokens = balances[recipient].allocatedTokens + amount;
+        balances[recipient].allocatedTokens =
+            balances[recipient].allocatedTokens +
+            amount;
 
         if (claim && claimableNow(recipient) > 0) {
             _claim(recipient);
@@ -182,7 +223,11 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
         emit Allocate(msg.sender, recipient, amount);
     }
 
-    function allocate(address recipient, uint256 amount, bool claim) external override onlyDistributor {
+    function allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) external override onlyDistributor {
         _allocate(recipient, amount, claim);
     }
 
@@ -194,25 +239,40 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      *
      * Unlike allocate method it doesn't claim recipients available balance
      */
-    function _allocateMany(address[] memory recipients, uint256[] memory amounts) internal onlyDistributor {
+    function _allocateMany(
+        address[] memory recipients,
+        uint256[] memory amounts
+    ) internal onlyDistributor {
         uint256 length = recipients.length;
-        require(length == amounts.length, 'TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH');
+        require(
+            length == amounts.length,
+            "TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH"
+        );
 
         for (uint256 i = 0; i < length; i++) {
             _allocate(recipients[i], amounts[i], false);
         }
     }
 
-    function allocateMany(address[] memory recipients, uint256[] memory amounts) external override {
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external
+        override
+    {
         _allocateMany(recipients, amounts);
     }
 
-    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts) external override {
+    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts)
+        external
+        override
+    {
         _allocateMany(recipients, amounts);
         emit GivBackPaid(msg.sender);
     }
 
-    function sendPraiseRewards(address[] memory recipients, uint256[] memory amounts) external override {
+    function sendPraiseRewards(
+        address[] memory recipients,
+        uint256[] memory amounts
+    ) external override {
         _allocateMany(recipients, amounts);
         emit PraiseRewardPaid(msg.sender);
     }
@@ -241,7 +301,12 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      * @param timestamp Unix time to check the number of tokens claimable
      * @return Number of tokens claimable at that timestamp
      */
-    function globallyClaimableAt(uint256 timestamp) public view override returns (uint256) {
+    function globallyClaimableAt(uint256 timestamp)
+        public
+        view
+        override
+        returns (uint256)
+    {
         if (timestamp < startTime) return 0;
         if (timestamp < cliffTime) return initialAmount;
         if (timestamp > startTime + duration) return totalTokens;
@@ -255,10 +320,22 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      * @param recipient account to query
      * @param timestamp Instant of time in which the calculation is made
      */
-    function claimableAt(address recipient, uint256 timestamp) public view override returns (uint256) {
-        require(!hasRole(DISTRIBUTOR_ROLE, recipient), 'TokenDistro::claimableAt: DISTRIBUTOR_ROLE_CANNOT_CLAIM');
-        require(timestamp >= getTimestamp(), 'TokenDistro::claimableAt: NOT_VALID_PAST_TIMESTAMP');
-        uint256 unlockedAmount = (globallyClaimableAt(timestamp) * balances[recipient].allocatedTokens) / totalTokens;
+    function claimableAt(address recipient, uint256 timestamp)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, recipient),
+            "TokenDistro::claimableAt: DISTRIBUTOR_ROLE_CANNOT_CLAIM"
+        );
+        require(
+            timestamp >= getTimestamp(),
+            "TokenDistro::claimableAt: NOT_VALID_PAST_TIMESTAMP"
+        );
+        uint256 unlockedAmount = (globallyClaimableAt(timestamp) *
+            balances[recipient].allocatedTokens) / totalTokens;
 
         return unlockedAmount - balances[recipient].claimed;
     }
@@ -267,7 +344,12 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      * Function to get the unlocked tokens for a specific address. It uses the current timestamp
      * @param recipient account to query
      */
-    function claimableNow(address recipient) public view override returns (uint256) {
+    function claimableNow(address recipient)
+        public
+        view
+        override
+        returns (uint256)
+    {
         return claimableAt(recipient, getTimestamp());
     }
 
@@ -280,10 +362,16 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      *
      * Formerly called cancelAllocation, this is an admin only function and should only be called manually
      */
-    function transferAllocation(address prevRecipient, address newRecipient) external override {
-        require(cancelable, 'TokenDistro::transferAllocation: NOT_CANCELABLE');
+    function transferAllocation(address prevRecipient, address newRecipient)
+        external
+        override
+    {
+        require(cancelable, "TokenDistro::transferAllocation: NOT_CANCELABLE");
 
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), 'TokenDistro::transferAllocation: ONLY_ADMIN_ROLE');
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::transferAllocation: ONLY_ADMIN_ROLE"
+        );
         _transferAllocation(prevRecipient, newRecipient);
     }
 
@@ -296,9 +384,14 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
     function _claim(address recipient) private {
         uint256 remainingToClaim = claimableNow(recipient);
 
-        require(remainingToClaim > 0, 'TokenDistro::claim: NOT_ENOUGH_TOKENS_TO_CLAIM');
+        require(
+            remainingToClaim > 0,
+            "TokenDistro::claim: NOT_ENOUGH_TOKENS_TO_CLAIM"
+        );
 
-        balances[recipient].claimed = balances[recipient].claimed + remainingToClaim;
+        balances[recipient].claimed =
+            balances[recipient].claimed +
+            remainingToClaim;
 
         token.safeTransfer(recipient, remainingToClaim);
 
@@ -309,29 +402,42 @@ contract TokenDistroV1 is Initializable, IDistro, AccessControlEnumerableUpgrade
      * Function to change the duration
      */
     function setDuration(uint256 newDuration) public {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), 'TokenDistro::setDuration: ONLY_ADMIN_ROLE');
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "TokenDistro::setDuration: ONLY_ADMIN_ROLE"
+        );
 
-        require(startTime > getTimestamp(), 'TokenDistro::setDuration: IF_HAS_NOT_STARTED_YET');
+        require(
+            startTime > getTimestamp(),
+            "TokenDistro::setDuration: IF_HAS_NOT_STARTED_YET"
+        );
 
         duration = newDuration;
 
         emit DurationChanged(newDuration);
     }
 
-    function _transferAllocation(address prevRecipient, address newRecipient) internal {
+    function _transferAllocation(address prevRecipient, address newRecipient)
+        internal
+    {
         require(
-            balances[prevRecipient].allocatedTokens > 0, 'TokenDistro::transferAllocation: NO_ALLOCATION_TO_TRANSFER'
+            balances[prevRecipient].allocatedTokens > 0,
+            "TokenDistro::transferAllocation: NO_ALLOCATION_TO_TRANSFER"
         );
         require(
-            !hasRole(DISTRIBUTOR_ROLE, prevRecipient) && !hasRole(DISTRIBUTOR_ROLE, newRecipient),
-            'TokenDistro::transferAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS'
+            !hasRole(DISTRIBUTOR_ROLE, prevRecipient) &&
+                !hasRole(DISTRIBUTOR_ROLE, newRecipient),
+            "TokenDistro::transferAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
         );
         // balance adds instead of overwrites
         balances[newRecipient].allocatedTokens =
-            balances[prevRecipient].allocatedTokens + balances[newRecipient].allocatedTokens;
+            balances[prevRecipient].allocatedTokens +
+            balances[newRecipient].allocatedTokens;
         balances[prevRecipient].allocatedTokens = 0;
 
-        balances[newRecipient].claimed = balances[prevRecipient].claimed + balances[newRecipient].claimed;
+        balances[newRecipient].claimed =
+            balances[prevRecipient].claimed +
+            balances[newRecipient].claimed;
 
         balances[prevRecipient].claimed = 0;
 
