@@ -17,7 +17,7 @@ const distro = [
     665, 673, 680, 688, 695, 702, 711, 718, 726, 733, 741, 748, 756, 764,
 ];
 
-const initTime = 1714500000; // Timestamp of first round in seconds: Tuesday, APR 30, 2024 18:00:00 GMT
+const initTime = 1715709600; // Timestamp of first round in seconds: Tuesday, MAY 14, 2024 18:00:00 GMT
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
