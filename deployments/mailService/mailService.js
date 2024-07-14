@@ -39,7 +39,6 @@ const sendReportEmail = async ({
             sendEmail: true,
             sendSegment: true,
             eventName: "Notify reward amount",
-            trackId: "",
             metadata: null,
             creationTime: Date.now(),
             segment: {
