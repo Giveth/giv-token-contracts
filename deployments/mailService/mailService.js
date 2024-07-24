@@ -46,7 +46,7 @@ const sendReportEmail = async ({
             },
         };
         const promises = givethDevMailList.split(",").map((recipient) => {
-            data.email = recipient;
+            data.segment.payload.email = recipient;
             return sendNotification(data);
         });
         return (await Promise.all(promises)).map((response) => response.data);
