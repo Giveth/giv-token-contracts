@@ -142,6 +142,13 @@ const config: HardhatUserConfig = {
                 ? [`${process.env.PRIVATE_KEY_OPTIMISM_MAINNET}`]
                 : [],
         },
+        zkEVM: {
+            url: `https://zkevm-rpc.com`,
+            gasPrice: "auto",
+            accounts: process.env.PRIVATE_KEY_ZKEVM
+                ? [`${process.env.PRIVATE_KEY_ZKEVM}`]
+                : [],
+        },
     },
     gasReporter: {
         currency: "USD",
