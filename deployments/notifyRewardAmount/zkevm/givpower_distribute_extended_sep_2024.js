@@ -13,11 +13,9 @@ const pools = [
 ];
 
 // Two decimals of precision -> 615 = 6.15
-const distro = [
-    1959, 1980, 1999, 2020, 2042,
-];
+const distro = [1959, 1980, 1999, 2020, 2042];
 
-const initTime = 1725386400; // Timestamp of first round in seconds: Tuesday, SEP 3, 2024 18:00:00 GMT
+const initTime = 1725375600; // Timestamp of first round in seconds: Tuesday, SEP 3, 2024 15:00:00 GMT
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
