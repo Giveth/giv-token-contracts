@@ -39,7 +39,7 @@ async function notifyRewardAmount(pool) {
     const duration = await unipoolTokenDistributor.duration();
 
     // 4 hours of precision
-    if (periodFinish < currentTime + 60 * 60 * 4) {
+    if (periodFinish < currentTime + 60 * 60 * 24) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
         if (pos < 0) return;
