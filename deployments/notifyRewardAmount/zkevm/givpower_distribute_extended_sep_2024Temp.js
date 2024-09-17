@@ -5,10 +5,10 @@ const { ethers } = hre;
 
 const pools = [
     {
-        address: "0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7",
+        address: "0xc790f82bf6f8709aa4a56dc11afad7af7c2a9867",
 
         // https://github.com/Giveth/giveth-dapps-v2/issues/4434
-        amount: "1510975",
+        amount: "159050",
     }, // Garden Unipool
 ];
 
@@ -38,8 +38,8 @@ async function notifyRewardAmount(pool) {
     const periodFinish = await unipoolTokenDistributor.periodFinish();
     const duration = await unipoolTokenDistributor.duration();
 
-    // 10 minutes of precision
-    if (periodFinish < currentTime + 60 * 10) {
+    // 24 hours of precision
+    if (periodFinish < currentTime + 60 * 60 * 24) {
         const pos = Math.floor((currentTime - initTime) / duration);
         console.log("pos:", pos);
         if (pos < 0) return;
@@ -61,7 +61,7 @@ async function notifyRewardAmount(pool) {
         console.log("tx:", tx);
         await sendReportEmail({
             farm: "Giv power",
-            network: "Optimisim mainnet",
+            network: "ZKEVM mainnet",
             pool: pool.address,
             round: pos + 1,
             script: "givpower_distribute_extended_sep_2024.js",
