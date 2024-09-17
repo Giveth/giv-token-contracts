@@ -273,11 +273,11 @@ contract TokenDistro is
      *
      */
     function changeAddress(address newAddress) external override {
-        require(
-            balances[newAddress].allocatedTokens == 0 &&
-                balances[newAddress].claimed == 0,
-            "TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE"
-        );
+        // require(
+        //     balances[newAddress].allocatedTokens == 0 &&
+        //         balances[newAddress].claimed == 0,
+        //     "TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE"
+        // );
 
         require(
             !hasRole(DISTRIBUTOR_ROLE, msg.sender) &&
@@ -285,12 +285,13 @@ contract TokenDistro is
             "TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS"
         );
 
-        balances[newAddress].allocatedTokens = balances[msg.sender]
-            .allocatedTokens;
+        uint256 prevAllocated = balances[msg.sender].allocatedTokens;
         balances[msg.sender].allocatedTokens = 0;
+        balances[newAddress].allocatedTokens += prevAllocated;
 
-        balances[newAddress].claimed = balances[msg.sender].claimed;
+        uint256 prevClaimed = balances[msg.sender].claimed;
         balances[msg.sender].claimed = 0;
+        balances[newAddress].claimed += prevClaimed;
 
         emit ChangeAddress(msg.sender, newAddress);
     }
@@ -317,8 +318,11 @@ contract TokenDistro is
         if (timestamp < cliffTime) return initialAmount;
         if (timestamp > startTime + duration) return totalTokens;
 
-        uint256 deltaTime = timestamp - startTime;
-        return initialAmount + (deltaTime * lockedAmount) / duration;
+        uint256 deltaTime = timestamp - cliffTime;
+        return
+            initialAmount +
+            (deltaTime * lockedAmount) /
+            (duration - (cliffTime - startTime));
     }
 
     /**
