@@ -103,7 +103,7 @@ all of these params are achieved in the previous steps
 
 6. Call `setRewardDistribution` on Unipool GivPower to set the wallet address which will call the `notifyRewardAmount`
 
-7. Check the address of `DISTRIBUTOR_ROLE` in tokenDistro contract https://cardona-zkevm.polygonscan.com/address/0x2df3e67be4e441cddd2d29c3d41dfd7d516f18e6#readProxyContract
+7. Check the Role ID of `DISTRIBUTOR_ROLE` in tokenDistro contract https://cardona-zkevm.polygonscan.com/address/0x2df3e67be4e441cddd2d29c3d41dfd7d516f18e6#readProxyContract
 
 8. Call `grantRole` in `tokenDistro` https://cardona-zkevm.polygonscan.com/address/0x2df3e67be4e441cddd2d29c3d41dfd7d516f18e6#writeProxyContract and grant `DISTRIBUTOR_ROLE` to givPower unipool address
 
