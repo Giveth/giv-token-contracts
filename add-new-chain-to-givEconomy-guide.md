@@ -131,6 +131,6 @@ https://github.com/Giveth/giveth-dapps-v2/pull/4562/files
 
 ## Giv unlcok bot
 1. Copy a folder of https://github.com/Giveth/givpower-bot in the server, then change config values to the new chain and bring up the docker compose, then this app will unlcok the GIVs when it's the time
-2. Make sure that the wallet address of the private key that we put in the config have enough gas fee in it
+2. Make sure that the wallet address of the private key that we put in the config has enough gas in it
 3. Sometimes some weird things can happen, for instance we had a problem on ZKEVM unlcok bot that Amin fixed that with this PR
 https://github.com/Giveth/givpower-bot/pull/8
