@@ -73,7 +73,9 @@ cardona = { key = "${ETHERSCAN_API_KEY}", url = "https://api-cardona-zkevm.polyg
 
 `forge script script/deployTokenDistro.s.sol  --rpc-url  {rpcUrl}    --verify --broadcast --legacy --chain 2442 {Desired chainId}`
 
-9. Verify contract with proxy admin in the block explorer
+9. Open the block-explorer website's smart contract page (code section) and declare it as a proxy.
+<img width="278" alt="image" src="https://github.com/user-attachments/assets/a9dec69a-04ef-4807-b528-cfb3d9ce533b">
+
 
 This is example of published `tokenDistro`: https://cardona-zkevm.polygonscan.com/address/0x2df3e67be4e441cddd2d29c3d41dfd7d516f18e6
 
