@@ -126,7 +126,7 @@ https://github.com/Giveth/giveth-dapps-v2/pull/4562/files
 ## Notify Reward Bot
 1. We have a wallet address that is in charge for this purpose, we have th private key of that address in the server, so we should make sure call`setRewardDistribution` on Unipool GivPower to set the wallet address of this private key as `reward distributor`
 2. We write a script in `giv-token-contract` to call it with crontab jobs https://github.com/Giveth/giv-token-contracts/commit/5188586beed3e0f73c7e0b9bbaf653134184a215
-3. We should transfer some monet the reward distributor address for the gas fee on the new chain that we want ( if reward distributor doesnt have gas, the no`notifyRewardAmount` tx can't be executed
+3. Transfer some gas to the reward distributor address if it doesn't have enough to make `notifyRewardAmount` transactions
 4. Setup the crontab on the server to execute this script periodically
 
 ## Giv unlcok bot
