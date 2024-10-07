@@ -118,7 +118,7 @@ all of these params are achieved in the previous steps
 3. Call the `getReward()` method in unipool givPower contract. the `result * percentage = the amount we show in harvest modal`
 
 ## Add subgraph configs
-Should add new network in https://github.com/Giveth/giveconomy-subgraph/blob/develop/networks.yaml with needed addresses (all addresses should be in the notion file)
+Should add new network in https://github.com/Giveth/giveconomy-subgraph/blob/develop/networks.yaml with corresponding addresses and start block (all addresses should be in the notion file)
 
 ## Integrate with Frontend
 You can know how to do it with looking at below PR
