@@ -97,11 +97,19 @@ all of these params are achieved in the previous steps
 2. Deploy it with foundry
 `forge script script/deployUnipoolGIVpower.s.sol  --rpc-url  {rpcUrl}   --legacy --chain 2442 --verify --broadcast`
 
-3. Verify contract with proxy admin in the block explorer
+3. Proxy admin got verified automatically, what we do tell the block explorer to look at the upgradable contract as an upgradable one (with proxy and implementation)
 
 4. We call `notifyRewardAmount` method and set some reward for the contract https://cardona-zkevm.polygonscan.com/address/0x7e9f30a74fcdf035018bc007f9930aa171863e33#writeProxyContract the `rewardDistributor` address can call it (on unipool smart contract)
 
 5. Call `transferOwnership` if it's needed
+Below items are a pre-release deployment checklist for zkevm chain integration, it can be good to look at it https://www.notion.so/giveth/Deployment-52935e6579034f1b940bbef161e82229
+- [x]  Grant Distributor Role to the Unipool GIVPower on Token Distro https://zkevm.polygonscan.com/tx/0x2f9f1bf5f06a14aced38381b2c77a7cb52ea217c94f6268d4c0fb473e99ca793
+- [x]  Set notify reward role to notify reward bot on Unipool Givpower https://zkevm.polygonscan.com/tx/0xfffb1ddb8cc09219c2fad53336788ac469b96013f43789833e39d0324d164ad6
+- [x]  Transfer Unipool GIVPower ownership to multisig https://zkevm.polygonscan.com/tx/0x87b3aa1021cedba39d61abad3b6e0b25b32bf801d33ce11770457437ed967fc4
+- [x]  Transfer Unipool GIVPower upgradability power to multisig https://zkevm.polygonscan.com/tx/0x24fe2338f04057c62552bcdda0353bf45944f0eca994bf3a59625eacc91d0926
+- [x]  Grant Admin role to Multisig on Token Distro https://zkevm.polygonscan.com/tx/0x1c1761c95f2e533b9d5417af0f2e5d5d781e7f5f3836d527fd4a43b55828439a
+- [x]  Revoke Mohammad Admin Permission On TokenDistro https://zkevm.polygonscan.com/tx/0xebdf88ecf7f6e1d8ef56c24c169c48bf0d62478732e7eb6c3f55f991282e119a
+- [x]  Transfer TokenDistro Upgradability power to Giveth Multisig https://zkevm.polygonscan.com/tx/0x24fe2338f04057c62552bcdda0353bf45944f0eca994bf3a59625eacc91d0926
 
 6. Call `setRewardDistribution` on Unipool GivPower to set the wallet address which will call the `notifyRewardAmount`
 
@@ -114,10 +122,11 @@ all of these params are achieved in the previous steps
 
 ## Test
 1. Call `stake` method in unipoolGivPower contract
-2. See the giviverse expansion percentage in https://giveth.io/givstream
+2. See the GIViverse expansion percentage in https://giveth.io/givstream
 3. Call the `getReward()` method in unipool givPower contract. the `result * percentage = the amount we show in harvest modal`
 
 ## Add subgraph configs
+
 Should add new network in https://github.com/Giveth/giveconomy-subgraph/blob/develop/networks.yaml with needed addresses (all addresses should be in the notion file)
 
 ## Integrate with Frontend
