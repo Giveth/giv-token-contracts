@@ -127,7 +127,7 @@ Below items are a pre-release deployment checklist for zkevm chain integration, 
 
 ## Add subgraph configs
 
-Should add new network in https://github.com/Giveth/giveconomy-subgraph/blob/develop/networks.yaml with needed addresses (all addresses should be in the notion file)
+Should add new network in https://github.com/Giveth/giveconomy-subgraph/blob/develop/networks.yaml with corresponding addresses and start block (all addresses should be in the notion file)
 
 ## Integrate with Frontend
 You can know how to do it with looking at below PR
