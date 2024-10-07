@@ -33,7 +33,7 @@ $ npm run generate-merkle-root
 
 Total distributed tokens: 14430863000000000000000000
 ```
-* Get merkletree root 
+* Get merkletree root
 ```
 $ cat ./files/merkle_distributor_xdai_result.json  | jq '.merkleRoot'
 "0x05176bac832b5a9cd000091d231638fe0e854801c447aae625ed2f710c026196"
@@ -42,7 +42,10 @@ $ cat ./files/merkle_distributor_xdai_result.json  | jq '.merkleRoot'
 ## Deploy
 **To select the gasPrice you need to edit the hardhat.config.ts**
 
-### xDAI 
+## Add new chain guide
+See [Add new chain to givEconomy guide](add-new-chain-to-givEconomy-guide.md)
+
+### xDAI
 ```
 /Users/amin/.nvm/versions/node/v14.17.5/bin/node /Users/amin/.nvm/versions/node/v14.17.5/lib/node_modules/npm/bin/npm-cli.js run deploy:xDAI --scripts-prepend-node-path=auto
 
@@ -361,3 +364,5 @@ tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_uni_reward.address) tr
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),giveth_bal.address) true
 tokenDistro.hasRole(tokenDistro.DISTRIBUTOR_ROLE(),unigiv.address) true
 ```
+
+
