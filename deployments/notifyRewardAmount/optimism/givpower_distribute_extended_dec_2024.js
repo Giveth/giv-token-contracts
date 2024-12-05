@@ -8,7 +8,7 @@ const pools = [
         address: "0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7",
 
         // https://github.com/Giveth/giveth-dapps-v2/issues/4434
-        amount: "3825000",
+        amount: "3584250",
     }, // Garden Unipool
 ];
 
