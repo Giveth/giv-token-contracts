@@ -1,3 +1,5 @@
+> **Note:** All the smart contracts in this repository have been moved to [https://github.com/Giveth/giveconomy-foundry](https://github.com/Giveth/giveconomy-foundry) and are maintained there. To access the most updated version of the contracts, please check out that repository.
+
 ## Install pre-requisites
 
 ```
