@@ -1,3 +1,155 @@
+# Giveth Token Contracts
+
+## 1. Project Overview
+
+### Purpose
+This repository contains the smart contracts for the Giveth token ecosystem, including token distribution, staking, and liquidity provision mechanisms. It's a core component of the Giveth platform, enabling token distribution and reward mechanisms for the GIV token.
+
+### Key Features
+- Token Distribution System
+- Merkle Tree-based Airdrop Distribution
+- Liquidity Mining Pools
+- Staking Mechanisms
+- Reward Distribution System
+
+### Live Links
+- Mainnet: [Giveth Token](https://etherscan.io/token/0x900db999074d9277c5da2a43f252d74366230da0)
+- xDAI: [Giveth Token on xDAI](https://blockscout.com/xdai/mainnet/token/0x4f4F9b8D5B4d0Dc10506e5551B0513B61fD59e75)
+
+## 2. Architecture Overview
+
+### System Diagram
+```mermaid
+graph TD
+    A[TokenDistro] --> B[MerkleDistro]
+    A --> C[Unipool]
+    A --> D[GardenUnipool]
+    B --> E[Token Distribution]
+    C --> F[Liquidity Mining]
+    D --> G[Garden Staking]
+```
+
+### Tech Stack
+- Solidity ^0.7.0
+- Hardhat
+- TypeScript
+- OpenZeppelin Contracts
+- Uniswap V3 Integration
+
+### Data Flow
+1. Token Distribution:
+   - TokenDistro contract manages overall token distribution
+   - MerkleDistro handles airdrop distribution
+   - Unipool contracts manage liquidity mining rewards
+
+2. Reward Distribution:
+   - Distributor scripts handle reward notifications
+   - Staking contracts manage user rewards
+   - Liquidity pools distribute rewards to providers
+
+## 3. Getting Started
+
+### Prerequisites
+- Node.js v14.17.5 or higher
+- Yarn package manager
+- Git
+
+### Installation Steps
+```bash
+# Clone the repository
+git clone https://github.com/Giveth/giv-token-contracts.git
+cd giv-token-contracts
+
+# Install dependencies
+yarn install
+```
+
+### Configuration
+1. Copy `.env.example` to `.env`
+2. Configure the following environment variables:
+   - `PRIVATE_KEY`: Your deployment wallet private key
+   - `INFURA_KEY`: Your Infura API key
+   - `ETHERSCAN_API_KEY`: Your Etherscan API key
+
+## 4. Usage Instructions
+
+### Running the Application
+```bash
+# Compile contracts
+yarn compile
+
+# Run tests
+yarn test
+
+# Generate merkle tree files
+yarn csv2json
+yarn generate-merkle-root
+```
+
+### Testing
+```bash
+# Run all tests
+yarn test
+
+# Run specific test file
+yarn test test/TokenDistro.test.ts
+```
+
+### Common Tasks
+- Deploy to xDAI:
+  ```bash
+  yarn deploy:xDAI
+  ```
+- Deploy to Mainnet:
+  ```bash
+  yarn deploy:mainnet
+  ```
+- Deploy to Kovan:
+  ```bash
+  yarn deploy:kovan
+  ```
+
+## 5. Deployment Process
+
+### Environments
+- Mainnet
+- xDAI
+- Kovan (Testnet)
+- Local Development
+
+### Deployment Steps
+1. Configure network parameters in `hardhat.config.ts`
+2. Set gas price and other deployment parameters
+3. Run deployment script for target network
+4. Verify contracts on block explorer
+
+### CI/CD Integration
+- GitHub Actions for automated testing
+- Automated contract verification on deployment
+- Pre-commit hooks for code formatting
+
+## 6. Troubleshooting
+
+### Common Issues
+1. **Compilation Errors**
+   - Clear cache: `yarn clear-cache`
+   - Check Solidity version compatibility
+
+2. **Deployment Failures**
+   - Verify gas price settings
+   - Check network connectivity
+   - Ensure sufficient funds in deployer account
+
+3. **Test Failures**
+   - Clear test cache
+   - Check test environment setup
+   - Verify test parameters
+
+### Logs and Debugging
+- Use Hardhat's built-in console.log
+- Check transaction receipts on block explorer
+- Monitor gas usage and transaction status
+
 ## Install pre-requisites
 
 ```
