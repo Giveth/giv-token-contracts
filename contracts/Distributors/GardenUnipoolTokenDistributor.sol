@@ -163,21 +163,19 @@ contract GardenUnipoolTokenDistributor is
                 .add(rewards[account]);
     }
 
-    function stake(address user, uint256 amount)
-        internal
-        override
-        updateReward(user)
-    {
+    function stake(
+        address user,
+        uint256 amount
+    ) internal override updateReward(user) {
         require(amount > 0, "Cannot stake 0");
         super.stake(user, amount);
         emit Staked(user, amount);
     }
 
-    function withdraw(address user, uint256 amount)
-        internal
-        override
-        updateReward(user)
-    {
+    function withdraw(
+        address user,
+        uint256 amount
+    ) internal override updateReward(user) {
         require(amount > 0, "Cannot withdraw 0");
         super.withdraw(user, amount);
         if (_balances[user] == 0) {
@@ -200,11 +198,9 @@ contract GardenUnipoolTokenDistributor is
         }
     }
 
-    function notifyRewardAmount(uint256 reward)
-        external
-        onlyRewardDistribution
-        updateReward(address(0))
-    {
+    function notifyRewardAmount(
+        uint256 reward
+    ) external onlyRewardDistribution updateReward(address(0)) {
         uint256 _timestamp = getTimestamp();
         if (_timestamp >= periodFinish) {
             rewardRate = reward.div(duration);
@@ -218,10 +214,9 @@ contract GardenUnipoolTokenDistributor is
         emit RewardAdded(reward);
     }
 
-    function setRewardDistribution(address _rewardDistribution)
-        external
-        onlyOwner
-    {
+    function setRewardDistribution(
+        address _rewardDistribution
+    ) external onlyOwner {
         rewardDistribution = _rewardDistribution;
     }
 

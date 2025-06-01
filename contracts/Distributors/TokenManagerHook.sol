@@ -9,41 +9,33 @@ pragma solidity ^0.8.6;
  */
 
 library UnstructuredStorage {
-    function getStorageBool(bytes32 position)
-        internal
-        view
-        returns (bool data)
-    {
+    function getStorageBool(
+        bytes32 position
+    ) internal view returns (bool data) {
         assembly {
             data := sload(position)
         }
     }
 
-    function getStorageAddress(bytes32 position)
-        internal
-        view
-        returns (address data)
-    {
+    function getStorageAddress(
+        bytes32 position
+    ) internal view returns (address data) {
         assembly {
             data := sload(position)
         }
     }
 
-    function getStorageBytes32(bytes32 position)
-        internal
-        view
-        returns (bytes32 data)
-    {
+    function getStorageBytes32(
+        bytes32 position
+    ) internal view returns (bytes32 data) {
         assembly {
             data := sload(position)
         }
     }
 
-    function getStorageUint256(bytes32 position)
-        internal
-        view
-        returns (uint256 data)
-    {
+    function getStorageUint256(
+        bytes32 position
+    ) internal view returns (uint256 data) {
         assembly {
             data := sload(position)
         }
@@ -128,10 +120,9 @@ contract TokenManagerHook is ReentrancyGuard, Initializable {
      * token manager address is set in the initialization.
      * @param tokenManager Token manager address
      */
-    function __TokenManagerHook_initialize(address tokenManager)
-        public
-        initializer
-    {
+    function __TokenManagerHook_initialize(
+        address tokenManager
+    ) public initializer {
         TOKEN_MANAGER_POSITION.setStorageAddress(tokenManager);
     }
 
@@ -145,11 +136,10 @@ contract TokenManagerHook is ReentrancyGuard, Initializable {
      * @param _hookId The position in which the hook is going to be called
      * @param _token The token controlled by the Token Manager
      */
-    function onRegisterAsHook(uint256 _hookId, address _token)
-        external
-        nonReentrant
-        onlyTokenManager
-    {
+    function onRegisterAsHook(
+        uint256 _hookId,
+        address _token
+    ) external nonReentrant onlyTokenManager {
         _onRegisterAsHook(msg.sender, _hookId, _token);
     }
 
@@ -158,11 +148,10 @@ contract TokenManagerHook is ReentrancyGuard, Initializable {
      * @param _hookId The position in which the hook is going to be called
      * @param _token The token controlled by the Token Manager
      */
-    function onRevokeAsHook(uint256 _hookId, address _token)
-        external
-        onlyTokenManager
-        nonReentrant
-    {
+    function onRevokeAsHook(
+        uint256 _hookId,
+        address _token
+    ) external onlyTokenManager nonReentrant {
         _onRevokeAsHook(msg.sender, _hookId, _token);
     }
 

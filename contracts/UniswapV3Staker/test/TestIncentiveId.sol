@@ -8,11 +8,9 @@ import "../libraries/IncentiveId.sol";
 
 /// @dev Test contract for IncentiveId
 contract TestIncentiveId {
-    function compute(IUniswapV3Staker.IncentiveKey memory key)
-        public
-        pure
-        returns (bytes32)
-    {
+    function compute(
+        IUniswapV3Staker.IncentiveKey memory key
+    ) public pure returns (bytes32) {
         return IncentiveId.compute(key);
     }
 }

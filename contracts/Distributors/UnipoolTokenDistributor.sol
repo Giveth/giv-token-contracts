@@ -28,10 +28,9 @@ contract LPTokenWrapper is Initializable {
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
 
-    function __LPTokenWrapper_initialize(IERC20Upgradeable _uni)
-        public
-        initializer
-    {
+    function __LPTokenWrapper_initialize(
+        IERC20Upgradeable _uni
+    ) public initializer {
         uni = _uni;
     }
 
@@ -168,11 +167,9 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         }
     }
 
-    function notifyRewardAmount(uint256 reward)
-        external
-        onlyRewardDistribution
-        updateReward(address(0))
-    {
+    function notifyRewardAmount(
+        uint256 reward
+    ) external onlyRewardDistribution updateReward(address(0)) {
         uint256 _timestamp = _getBlockTimestamp();
         if (_timestamp >= periodFinish) {
             rewardRate = reward.div(duration);
@@ -186,10 +183,9 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         emit RewardAdded(reward);
     }
 
-    function setRewardDistribution(address _rewardDistribution)
-        external
-        onlyOwner
-    {
+    function setRewardDistribution(
+        address _rewardDistribution
+    ) external onlyOwner {
         rewardDistribution = _rewardDistribution;
     }
 
@@ -198,10 +194,10 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
      * @param amount the amount to be staked, it has to match the amount that appears in the signature
      * @param permit the bytes of the signed permit function call
      */
-    function stakeWithPermit(uint256 amount, bytes calldata permit)
-        public
-        updateReward(msg.sender)
-    {
+    function stakeWithPermit(
+        uint256 amount,
+        bytes calldata permit
+    ) public updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
         // we call without checking the result, in case it fails and he doesn't have enough balance
         // the following transferFrom should be fail. This prevents DoS attacks from using a signature
@@ -227,10 +223,10 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
      * @param _amount the quantity that is expected to be allowed
      * @param _permitData the raw data of the call `permit` of the token
      */
-    function _permit(uint256 _amount, bytes calldata _permitData)
-        internal
-        returns (bool success, bytes memory returndata)
-    {
+    function _permit(
+        uint256 _amount,
+        bytes calldata _permitData
+    ) internal returns (bool success, bytes memory returndata) {
         bytes4 sig = getSelector(_permitData);
 
         if (sig == _PERMIT_SIGNATURE) {

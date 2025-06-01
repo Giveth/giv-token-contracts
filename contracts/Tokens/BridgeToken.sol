@@ -157,10 +157,10 @@ pragma solidity ^0.4.24;
  * @dev see https://github.com/ethereum/EIPs/issues/20
  */
 contract ERC20 is ERC20Basic {
-    function allowance(address _owner, address _spender)
-        public
-        view
-        returns (uint256);
+    function allowance(
+        address _owner,
+        address _spender
+    ) public view returns (uint256);
 
     function transferFrom(
         address _from,
@@ -234,11 +234,10 @@ contract StandardToken is ERC20, BasicToken {
      * @param _spender address The address which will spend the funds.
      * @return A uint256 specifying the amount of tokens still available for the spender.
      */
-    function allowance(address _owner, address _spender)
-        public
-        view
-        returns (uint256)
-    {
+    function allowance(
+        address _owner,
+        address _spender
+    ) public view returns (uint256) {
         return allowed[_owner][_spender];
     }
 
@@ -251,10 +250,10 @@ contract StandardToken is ERC20, BasicToken {
      * @param _spender The address which will spend the funds.
      * @param _addedValue The amount of tokens to increase the allowance by.
      */
-    function increaseApproval(address _spender, uint256 _addedValue)
-        public
-        returns (bool)
-    {
+    function increaseApproval(
+        address _spender,
+        uint256 _addedValue
+    ) public returns (bool) {
         allowed[msg.sender][_spender] = (
             allowed[msg.sender][_spender].add(_addedValue)
         );
@@ -271,10 +270,10 @@ contract StandardToken is ERC20, BasicToken {
      * @param _spender The address which will spend the funds.
      * @param _subtractedValue The amount of tokens to decrease the allowance by.
      */
-    function decreaseApproval(address _spender, uint256 _subtractedValue)
-        public
-        returns (bool)
-    {
+    function decreaseApproval(
+        address _spender,
+        uint256 _subtractedValue
+    ) public returns (bool) {
         uint256 oldValue = allowed[msg.sender][_spender];
         if (_subtractedValue >= oldValue) {
             allowed[msg.sender][_spender] = 0;
@@ -381,12 +380,10 @@ contract MintableToken is StandardToken, Ownable {
      * @param _amount The amount of tokens to mint.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mint(address _to, uint256 _amount)
-        public
-        hasMintPermission
-        canMint
-        returns (bool)
-    {
+    function mint(
+        address _to,
+        uint256 _amount
+    ) public hasMintPermission canMint returns (bool) {
         totalSupply_ = totalSupply_.add(_amount);
         balances[_to] = balances[_to].add(_amount);
         emit Mint(_to, _amount);
@@ -420,11 +417,7 @@ contract DetailedERC20 is ERC20 {
     string public symbol;
     uint8 public decimals;
 
-    constructor(
-        string _name,
-        string _symbol,
-        uint8 _decimals
-    ) public {
+    constructor(string _name, string _symbol, uint8 _decimals) public {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
@@ -474,19 +467,17 @@ contract ERC677 is ERC20 {
         bytes data
     );
 
-    function transferAndCall(
-        address,
-        uint256,
-        bytes
-    ) external returns (bool);
+    function transferAndCall(address, uint256, bytes) external returns (bool);
 
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        returns (bool);
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public returns (bool);
 
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        returns (bool);
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) public returns (bool);
 }
 
 // File: contracts/interfaces/IBurnableMintableERC677Token.sol
@@ -659,19 +650,15 @@ contract ERC677BridgeToken is
     function getTokenInterfacesVersion()
         external
         pure
-        returns (
-            uint64 major,
-            uint64 minor,
-            uint64 patch
-        )
+        returns (uint64 major, uint64 minor, uint64 patch)
     {
         return (2, 2, 0);
     }
 
-    function superTransfer(address _to, uint256 _value)
-        internal
-        returns (bool)
-    {
+    function superTransfer(
+        address _to,
+        uint256 _value
+    ) internal returns (bool) {
         return super.transfer(_to, _value);
     }
 
@@ -736,25 +723,24 @@ contract ERC677BridgeToken is
         revert();
     }
 
-    function claimTokens(address _token, address _to)
-        public
-        onlyOwner
-        validAddress(_to)
-    {
+    function claimTokens(
+        address _token,
+        address _to
+    ) public onlyOwner validAddress(_to) {
         claimValues(_token, _to);
     }
 
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        returns (bool)
-    {
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public returns (bool) {
         return super.increaseApproval(spender, addedValue);
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        returns (bool)
-    {
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) public returns (bool) {
         return super.decreaseApproval(spender, subtractedValue);
     }
 }
@@ -863,11 +849,7 @@ contract PermittableToken is ERC677BridgeToken {
     /// @param _from The address of the sender.
     /// @param _to The address of the recipient.
     /// @param _amount The value to transfer.
-    function move(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) public {
+    function move(address _from, address _to, uint256 _amount) public {
         transferFrom(_from, _to, _amount);
     }
 
@@ -933,11 +915,7 @@ contract PermittableToken is ERC677BridgeToken {
     function getTokenInterfacesVersion()
         external
         pure
-        returns (
-            uint64 major,
-            uint64 minor,
-            uint64 patch
-        )
+        returns (uint64 major, uint64 minor, uint64 patch)
     {
         return (2, 3, 0);
     }
