@@ -24,10 +24,10 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
-                  cache: "npm"
+                  cache: "yarn"
             - name: setup
-              run: npm ci
+              run: yarn
             - name: compile
-              run: npm run compile
+              run: yarn compile
             - name: test
-              run: npm test
+              run: yarn test

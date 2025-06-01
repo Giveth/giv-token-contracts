@@ -47,9 +47,7 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @return totalRewardUnclaimed The amount of reward token not yet claimed by users
     /// @return totalSecondsClaimedX128 Total liquidity-seconds claimed, represented as a UQ32.128
     /// @return numberOfStakes The count of deposits that are currently staked for the incentive
-    function incentives(
-        bytes32 incentiveId
-    )
+    function incentives(bytes32 incentiveId)
         external
         view
         returns (
@@ -63,9 +61,7 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @return numberOfStakes Counter of how many incentives for which the liquidity is staked
     /// @return tickLower The lower tick of the range
     /// @return tickUpper The upper tick of the range
-    function deposits(
-        uint256 tokenId
-    )
+    function deposits(uint256 tokenId)
         external
         view
         returns (
@@ -80,10 +76,7 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @param incentiveId The ID of the incentive for which the token is staked
     /// @return secondsPerLiquidityInsideInitialX128 secondsPerLiquidity represented as a UQ32.128
     /// @return liquidity The amount of liquidity in the NFT as of the last time the rewards were computed
-    function stakes(
-        uint256 tokenId,
-        bytes32 incentiveId
-    )
+    function stakes(uint256 tokenId, bytes32 incentiveId)
         external
         view
         returns (
@@ -95,10 +88,10 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @param rewardToken The token for which to check rewards
     /// @param owner The owner for which the rewards owed are checked
     /// @return rewardsOwed The amount of the reward token claimable by the owner
-    function rewards(
-        IERC20Minimal rewardToken,
-        address owner
-    ) external view returns (uint256 rewardsOwed);
+    function rewards(IERC20Minimal rewardToken, address owner)
+        external
+        view
+        returns (uint256 rewardsOwed);
 
     /// @notice Creates a new liquidity mining incentive program
     /// @param key Details of the incentive to create
@@ -108,9 +101,9 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @notice Ends an incentive after the incentive end time has passed and all stakes have been withdrawn
     /// @param key Details of the incentive to end
     /// @return refund The remaining reward tokens when the incentive is ended
-    function endIncentive(
-        IncentiveKey memory key
-    ) external returns (uint256 refund);
+    function endIncentive(IncentiveKey memory key)
+        external
+        returns (uint256 refund);
 
     /// @notice Transfers ownership of a deposit from the sender to the given recipient
     /// @param tokenId The ID of the token (and the deposit) to transfer
@@ -152,10 +145,9 @@ interface IUniswapV3Staker is IERC721Receiver, IMulticall {
     /// @param key The key of the incentive
     /// @param tokenId The ID of the token
     /// @return reward The reward accrued to the NFT for the given incentive thus far
-    function getRewardInfo(
-        IncentiveKey memory key,
-        uint256 tokenId
-    ) external returns (uint256 reward, uint160 secondsInsideX128);
+    function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
+        external
+        returns (uint256 reward, uint160 secondsInsideX128);
 
     /// @notice Event emitted when a liquidity mining incentive has been created
     /// @param rewardToken The token being distributed as a reward

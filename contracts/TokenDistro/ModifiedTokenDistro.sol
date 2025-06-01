@@ -199,7 +199,11 @@ contract TokenDistroV1 is
      * Emits a {Allocate} event.
      *
      */
-    function _allocate(address recipient, uint256 amount, bool claim) internal {
+    function _allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) internal {
         require(
             !hasRole(DISTRIBUTOR_ROLE, recipient),
             "TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT"
@@ -250,17 +254,17 @@ contract TokenDistroV1 is
         }
     }
 
-    function allocateMany(
-        address[] memory recipients,
-        uint256[] memory amounts
-    ) external override {
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external
+        override
+    {
         _allocateMany(recipients, amounts);
     }
 
-    function sendGIVbacks(
-        address[] memory recipients,
-        uint256[] memory amounts
-    ) external override {
+    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts)
+        external
+        override
+    {
         _allocateMany(recipients, amounts);
         emit GivBackPaid(msg.sender);
     }
@@ -297,9 +301,12 @@ contract TokenDistroV1 is
      * @param timestamp Unix time to check the number of tokens claimable
      * @return Number of tokens claimable at that timestamp
      */
-    function globallyClaimableAt(
-        uint256 timestamp
-    ) public view override returns (uint256) {
+    function globallyClaimableAt(uint256 timestamp)
+        public
+        view
+        override
+        returns (uint256)
+    {
         if (timestamp < startTime) return 0;
         if (timestamp < cliffTime) return initialAmount;
         if (timestamp > startTime + duration) return totalTokens;
@@ -313,10 +320,12 @@ contract TokenDistroV1 is
      * @param recipient account to query
      * @param timestamp Instant of time in which the calculation is made
      */
-    function claimableAt(
-        address recipient,
-        uint256 timestamp
-    ) public view override returns (uint256) {
+    function claimableAt(address recipient, uint256 timestamp)
+        public
+        view
+        override
+        returns (uint256)
+    {
         require(
             !hasRole(DISTRIBUTOR_ROLE, recipient),
             "TokenDistro::claimableAt: DISTRIBUTOR_ROLE_CANNOT_CLAIM"
@@ -335,9 +344,12 @@ contract TokenDistroV1 is
      * Function to get the unlocked tokens for a specific address. It uses the current timestamp
      * @param recipient account to query
      */
-    function claimableNow(
-        address recipient
-    ) public view override returns (uint256) {
+    function claimableNow(address recipient)
+        public
+        view
+        override
+        returns (uint256)
+    {
         return claimableAt(recipient, getTimestamp());
     }
 
@@ -350,10 +362,10 @@ contract TokenDistroV1 is
      *
      * Formerly called cancelAllocation, this is an admin only function and should only be called manually
      */
-    function transferAllocation(
-        address prevRecipient,
-        address newRecipient
-    ) external override {
+    function transferAllocation(address prevRecipient, address newRecipient)
+        external
+        override
+    {
         require(cancelable, "TokenDistro::transferAllocation: NOT_CANCELABLE");
 
         require(
@@ -405,10 +417,9 @@ contract TokenDistroV1 is
         emit DurationChanged(newDuration);
     }
 
-    function _transferAllocation(
-        address prevRecipient,
-        address newRecipient
-    ) internal {
+    function _transferAllocation(address prevRecipient, address newRecipient)
+        internal
+    {
         require(
             balances[prevRecipient].allocatedTokens > 0,
             "TokenDistro::transferAllocation: NO_ALLOCATION_TO_TRANSFER"

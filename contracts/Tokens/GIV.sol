@@ -98,12 +98,20 @@ contract GIV is IERC20 {
         emit Transfer(from, address(0), value);
     }
 
-    function _approve(address owner, address spender, uint256 value) private {
+    function _approve(
+        address owner,
+        address spender,
+        uint256 value
+    ) private {
         allowance[owner][spender] = value;
         emit Approval(owner, spender, value);
     }
 
-    function _transfer(address from, address to, uint256 value) private {
+    function _transfer(
+        address from,
+        address to,
+        uint256 value
+    ) private {
         require(
             to != address(this) && to != address(0),
             "GIV:NOT_VALID_TRANSFER"
@@ -133,10 +141,11 @@ contract GIV is IERC20 {
             );
     }
 
-    function mint(
-        address to,
-        uint256 value
-    ) external onlyMinter returns (bool) {
+    function mint(address to, uint256 value)
+        external
+        onlyMinter
+        returns (bool)
+    {
         _mint(to, value);
         return true;
     }
@@ -150,18 +159,20 @@ contract GIV is IERC20 {
         return true;
     }
 
-    function approve(
-        address spender,
-        uint256 value
-    ) external override returns (bool) {
+    function approve(address spender, uint256 value)
+        external
+        override
+        returns (bool)
+    {
         _approve(msg.sender, spender, value);
         return true;
     }
 
-    function transfer(
-        address to,
-        uint256 value
-    ) external override returns (bool) {
+    function transfer(address to, uint256 value)
+        external
+        override
+        returns (bool)
+    {
         _transfer(msg.sender, to, value);
         return true;
     }

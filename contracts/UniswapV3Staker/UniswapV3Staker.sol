@@ -61,10 +61,7 @@ contract UniswapV3Staker is IUniswapV3Staker, Multicall {
     mapping(uint256 => mapping(bytes32 => Stake)) private _stakes;
 
     /// @inheritdoc IUniswapV3Staker
-    function stakes(
-        uint256 tokenId,
-        bytes32 incentiveId
-    )
+    function stakes(uint256 tokenId, bytes32 incentiveId)
         public
         view
         override
@@ -105,10 +102,10 @@ contract UniswapV3Staker is IUniswapV3Staker, Multicall {
     }
 
     /// @inheritdoc IUniswapV3Staker
-    function createIncentive(
-        IncentiveKey memory key,
-        uint256 reward
-    ) external override {
+    function createIncentive(IncentiveKey memory key, uint256 reward)
+        external
+        override
+    {
         require(
             reward > 0,
             "UniswapV3Staker::createIncentive: reward must be positive"
@@ -152,9 +149,11 @@ contract UniswapV3Staker is IUniswapV3Staker, Multicall {
     }
 
     /// @inheritdoc IUniswapV3Staker
-    function endIncentive(
-        IncentiveKey memory key
-    ) external override returns (uint256 refund) {
+    function endIncentive(IncentiveKey memory key)
+        external
+        override
+        returns (uint256 refund)
+    {
         require(
             block.timestamp >= key.endTime,
             "UniswapV3Staker::endIncentive: cannot end incentive before end time"
@@ -284,10 +283,10 @@ contract UniswapV3Staker is IUniswapV3Staker, Multicall {
     }
 
     /// @inheritdoc IUniswapV3Staker
-    function stakeToken(
-        IncentiveKey memory key,
-        uint256 tokenId
-    ) external override {
+    function stakeToken(IncentiveKey memory key, uint256 tokenId)
+        external
+        override
+    {
         require(
             deposits[tokenId].owner == msg.sender,
             "UniswapV3Staker::stakeToken: only owner can stake token"
@@ -297,10 +296,10 @@ contract UniswapV3Staker is IUniswapV3Staker, Multicall {
     }
 
     /// @inheritdoc IUniswapV3Staker
-    function unstakeToken(
-        IncentiveKey memory key,
-        uint256 tokenId
-    ) external override {
+    function unstakeToken(IncentiveKey memory key, uint256 tokenId)
+        external
+        override
+    {
         Deposit memory deposit = deposits[tokenId];
         // anyone can call unstakeToken if the block time is after the end time of the incentive
         if (block.timestamp < key.endTime) {
@@ -375,10 +374,7 @@ contract UniswapV3Staker is IUniswapV3Staker, Multicall {
     }
 
     /// @inheritdoc IUniswapV3Staker
-    function getRewardInfo(
-        IncentiveKey memory key,
-        uint256 tokenId
-    )
+    function getRewardInfo(IncentiveKey memory key, uint256 tokenId)
         external
         view
         override

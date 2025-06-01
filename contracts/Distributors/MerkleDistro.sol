@@ -30,10 +30,10 @@ contract MerkleDistro is
     // This is a packed array of booleans.
     mapping(uint256 => uint256) private claimedBitMap;
 
-    function initialize(
-        IDistro _tokenDistro,
-        bytes32 _merkleRoot
-    ) public initializer {
+    function initialize(IDistro _tokenDistro, bytes32 _merkleRoot)
+        public
+        initializer
+    {
         __Ownable_init();
         tokenDistro = _tokenDistro;
         merkleRoot = _merkleRoot;

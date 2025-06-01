@@ -67,7 +67,11 @@ interface IDistro {
      * @param amount allocated amount
      * @param claim whether claim after allocate
      */
-    function allocate(address recipient, uint256 amount, bool claim) external;
+    function allocate(
+        address recipient,
+        uint256 amount,
+        bool claim
+    ) external;
 
     /**
      * Function that allows to the distributor address to allocate some amounts of tokens to specific recipients
@@ -75,15 +79,11 @@ interface IDistro {
      * @param recipients of token allocation
      * @param amounts allocated amount
      */
-    function allocateMany(
-        address[] memory recipients,
-        uint256[] memory amounts
-    ) external;
+    function allocateMany(address[] memory recipients, uint256[] memory amounts)
+        external;
 
-    function sendGIVbacks(
-        address[] memory recipients,
-        uint256[] memory amounts
-    ) external;
+    function sendGIVbacks(address[] memory recipients, uint256[] memory amounts)
+        external;
 
     /**
      * Function that allows a recipient to change its address
@@ -100,27 +100,26 @@ interface IDistro {
     /**
      * Function to get the total unlocked tokes at some moment
      */
-    function globallyClaimableAt(
-        uint256 timestamp
-    ) external view returns (uint256);
+    function globallyClaimableAt(uint256 timestamp)
+        external
+        view
+        returns (uint256);
 
     /**
      * Function to get the unlocked tokes at some moment for a specific address
      */
-    function claimableAt(
-        address recipient,
-        uint256 timestamp
-    ) external view returns (uint256);
+    function claimableAt(address recipient, uint256 timestamp)
+        external
+        view
+        returns (uint256);
 
     /**
      * Function to get the unlocked tokens for a specific address. It uses the current timestamp
      */
     function claimableNow(address recipient) external view returns (uint256);
 
-    function transferAllocation(
-        address prevRecipient,
-        address newRecipient
-    ) external;
+    function transferAllocation(address prevRecipient, address newRecipient)
+        external;
 
     function sendPraiseRewards(
         address[] memory recipients,
