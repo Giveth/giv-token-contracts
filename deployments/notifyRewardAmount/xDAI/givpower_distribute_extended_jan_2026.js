@@ -8,17 +8,17 @@ const pools = [
         address: "0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2",
 
         // https://github.com/Giveth/giveth-dapps-v2/issues/4434
-        amount: "1973270",
+        amount: "2125010",
     }, // Garden Unipool
 ];
 
 // Two decimals of precision -> 615 = 6.15
 const distro = [
     // https://github.com/Giveth/giveth-dapps-v2/issues/5486
-    769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769,
+    714, 714, 714, 714, 714, 714, 714, 714, 714, 714, 714, 714, 714, 714,
 ];
 
-const initTime = 1768921200; // Timestamp of first round in seconds: Tuesday, JAN 20, 2026 15:00:00 GMT
+const initTime = 1767891600; // Timestamp of first round in seconds: Thursday, JAN 08, 2026 17:00:00 GMT
 
 let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
