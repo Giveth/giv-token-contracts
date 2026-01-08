@@ -15,7 +15,7 @@ const pools = [
 // Two decimals of precision -> 615 = 6.15
 const distro = [
     // https://github.com/Giveth/giveth-dapps-v2/issues/5486
-    660, 668, 676, 685, 693, 701, 711, 719, 727, 735, 744, 752, 760, 769,
+    769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769, 769,
 ];
 
 const initTime = 1768921200; // Timestamp of first round in seconds: Tuesday, JAN 20, 2026 15:00:00 GMT
