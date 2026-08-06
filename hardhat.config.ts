@@ -123,7 +123,7 @@ const config: HardhatUserConfig = {
         },
         xDAI: {
             url: "https://rpc.gnosischain.com/",
-            gasPrice: 2000000000,
+            // gasPrice: 2000000000,
             accounts: process.env.PRIVATE_KEY_XDAI
                 ? [`${process.env.PRIVATE_KEY_XDAI}`]
                 : [],
