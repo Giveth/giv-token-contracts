@@ -19,21 +19,30 @@ const distro = [
 
 const initTime = 1715709600; // Timestamp of first round in seconds: Tuesday, MAY 14, 2024 18:00:00 GMT
 
-let UnipoolTokenDistributor, currentTime, nonce;
 async function main() {
     console.log("Trying to call notifyRewardAmount...", {
         date: new Date().toString(),
     });
-    currentTime = Math.floor(Date.now() / 1000);
+    const currentTime = Math.floor(Date.now() / 1000);
     const [signer, ...addrs] = await ethers.getSigners();
-    nonce = await signer.getTransactionCount();
-    UnipoolTokenDistributor = await ethers.getContractFactory(
+    const nonce = await signer.getTransactionCount();
+    const UnipoolTokenDistributor = await ethers.getContractFactory(
         "UnipoolTokenDistributor",
     );
-    await notifyRewardAmount(pools[0]);
+    await notifyRewardAmount(
+        pools[0],
+        UnipoolTokenDistributor,
+        nonce,
+        currentTime,
+    );
 }
 
-async function notifyRewardAmount(pool) {
+async function notifyRewardAmount(
+    pool,
+    UnipoolTokenDistributor,
+    nonce,
+    currentTime,
+) {
     const unipoolTokenDistributor = await UnipoolTokenDistributor.attach(
         pool.address,
     );
@@ -59,7 +68,6 @@ async function notifyRewardAmount(pool) {
         const tx = await (
             await unipoolTokenDistributor.notifyRewardAmount(amount, { nonce })
         ).wait();
-        nonce += 1;
         console.log("tx:", tx);
         await sendReportEmail({
             farm: "Giv power",
